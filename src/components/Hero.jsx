@@ -11,7 +11,7 @@ const imgAvatar3 = "/figma/0a4b11473240ff5a19a7a51cc2920133cf790b96.png";
 
 export default function Hero() {
   return (
-    <section className="relative w-full bg-[#05162e] min-h-[900px] xl:h-[1066px] overflow-hidden" data-node-id="1:927">
+    <section className="relative w-full bg-[#05162e] min-h-[640px] 2xl:h-[1066px] overflow-hidden" data-node-id="1:927">
       {/* Background Container matching Frame 2085663478 */}
       <div className="absolute inset-0 size-full pointer-events-none overflow-hidden" data-node-id="1:928">
         {/* Hero Background Team Image */}
@@ -40,47 +40,47 @@ export default function Hero() {
 
         {/* Floating Stat Card 1 (IRS Accuracy Rate) - Desktop pinned exact Figma coords at 1920px, responsive at 1440px */}
         <div 
-          className="hidden xl:flex absolute backdrop-blur-[10px] bg-[rgba(15,39,61,0.6)] border border-white/10 flex-col gap-[4px] items-start justify-center xl:left-auto xl:right-[140px] xl:top-[180px] xl:translate-x-0 xl:translate-y-0 2xl:right-auto 2xl:left-[calc(50%+199px)] 2xl:top-[calc(50%-288px)] 2xl:-translate-x-1/2 2xl:-translate-y-1/2 overflow-clip px-[20px] py-[16px] rounded-[20px] z-20 pointer-events-auto shadow-xl" 
+          className="hidden xl:flex absolute backdrop-blur-[10px] bg-[rgba(15,39,61,0.6)] border border-white/10 flex-col gap-[4px] items-start justify-center xl:left-[53.5%] xl:top-[7.5%] xl:translate-x-0 xl:translate-y-0 xl:right-auto 2xl:right-auto 2xl:left-[calc(50%+199px)] 2xl:top-[calc(50%-288px)] 2xl:-translate-x-1/2 2xl:-translate-y-1/2 overflow-clip p-3.5 2xl:px-[20px] 2xl:py-[16px] rounded-[20px] z-20 pointer-events-auto shadow-xl xl:w-[220px] 2xl:w-[248px]" 
           data-node-id="1:929"
         >
-          <div className="relative shrink-0 size-[24px]" data-node-id="1:930">
+          <div className="relative shrink-0 size-5 2xl:size-[24px]" data-node-id="1:930">
             <img alt="Target" className="size-full" src={imgTarget} />
           </div>
-          <p className="font-bold text-[20px] text-white leading-normal whitespace-nowrap" data-node-id="1:931">
+          <p className="font-bold text-[18px] 2xl:text-[20px] text-white leading-normal whitespace-nowrap" data-node-id="1:931">
             99.4%
           </p>
-          <p className="font-normal opacity-60 text-[14px] text-white leading-normal whitespace-nowrap" data-node-id="1:932">
+          <p className="font-normal opacity-60 text-[12px] 2xl:text-[14px] text-white leading-normal whitespace-nowrap" data-node-id="1:932">
             IRS Accuracy &amp; Compliance Rate
           </p>
         </div>
 
         {/* Floating Stat Card 2 (Full Audit Shield) - Desktop pinned exact Figma coords at 1920px, responsive at 1440px */}
         <div 
-          className="hidden xl:flex absolute backdrop-blur-[10px] bg-[rgba(15,39,61,0.6)] border border-white/10 flex-col gap-[4px] items-start justify-center xl:left-auto xl:right-[40px] xl:top-[560px] xl:translate-x-0 xl:translate-y-0 2xl:right-auto 2xl:left-[calc(50%+693px)] 2xl:top-[calc(50%+202px)] 2xl:-translate-x-1/2 2xl:-translate-y-1/2 overflow-clip px-[20px] py-[16px] rounded-[20px] z-20 pointer-events-auto shadow-xl" 
+          className="hidden xl:flex absolute backdrop-blur-[10px] bg-[rgba(15,39,61,0.6)] border border-white/10 flex-col gap-[4px] items-start justify-center xl:right-[100px] xl:top-[59%] xl:left-auto xl:translate-x-0 xl:translate-y-0 2xl:right-auto 2xl:left-[calc(50%+693px)] 2xl:top-[calc(50%+202px)] 2xl:-translate-x-1/2 2xl:-translate-y-1/2 overflow-clip p-3.5 2xl:px-[20px] 2xl:py-[16px] rounded-[20px] z-20 pointer-events-auto shadow-xl xl:w-[200px] 2xl:w-[214px]" 
           data-node-id="1:933"
         >
-          <div className="relative shrink-0 size-[24px]" data-node-id="1:934">
+          <div className="relative shrink-0 size-5 2xl:size-[24px]" data-node-id="1:934">
             <img alt="Shield" className="size-full" src={imgShieldCheck} />
           </div>
-          <p className="font-bold text-[20px] text-white leading-normal whitespace-nowrap" data-node-id="1:935">
+          <p className="font-bold text-[18px] 2xl:text-[20px] text-white leading-normal whitespace-nowrap" data-node-id="1:935">
             100%
           </p>
-          <p className="font-normal opacity-60 text-[14px] text-white leading-normal whitespace-nowrap" data-node-id="1:936">
+          <p className="font-normal opacity-60 text-[12px] 2xl:text-[14px] text-white leading-normal whitespace-nowrap" data-node-id="1:936">
             Full Audit Shield Protection
           </p>
         </div>
       </div>
 
       {/* Main Content Column (Node 1:938) */}
-      <div className="relative z-10 max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 2xl:px-[160px] pt-16 pb-20 sm:pt-24 sm:pb-28 xl:pt-[120px] xl:pb-[160px]">
-        <div className="max-w-[713px] flex flex-col gap-10 sm:gap-14 xl:gap-[80px] items-start" data-node-id="1:938">
+      <div className="relative z-10 max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[160px] pt-12 pb-16 sm:pt-16 sm:pb-20 xl:pt-[90px] xl:pb-[118px] 2xl:pt-[120px] 2xl:pb-[160px]">
+        <div className="max-w-[713px] flex flex-col gap-8 sm:gap-12 xl:gap-[36px] 2xl:gap-[80px] items-start" data-node-id="1:938">
           
           {/* Text and Actions (Node 1:939) */}
-          <div className="flex flex-col gap-6 sm:gap-[30px] items-start w-full" data-node-id="1:939">
+          <div className="flex flex-col gap-6 sm:gap-[30px] xl:gap-[24px] 2xl:gap-[30px] items-start w-full" data-node-id="1:939">
             
             {/* Title and Subtitle (Node 1:940) */}
-            <div className="flex flex-col gap-4 sm:gap-[20px] items-start w-full" data-node-id="1:940">
-              <div className="flex flex-col font-extrabold text-3xl sm:text-5xl xl:text-[48px] 2xl:text-[64px] tracking-tight leading-[1.1] xl:leading-[54px] 2xl:leading-[70px] w-full" data-node-id="1:941">
+            <div className="flex flex-col gap-4 sm:gap-[20px] xl:gap-[16px] 2xl:gap-[20px] items-start w-full" data-node-id="1:940">
+              <div className="flex flex-col font-extrabold text-3xl sm:text-5xl xl:text-[46px] 2xl:text-[64px] tracking-tight leading-[1.1] xl:leading-[52px] 2xl:leading-[70px] w-full" data-node-id="1:941">
                 <span className="text-white" data-node-id="1:942">
                   Tax Experts At Your Service.
                 </span>
@@ -88,19 +88,19 @@ export default function Hero() {
                   Your Year-Round Financial Partner.
                 </span>
               </div>
-              <p className="font-semibold text-base sm:text-lg xl:text-[16px] 2xl:text-[20px] text-white leading-relaxed xl:leading-[26px] 2xl:leading-normal max-w-[622px]" data-node-id="1:944">
+              <p className="font-semibold text-base sm:text-lg xl:text-[15px] 2xl:text-[20px] text-white leading-relaxed xl:leading-[24px] 2xl:leading-normal max-w-[622px]" data-node-id="1:944">
                 From personal tax returns to small business bookkeeping, payroll, and IRS audit defense — TAXMAX gives you close, personal attention backed by decades of experience so you never overpay or stress over taxes.
               </p>
             </div>
 
             {/* Action Buttons (Node 1:945) */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 2xl:gap-[20px] pt-2" data-node-id="1:945">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 xl:gap-3.5 2xl:gap-[20px] pt-1 xl:pt-2" data-node-id="1:945">
               <a 
                 href="#contact"
-                className="bg-[#0094c5] border border-white/10 flex gap-2 2xl:gap-[10px] items-center justify-center overflow-clip px-5 sm:px-6 xl:px-[20px] 2xl:px-[24px] py-3 sm:py-3.5 xl:py-[14px] 2xl:py-[16px] rounded-[100px] hover:bg-[#0082ad] transition-all shadow-lg hover:shadow-cyan-500/20 cursor-pointer text-center"
+                className="bg-[#0094c5] border border-white/10 flex gap-2 2xl:gap-[10px] items-center justify-center overflow-clip px-5 sm:px-6 xl:px-[18px] 2xl:px-[24px] py-3 sm:py-3.5 xl:py-[12px] 2xl:py-[16px] rounded-[100px] hover:bg-[#0082ad] transition-all shadow-lg hover:shadow-cyan-500/20 cursor-pointer text-center"
                 data-node-id="1:946"
               >
-                <span className="font-extrabold text-sm sm:text-base xl:text-[16px] 2xl:text-[20px] text-white whitespace-nowrap leading-normal" data-node-id="1:947">
+                <span className="font-extrabold text-sm sm:text-base xl:text-[15px] 2xl:text-[20px] text-white whitespace-nowrap leading-normal" data-node-id="1:947">
                   Upload Your Documents
                 </span>
                 <div className="size-4 sm:size-5 2xl:size-[24px] shrink-0" data-node-id="1:948">
@@ -110,10 +110,10 @@ export default function Hero() {
 
               <a 
                 href="#process"
-                className="backdrop-blur-[10px] bg-white/10 border border-white/10 flex gap-2 2xl:gap-[10px] items-center justify-center overflow-clip px-5 sm:px-6 xl:px-[20px] 2xl:px-[24px] py-3 sm:py-3.5 xl:py-[14px] 2xl:py-[16px] rounded-[100px] hover:bg-white/20 transition-all cursor-pointer text-center"
+                className="backdrop-blur-[10px] bg-white/10 border border-white/10 flex gap-2 2xl:gap-[10px] items-center justify-center overflow-clip px-5 sm:px-6 xl:px-[18px] 2xl:px-[24px] py-3 sm:py-3.5 xl:py-[12px] 2xl:py-[16px] rounded-[100px] hover:bg-white/20 transition-all cursor-pointer text-center"
                 data-node-id="1:949"
               >
-                <span className="font-extrabold text-sm sm:text-base xl:text-[16px] 2xl:text-[20px] text-white whitespace-nowrap leading-normal" data-node-id="1:950">
+                <span className="font-extrabold text-sm sm:text-base xl:text-[15px] 2xl:text-[20px] text-white whitespace-nowrap leading-normal" data-node-id="1:950">
                   See How It Works
                 </span>
                 <div className="size-4 sm:size-5 2xl:size-[24px] shrink-0" data-node-id="1:951">
@@ -124,7 +124,7 @@ export default function Hero() {
           </div>
 
           {/* Social Proof Divider and Metrics (Node 1:952) */}
-          <div className="flex flex-col gap-6 sm:gap-[46px] items-start w-full" data-node-id="1:952">
+          <div className="flex flex-col gap-5 sm:gap-[36px] xl:gap-[24px] 2xl:gap-[46px] items-start w-full" data-node-id="1:952">
             <div className="h-0 relative w-full" data-node-id="1:953">
               <div className="absolute inset-[-0.5px_0]">
                 <img alt="" className="block max-w-none size-full" src={imgVector4} />
@@ -133,19 +133,19 @@ export default function Hero() {
 
             <div className="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-[14px] items-center w-full" data-node-id="1:954">
               <div className="flex items-center shrink-0" data-node-id="1:955">
-                <div className="border-2 border-[#12253f] mr-[-7px] rounded-full shrink-0 size-[46px] overflow-hidden" data-node-id="1:956">
+                <div className="border-2 border-[#12253f] mr-[-7px] rounded-full shrink-0 size-9 2xl:size-[46px] overflow-hidden" data-node-id="1:956">
                   <img alt="" className="size-full object-cover rounded-full" src={imgAvatar1} />
                 </div>
-                <div className="border-2 border-[#12253f] mr-[-7px] rounded-full shrink-0 size-[46px] overflow-hidden" data-node-id="1:957">
+                <div className="border-2 border-[#12253f] mr-[-7px] rounded-full shrink-0 size-9 2xl:size-[46px] overflow-hidden" data-node-id="1:957">
                   <img alt="" className="size-full object-cover rounded-full" src={imgAvatar2} />
                 </div>
-                <div className="border-2 border-[#12253f] rounded-full shrink-0 size-[46px] overflow-hidden" data-node-id="1:958">
+                <div className="border-2 border-[#12253f] rounded-full shrink-0 size-9 2xl:size-[46px] overflow-hidden" data-node-id="1:958">
                   <img alt="" className="size-full object-cover rounded-full" src={imgAvatar3} />
                 </div>
               </div>
 
               <div className="flex-1 min-w-[200px]" data-node-id="1:959">
-                <p className="text-[15px] sm:text-[16px] text-white leading-snug">
+                <p className="text-[14px] 2xl:text-[16px] text-white leading-snug">
                   <strong className="font-bold">Over $18M Saved in Deductions </strong>
                   <span className="font-normal text-[#cfcfcf]">for small businesses, self-employed contractors, and families.</span>
                 </p>
