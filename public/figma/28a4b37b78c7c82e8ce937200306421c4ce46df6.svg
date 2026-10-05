@@ -1,0 +1,22 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="1048.29" height="836.571" viewBox="0 0 1048.29 836.571" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Group 11">
+<g id="Ellipse 6" opacity="0.3" filter="url(#filter0_f_6_679)">
+<ellipse cx="524.143" cy="418.286" rx="387" ry="281.143" fill="#0094C5"/>
+</g>
+<g id="Ellipse 7" opacity="0.7" filter="url(#filter1_f_6_679)">
+<ellipse cx="564.643" cy="418.143" rx="278.5" ry="151" fill="#0094C5"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_f_6_679" x="0" y="0" width="1048.29" height="836.571" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="68.5714" result="effect1_foregroundBlur_6_679"/>
+</filter>
+<filter id="filter1_f_6_679" x="149" y="130" width="831.286" height="576.286" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="68.5714" result="effect1_foregroundBlur_6_679"/>
+</filter>
+</defs>
+</svg>
