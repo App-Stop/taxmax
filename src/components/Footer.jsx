@@ -19,14 +19,14 @@ export default function Footer() {
               <a href="#" className="h-[40px] 2xl:h-[42px] 3xl:h-[45.729px] w-[160px] 2xl:w-[175px] 3xl:w-[190.8px] relative block" data-node-id="1:1767">
                 <img alt="TAXMAX" className="size-full object-contain" src={imgLogo} />
               </a>
-              <p className="font-normal text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] leading-relaxed xl:leading-[22px] 2xl:leading-[24px] 3xl:leading-[26px] opacity-80 text-[#cfcfcf] max-w-[420px]" data-node-id="1:1776">
+              <p className="font-normal text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] leading-relaxed xl:leading-[22px] 2xl:leading-[24px] 3xl:leading-[26px] opacity-80 text-[#cfcfcf] max-w-[420px]" data-node-id="1:1776">
                 From personal returns to small business accounting, payroll, and audit defense — secure and certified financial partnership.
               </p>
             </div>
 
             <div className="flex flex-col gap-3 2xl:gap-3.5 3xl:gap-[16px] items-start" data-node-id="1:1777">
               <div className="flex items-center" data-node-id="1:1778">
-                <p className="font-normal text-xs sm:text-sm xl:text-[13px] 2xl:text-[13.5px] 3xl:text-[14px] text-[#dcdcdc] leading-normal whitespace-nowrap" data-node-id="1:1779">
+                <p className="font-normal text-[11px] sm:text-[13px] xl:text-[12px] 2xl:text-[12.5px] 3xl:text-[12px] text-[#dcdcdc] leading-normal whitespace-nowrap" data-node-id="1:1779">
                   Minneapolis, MN • Remote Services Nationwide
                 </p>
               </div>
@@ -39,7 +39,7 @@ export default function Footer() {
                 <div className="relative shrink-0 size-6 2xl:size-[28px] 3xl:size-[32px]" data-node-id="1:1781">
                   <img alt="" className="size-full" src={imgPhoneCall} />
                 </div>
-                <span className="font-normal text-xs sm:text-sm xl:text-[13px] 2xl:text-[13.5px] 3xl:text-[14px] text-[#dcdcdc] leading-normal whitespace-nowrap" data-node-id="1:1782">
+                <span className="font-normal text-[11px] sm:text-[13px] xl:text-[12px] 2xl:text-[12.5px] 3xl:text-[12px] text-[#dcdcdc] leading-normal whitespace-nowrap" data-node-id="1:1782">
                   (612) 205-3354
                 </span>
               </a>
@@ -52,7 +52,7 @@ export default function Footer() {
                 <div className="relative shrink-0 size-6 2xl:size-[28px] 3xl:size-[32px]" data-node-id="1:1784">
                   <img alt="" className="size-full" src={imgEnvelope} />
                 </div>
-                <span className="font-normal text-xs sm:text-sm xl:text-[13px] 2xl:text-[13.5px] 3xl:text-[14px] text-[#dcdcdc] leading-normal whitespace-nowrap" data-node-id="1:1785">
+                <span className="font-normal text-[11px] sm:text-[13px] xl:text-[12px] 2xl:text-[12.5px] 3xl:text-[12px] text-[#dcdcdc] leading-normal whitespace-nowrap" data-node-id="1:1785">
                   taxmax@comcast.net
                 </span>
               </a>
@@ -64,10 +64,10 @@ export default function Footer() {
             
             {/* Column 1: Services (Node 1:1787) */}
             <div className="flex flex-col gap-3 2xl:gap-3.5 3xl:gap-[20px] items-start w-full sm:w-[140px] 2xl:w-[160px] 3xl:w-[180px]" data-node-id="1:1787">
-              <h4 className="font-bold text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] text-white uppercase tracking-wider" data-node-id="1:1788">
+              <h4 className="font-bold text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] text-white uppercase tracking-wider" data-node-id="1:1788">
                 Services
               </h4>
-              <div className="flex flex-col font-normal gap-2 2xl:gap-2.5 3xl:gap-[12px] items-start text-xs xl:text-[13px] 2xl:text-[13.5px] 3xl:text-[14px] text-[#cfcfcf]" data-node-id="1:1789">
+              <div className="flex flex-col font-normal gap-2 2xl:gap-2.5 3xl:gap-[12px] items-start text-[11px] xl:text-[12px] 2xl:text-[12.5px] 3xl:text-[12px] text-[#cfcfcf]" data-node-id="1:1789">
                 <a href="#services" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1790">Tax Preparation</a>
                 <a href="#services" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1791">Bookkeeping &amp; Advisory</a>
                 <a href="#services" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1792">Payroll Services</a>
@@ -78,10 +78,10 @@ export default function Footer() {
 
             {/* Column 2: Company (Node 1:1795) */}
             <div className="flex flex-col gap-3 2xl:gap-3.5 3xl:gap-[20px] items-start w-full sm:w-[140px] 2xl:w-[160px] 3xl:w-[180px]" data-node-id="1:1795">
-              <h4 className="font-bold text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] text-white uppercase tracking-wider" data-node-id="1:1796">
+              <h4 className="font-bold text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] text-white uppercase tracking-wider" data-node-id="1:1796">
                 Company
               </h4>
-              <div className="flex flex-col font-normal gap-2 2xl:gap-2.5 3xl:gap-[12px] items-start text-xs xl:text-[13px] 2xl:text-[13.5px] 3xl:text-[14px] text-[#cfcfcf]" data-node-id="1:1797">
+              <div className="flex flex-col font-normal gap-2 2xl:gap-2.5 3xl:gap-[12px] items-start text-[11px] xl:text-[12px] 2xl:text-[12.5px] 3xl:text-[12px] text-[#cfcfcf]" data-node-id="1:1797">
                 <a href="#why-us" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1798">About TAXMAX</a>
                 <a href="#why-us" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1799">Our Team</a>
                 <a href="#reviews" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1800">Customer Reviews</a>
@@ -92,10 +92,10 @@ export default function Footer() {
 
             {/* Column 3: Resources (Node 1:1803) */}
             <div className="flex flex-col gap-3 2xl:gap-3.5 3xl:gap-[20px] items-start w-full sm:w-[140px] 2xl:w-[160px] 3xl:w-[180px]" data-node-id="1:1803">
-              <h4 className="font-bold text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] text-white uppercase tracking-wider" data-node-id="1:1804">
+              <h4 className="font-bold text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] text-white uppercase tracking-wider" data-node-id="1:1804">
                 Resources
               </h4>
-              <div className="flex flex-col font-normal gap-2 2xl:gap-2.5 3xl:gap-[12px] items-start text-xs xl:text-[13px] 2xl:text-[13.5px] 3xl:text-[14px] text-[#cfcfcf]" data-node-id="1:1805">
+              <div className="flex flex-col font-normal gap-2 2xl:gap-2.5 3xl:gap-[12px] items-start text-[11px] xl:text-[12px] 2xl:text-[12.5px] 3xl:text-[12px] text-[#cfcfcf]" data-node-id="1:1805">
                 <a href="#estimator" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1806">Tax Estimator</a>
                 <a href="#faqs" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1807">2026 Deadlines</a>
                 <a href="#faqs" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1808">Record Retention Guide</a>
@@ -106,10 +106,10 @@ export default function Footer() {
 
             {/* Column 4: Security (Node 1:1811) */}
             <div className="flex flex-col gap-3 2xl:gap-3.5 3xl:gap-[20px] items-start w-full sm:w-[140px] 2xl:w-[160px] 3xl:w-[180px]" data-node-id="1:1811">
-              <h4 className="font-bold text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] text-white uppercase tracking-wider" data-node-id="1:1812">
+              <h4 className="font-bold text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] text-white uppercase tracking-wider" data-node-id="1:1812">
                 Security
               </h4>
-              <div className="flex flex-col font-normal gap-2 2xl:gap-2.5 3xl:gap-[12px] items-start text-xs xl:text-[13px] 2xl:text-[13.5px] 3xl:text-[14px] text-[#cfcfcf]" data-node-id="1:1813">
+              <div className="flex flex-col font-normal gap-2 2xl:gap-2.5 3xl:gap-[12px] items-start text-[11px] xl:text-[12px] 2xl:text-[12.5px] 3xl:text-[12px] text-[#cfcfcf]" data-node-id="1:1813">
                 <a href="#reviews" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1814">IRS Accuracy Rate</a>
                 <a href="#why-us" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1815">Audit Shield</a>
                 <a href="#services" className="opacity-80 hover:opacity-100 hover:text-white transition-opacity" data-node-id="1:1816">Compliance Shield</a>
@@ -127,7 +127,7 @@ export default function Footer() {
           className="border-y border-[rgba(255,255,255,0.1)] py-[24px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full" 
           data-node-id="1:1819"
         >
-          <p className="font-normal text-[14px] text-[#cfcfcf] opacity-80 whitespace-nowrap" data-node-id="1:1820">
+          <p className="font-normal text-[13px] 3xl:text-[12px] text-[#cfcfcf] opacity-80 whitespace-nowrap" data-node-id="1:1820">
             Connect with our financial community online:
           </p>
           <div className="flex gap-[16px] items-start shrink-0" data-node-id="1:1821">
@@ -157,7 +157,7 @@ export default function Footer() {
 
         {/* Footer Bottom Bar (Node 1:1825) */}
         <div 
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full text-[14px]" 
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full text-[13px] 3xl:text-[12px]" 
           data-node-id="1:1825"
         >
           <div className="flex items-center" data-node-id="1:1826">

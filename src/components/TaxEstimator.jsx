@@ -56,10 +56,10 @@ export default function TaxEstimator() {
         
         {/* Section Header (Node 1:1614) */}
         <div className="flex flex-col gap-2 2xl:gap-[8px] 3xl:gap-[10px] items-center text-center max-w-[800px]" data-node-id="1:1614">
-          <h2 className="font-bold text-2xl sm:text-3xl xl:text-[34px] 2xl:text-[40px] 3xl:text-[48px] tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px] text-black w-full" data-node-id="1:1615">
+          <h2 className="font-bold text-[23px] sm:text-[29px] xl:text-[33px] 2xl:text-[39px] 3xl:text-[46px] tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px] text-black w-full" data-node-id="1:1615">
             Estimate Your Potential Tax Strategy &amp; Savings
           </h2>
-          <p className="font-medium text-sm sm:text-base xl:text-[15px] 2xl:text-[17px] 3xl:text-[20px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black w-full" data-node-id="1:1616">
+          <p className="font-medium text-[13px] sm:text-[15px] xl:text-[14px] 2xl:text-[16px] 3xl:text-[18px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black w-full" data-node-id="1:1616">
             Select your filing entity and revenue to see how much proactive tax planning and certified bookkeeping can save your business.
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function TaxEstimator() {
             
             {/* Step 1: Entity Selection (Node 1:1619) */}
             <div className="flex flex-col gap-2 2xl:gap-[8px] 3xl:gap-[10px] items-start w-full" data-node-id="1:1619">
-              <label className="font-bold text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] leading-normal text-black w-full" data-node-id="1:1620">
+              <label className="font-bold text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] leading-normal text-black w-full" data-node-id="1:1620">
                 1. Select Filing Entity / Status
               </label>
               
@@ -96,10 +96,10 @@ export default function TaxEstimator() {
                       }`}
                       data-node-id={entity.nodeId}
                     >
-                      <span className={`text-xs sm:text-sm xl:text-[13px] 2xl:text-[14.5px] 3xl:text-[16px] leading-snug whitespace-nowrap text-[#111111] ${isSelected ? 'font-semibold' : 'font-normal'}`}>
+                      <span className={`text-[11px] sm:text-[13px] xl:text-[12px] 2xl:text-[13.5px] 3xl:text-[14px] leading-snug whitespace-nowrap text-[#111111] ${isSelected ? 'font-semibold' : 'font-normal'}`}>
                         {entity.title}
                       </span>
-                      <span className="text-[11px] sm:text-xs xl:text-[11px] 2xl:text-[12.5px] 3xl:text-[14px] leading-tight opacity-80 text-[#111111] whitespace-nowrap">
+                      <span className="text-[10px] sm:text-[11px] xl:text-[10px] 2xl:text-[11.5px] 3xl:text-[12px] leading-tight opacity-80 text-[#111111] whitespace-nowrap">
                         {entity.subtitle}
                       </span>
                     </button>
@@ -110,11 +110,11 @@ export default function TaxEstimator() {
 
             {/* Step 2: Revenue Slider (Node 1:1631) */}
             <div className="flex flex-col gap-3 2xl:gap-3.5 3xl:gap-[20px] items-start w-full" data-node-id="1:1631">
-              <div className="flex items-center justify-between leading-normal text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] w-full" data-node-id="1:1632">
+              <div className="flex items-center justify-between leading-normal text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] w-full" data-node-id="1:1632">
                 <span className="font-bold text-black" data-node-id="1:1633">
                   2. Estimated Annual Gross Income / Revenue
                 </span>
-                <span className="font-extrabold text-sm sm:text-base xl:text-[16px] 2xl:text-[17px] 3xl:text-[18px] text-[#0094c5] text-right" data-node-id="1:1634">
+                <span className="font-extrabold text-[13px] sm:text-[15px] xl:text-[15px] 2xl:text-[16px] 3xl:text-[16px] text-[#0094c5] text-right" data-node-id="1:1634">
                   {formatCurrency(revenue)}
                 </span>
               </div>
@@ -132,7 +132,7 @@ export default function TaxEstimator() {
                 />
               </div>
 
-              <div className="flex items-center justify-between font-normal text-xs xl:text-[12px] 2xl:text-[13px] 3xl:text-[14px] text-[#111111] leading-none w-full" data-node-id="1:1643">
+              <div className="flex items-center justify-between font-normal text-[11px] xl:text-[11px] 2xl:text-[12px] 3xl:text-[12px] text-[#111111] leading-none w-full" data-node-id="1:1643">
                 <span className="opacity-80" data-node-id="1:1644">$30,000</span>
                 <span className="opacity-80" data-node-id="1:1645">$1,000,000+</span>
               </div>
@@ -140,11 +140,11 @@ export default function TaxEstimator() {
 
             {/* Step 3: Expenses Slider (Node 1:1646) */}
             <div className="flex flex-col gap-3 2xl:gap-3.5 3xl:gap-[20px] items-start w-full" data-node-id="1:1646">
-              <div className="flex items-center justify-between leading-normal text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] w-full" data-node-id="1:1647">
+              <div className="flex items-center justify-between leading-normal text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] w-full" data-node-id="1:1647">
                 <span className="font-bold text-black" data-node-id="1:1648">
                   3. Estimated Annual Operating Expenses
                 </span>
-                <span className="font-extrabold text-sm sm:text-base xl:text-[16px] 2xl:text-[17px] 3xl:text-[18px] text-[#0094c5] text-right" data-node-id="1:1649">
+                <span className="font-extrabold text-[13px] sm:text-[15px] xl:text-[15px] 2xl:text-[16px] 3xl:text-[16px] text-[#0094c5] text-right" data-node-id="1:1649">
                   {formatCurrency(expenses)}
                 </span>
               </div>
@@ -162,7 +162,7 @@ export default function TaxEstimator() {
                 />
               </div>
 
-              <div className="flex items-center justify-between font-normal text-xs xl:text-[12px] 2xl:text-[13px] 3xl:text-[14px] text-[#111111] leading-none w-full" data-node-id="1:1658">
+              <div className="flex items-center justify-between font-normal text-[11px] xl:text-[11px] 2xl:text-[12px] 3xl:text-[12px] text-[#111111] leading-none w-full" data-node-id="1:1658">
                 <span className="opacity-80" data-node-id="1:1659">$5,000</span>
                 <span className="opacity-80" data-node-id="1:1660">$500,000+</span>
               </div>
@@ -182,10 +182,10 @@ export default function TaxEstimator() {
 
             {/* Eligible Deductions (Node 1:1665) */}
             <div className="relative z-10 flex flex-col gap-1 2xl:gap-[4px] items-start w-full" data-node-id="1:1665">
-              <span className="font-normal text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] opacity-80 leading-normal" data-node-id="1:1666">
+              <span className="font-normal text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] opacity-80 leading-normal" data-node-id="1:1666">
                 Estimated Eligible Deductions
               </span>
-              <p className="font-bold text-2xl sm:text-3xl xl:text-[30px] 2xl:text-[33px] 3xl:text-[36px] text-white leading-normal tracking-tight" data-node-id="1:1667">
+              <p className="font-bold text-[23px] sm:text-[29px] xl:text-[29px] 2xl:text-[32px] 3xl:text-[34px] text-white leading-normal tracking-tight" data-node-id="1:1667">
                 {formatCurrency(eligibleDeductions)}
               </p>
             </div>
@@ -197,10 +197,10 @@ export default function TaxEstimator() {
 
             {/* Estimated Annual Tax Savings (Node 1:1669) */}
             <div className="relative z-10 flex flex-col gap-1 2xl:gap-[4px] items-start w-full" data-node-id="1:1669">
-              <span className="font-normal text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] opacity-80 leading-normal" data-node-id="1:1670">
+              <span className="font-normal text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] opacity-80 leading-normal" data-node-id="1:1670">
                 Estimated Annual Tax Savings
               </span>
-              <p className="font-bold text-2xl sm:text-3xl xl:text-[30px] 2xl:text-[33px] 3xl:text-[36px] text-[#4eff6f] leading-normal tracking-tight" data-node-id="1:1671">
+              <p className="font-bold text-[23px] sm:text-[29px] xl:text-[29px] 2xl:text-[32px] 3xl:text-[34px] text-[#4eff6f] leading-normal tracking-tight" data-node-id="1:1671">
                 {formatCurrency(estimatedSavings)}
               </p>
             </div>
@@ -210,10 +210,10 @@ export default function TaxEstimator() {
               className="relative z-10 backdrop-blur-[10px] bg-white/10 border border-white/10 p-2.5 2xl:p-[10px] 3xl:p-[12px] rounded-[10px] flex flex-col gap-1 2xl:gap-[4px] items-center justify-center leading-normal w-full" 
               data-node-id="1:1672"
             >
-              <span className="font-bold text-[10px] 2xl:text-[11px] 3xl:text-[12px] text-[#1472ff] uppercase w-full" data-node-id="1:1673">
+              <span className="font-bold text-[9px] 2xl:text-[10px] 3xl:text-[10px] text-[#1472ff] uppercase w-full" data-node-id="1:1673">
                 RECOMMENDED STRATEGY
               </span>
-              <p className="font-normal text-xs xl:text-[12px] 2xl:text-[13px] 3xl:text-[14px] text-white w-full" data-node-id="1:1674">
+              <p className="font-normal text-[11px] xl:text-[11px] 2xl:text-[12px] 3xl:text-[12px] text-white w-full" data-node-id="1:1674">
                 {selectedEntity.strategy}
               </p>
             </div>
@@ -224,7 +224,7 @@ export default function TaxEstimator() {
               className="relative z-10 bg-[#0094c5] border border-white/10 px-4 xl:px-5 2xl:px-[20px] 3xl:px-[24px] py-3 xl:py-3.5 2xl:py-[14px] 3xl:py-[16px] rounded-[100px] flex gap-2 2xl:gap-2.5 3xl:gap-[10px] items-center justify-center w-full hover:bg-[#0082ad] transition-all shadow-md cursor-pointer text-center"
               data-node-id="1:1675"
             >
-              <span className="font-extrabold text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] text-white capitalize leading-normal whitespace-nowrap" data-node-id="1:1676">
+              <span className="font-extrabold text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] text-white capitalize leading-normal whitespace-nowrap" data-node-id="1:1676">
                 Upload Documents to Claim Savings
               </span>
               <div className="relative shrink-0 size-4 sm:size-5 2xl:size-[22px] 3xl:size-[24px]" data-node-id="1:1677">

@@ -35,10 +35,10 @@ export default function Stats() {
               className="flex flex-col gap-1 sm:gap-2 2xl:gap-2 3xl:gap-[10px] items-center justify-center flex-1"
               data-node-id={stat.nodeId}
             >
-              <div className="font-extrabold text-2xl sm:text-3xl xl:text-[36px] 2xl:text-[42px] 3xl:text-[48px] leading-normal whitespace-nowrap">
+              <div className="font-extrabold text-[23px] sm:text-[29px] xl:text-[35px] 2xl:text-[41px] 3xl:text-[46px] leading-normal whitespace-nowrap">
                 {stat.value}
               </div>
-              <p className="font-medium text-xs sm:text-sm xl:text-[13px] 2xl:text-[14.5px] 3xl:text-[16px] leading-tight sm:leading-snug 2xl:leading-[20px] 3xl:leading-[22px] w-full max-w-[200px] 2xl:max-w-[220px] text-white">
+              <p className="font-medium text-[11px] sm:text-[13px] xl:text-[12px] 2xl:text-[13.5px] 3xl:text-[14px] leading-tight sm:leading-snug 2xl:leading-[20px] 3xl:leading-[22px] w-full max-w-[200px] 2xl:max-w-[220px] text-white">
                 {stat.label}
               </p>
             </div>

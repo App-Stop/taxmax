@@ -40,7 +40,7 @@ export default function TrustBar() {
               <div className="relative shrink-0 size-[32px] 2xl:size-[36px] 3xl:size-[40px]">
                 <img alt={item.title} className="size-full" src={item.icon} />
               </div>
-              <p className="font-semibold text-base sm:text-lg xl:text-[18px] 2xl:text-[20px] 3xl:text-[24px] text-[#111111] leading-normal whitespace-nowrap">
+              <p className="font-semibold text-[15px] sm:text-[17px] xl:text-[17px] 2xl:text-[19px] 3xl:text-[22px] text-[#111111] leading-normal whitespace-nowrap">
                 {item.title}
               </p>
             </div>

@@ -33,9 +33,9 @@ const pillars = [
 
 export default function WhyUs() {
   return (
-    <section id="why-us" className="w-full bg-white py-16 sm:py-24 xl:py-[100px]" data-node-id="1:1580">
-      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px]">
-        <div className="flex flex-col xl:flex-row gap-10 xl:gap-10 2xl:gap-12 3xl:gap-[80px] items-center">
+    <section id="why-us" className="w-full bg-white py-16 sm:py-24 xl:py-[200px]" data-node-id="1:1580">
+      <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px]">
+        <div className="flex flex-col xl:flex-row gap-10 xl:gap-10 2xl:gap-20 items-center">
           
           {/* Left Column: Entire Frame 1:1581 as 1 single asset (Node 1:1581) */}
           <div className="relative w-full xl:w-[460px] 2xl:w-[540px] 3xl:w-[704px] shrink-0" data-node-id="1:1581">
@@ -51,13 +51,13 @@ export default function WhyUs() {
             
             {/* Title & Narrative (Node 1:1589) */}
             <div className="flex flex-col gap-2 2xl:gap-[8px] 3xl:gap-[10px] items-start w-full" data-node-id="1:1589">
-              <h2 className="font-bold text-2xl sm:text-3xl xl:text-[34px] 2xl:text-[40px] 3xl:text-[48px] tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px] text-black w-full" data-node-id="1:1590">
+              <h2 className="font-bold text-[23px] sm:text-[29px] xl:text-[33px] 2xl:text-[39px] 3xl:text-[48px] tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px] text-black w-full" data-node-id="1:1590">
                 <span>We View Every Client Relationship Like a </span>
                 <span className="bg-clip-text bg-gradient-to-r from-[#0094c5] to-[#0074bc] text-transparent">
                   True Partnership.
                 </span>
               </h2>
-              <p className="font-medium text-sm sm:text-base xl:text-[15px] 2xl:text-[17px] 3xl:text-[20px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black w-full" data-node-id="1:1591">
+              <p className="font-medium text-[13px] sm:text-[15px] xl:text-[14px] 2xl:text-[16px] 3xl:text-[18px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black w-full" data-node-id="1:1591">
                 Most tax preparers vanish after April 15th, but at TAXMAX Consulting, we treat your taxes as a year-round tool for financial security and growth. We build strong relationships, giving each client personal attention backed by expertise. From accurate returns to payroll and audit support, we're here all year so you can focus on your business.
               </p>
             </div>
@@ -66,12 +66,12 @@ export default function WhyUs() {
             <div className="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 2xl:gap-4 3xl:gap-[20px] items-center w-full" data-node-id="1:1592">
               <a 
                 href="#contact"
-                className="bg-[#0094c5] border border-white/10 px-5 sm:px-6 xl:px-[20px] 2xl:px-[22px] 3xl:px-[24px] py-3 sm:py-3.5 xl:py-[14px] 2xl:py-[15px] 3xl:py-[16px] rounded-[100px] font-extrabold text-sm sm:text-base xl:text-[16px] 2xl:text-[18px] 3xl:text-[20px] text-white hover:bg-[#0082ad] transition-all shadow-lg hover:shadow-cyan-500/20 shrink-0 cursor-pointer text-center"
+                className="bg-[#0094c5] border border-white/10 px-5 sm:px-6 xl:px-[20px] 2xl:px-[22px] 3xl:px-[20px] py-3 sm:py-3.5 xl:py-3 rounded-[100px] font-extrabold text-[13px] sm:text-[15px] xl:text-[15px] 2xl:text-[17px] 3xl:text-[16px] text-white hover:bg-[#0082ad] transition-all shadow-lg hover:shadow-cyan-500/20 shrink-0 cursor-pointer text-center"
                 data-node-id="1:1593"
               >
                 Upload Documents
               </a>
-              <p className="font-normal text-xs sm:text-sm xl:text-[14px] 2xl:text-[16px] 3xl:text-[20px] leading-snug xl:leading-[22px] 2xl:leading-[25px] 3xl:leading-[30px] text-[#444444] flex-1" data-node-id="1:1595">
+              <p className="font-normal text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[15px] 3xl:text-[18px] leading-snug xl:leading-[22px] 2xl:leading-[25px] 3xl:leading-[30px] text-[#444444] flex-1" data-node-id="1:1595">
                 Ready to file? Upload your documents securely and we'll handle the rest.
               </p>
             </div>
@@ -87,10 +87,10 @@ export default function WhyUs() {
                   <div className="relative shrink-0 size-[32px] 2xl:size-[36px] 3xl:size-[40px]">
                     <img alt="" className="size-full" src={pillar.icon} />
                   </div>
-                  <h3 className="font-bold text-base sm:text-lg xl:text-[17px] 2xl:text-[18.5px] 3xl:text-[20px] text-[#111111] leading-normal whitespace-nowrap">
+                  <h3 className="font-bold text-[15px] sm:text-[17px] xl:text-[16px] 2xl:text-[17.5px] 3xl:text-[18px] text-[#111111] leading-normal whitespace-nowrap">
                     {pillar.title}
                   </h3>
-                  <p className="font-normal text-xs sm:text-sm xl:text-[13px] 2xl:text-[14px] 3xl:text-[16px] text-[#111111] opacity-80 leading-relaxed xl:leading-[20px] 2xl:leading-[22px] 3xl:leading-[24px]">
+                  <p className="font-normal text-[11px] sm:text-[13px] xl:text-[12px] 2xl:text-[13px] 3xl:text-[14px] text-[#111111] opacity-80 leading-relaxed xl:leading-[20px] 2xl:leading-[22px] 3xl:leading-[24px]">
                     {pillar.description}
                   </p>
                 </div>

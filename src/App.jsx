@@ -5,7 +5,7 @@ import Services from './components/Services';
 import Process from './components/Process';
 import Stats from './components/Stats';
 import WhyUs from './components/WhyUs';
-import TaxEstimator from './components/TaxEstimator';
+import IrsEstimates from './components/IrsEstimates';
 import FreeTools from './components/FreeTools';
 import Testimonials from './components/Testimonials';
 import FAQ from './components/FAQ';
@@ -37,8 +37,8 @@ export default function App() {
         {/* 7. Why TAXMAX / Partnership */}
         <WhyUs />
 
-        {/* 8. Tax Strategy & Savings Estimator */}
-        <TaxEstimator />
+        {/* 8. IRS Tax Estimates & Information */}
+        <IrsEstimates />
 
         {/* 9. Free Tax Tools & Retention Guide */}
         <FreeTools />

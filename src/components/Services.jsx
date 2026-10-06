@@ -10,9 +10,8 @@ const imgImage18 = "/figma/4ddf288c7a19e078e381d14d1135a6f41a788918.png";
 const imgCheck = "/figma/b0fa55a265096965bf743f394e19a011dac79908.svg";
 const imgArrowRight = "/figma/8720f639cc94615397c005e94229b1e3166db1bb.svg";
 const imgAdobeExpressQrCode1 = "/figma/ade0003ecd704f4f58f8be66d8f520692faa8db1.svg";
-const imgGroup6894 = "/figma/7146400d00d6801605b2cdea6b0f7c246facf3d7.svg";
-const imgGroup6893 = "/figma/c388e7751a24b4ad6a2e5f7b086563f588eb52d4.svg";
-const imgPath90 = "/figma/1527a79d815d5f49d860a77d6582f671b77f30f5.svg";
+const imgAppStore = "/figma/appstore.png";
+const imgGoogleStore = "/figma/googlestore.png";
 
 const tabOptions = [
   'All Services',
@@ -121,10 +120,10 @@ export default function Services() {
         
         {/* Section Header (Node 1:1076) */}
         <div className="flex flex-col gap-2 2xl:gap-[8px] 3xl:gap-[10px] items-center text-center max-w-[857px]" data-node-id="1:1076">
-          <h2 className="font-bold text-2xl sm:text-3xl xl:text-[34px] 2xl:text-[40px] 3xl:text-[48px] tracking-tight text-black leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px]" data-node-id="1:1077">
+          <h2 className="font-bold text-[23px] sm:text-[29px] xl:text-[33px] 2xl:text-[39px] 3xl:text-[46px] tracking-tight text-black leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px]" data-node-id="1:1077">
             Full-Spectrum Tax &amp; Financial Advisory
           </h2>
-          <p className="font-medium text-sm sm:text-base xl:text-[15px] 2xl:text-[17px] 3xl:text-[20px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black" data-node-id="1:1078">
+          <p className="font-medium text-[13px] sm:text-[15px] xl:text-[14px] 2xl:text-[16px] 3xl:text-[18px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black" data-node-id="1:1078">
             From complex corporate filings to monthly QuickBooks reconciliations, we deliver precision, proactive deductions, and ironclad compliance.
           </p>
         </div>
@@ -141,7 +140,7 @@ export default function Services() {
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`min-w-[60px] px-3.5 xl:px-4 2xl:px-[16px] 3xl:px-[20px] py-2 xl:py-2.5 2xl:py-[10px] 3xl:py-[12px] rounded-[26px] text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] leading-[22px] 3xl:leading-[24px] cursor-pointer whitespace-nowrap transition-all ${
+                className={`min-w-[60px] px-3.5 xl:px-4 2xl:px-[16px] 3xl:px-[20px] py-2 xl:py-2.5 2xl:py-[10px] 3xl:py-[12px] rounded-[26px] text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] leading-[22px] 3xl:leading-[24px] cursor-pointer whitespace-nowrap transition-all ${
                   isSelected
                     ? 'bg-white font-semibold text-[#111111] drop-shadow-[0px_2px_2px_rgba(0,0,0,0.1)]'
                     : 'font-normal text-[#111111] hover:text-[#0094c5]'
@@ -175,10 +174,10 @@ export default function Services() {
               {/* Card Body */}
               <div className="p-5 sm:p-6 xl:p-[18px] 2xl:p-[20px] flex flex-col gap-4 sm:gap-6 2xl:gap-6 3xl:gap-[30px] flex-1 justify-between">
                 <div className="flex flex-col gap-2 2xl:gap-[10px]">
-                  <h3 className="font-semibold text-lg sm:text-xl xl:text-[19px] 2xl:text-[21px] 3xl:text-[24px] text-black leading-normal">
+                  <h3 className="font-semibold text-[17px] sm:text-[19px] xl:text-[18px] 2xl:text-[20px] 3xl:text-[22px] text-black leading-normal">
                     {card.title}
                   </h3>
-                  <p className="font-medium text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[14.5px] 3xl:text-[16px] text-black leading-relaxed xl:leading-[21px] 2xl:leading-[22px] 3xl:leading-[24px]">
+                  <p className="font-medium text-[11px] sm:text-[13px] xl:text-[12.5px] 2xl:text-[13.5px] 3xl:text-[14px] text-black leading-relaxed xl:leading-[21px] 2xl:leading-[22px] 3xl:leading-[24px]">
                     {card.description}
                   </p>
                 </div>
@@ -189,7 +188,7 @@ export default function Services() {
                       <div className="relative shrink-0 size-4 sm:size-5 2xl:size-[18px] 3xl:size-[20px]">
                         <img alt="" className="size-full" src={imgCheck} />
                       </div>
-                      <p className="font-medium text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[14.5px] 3xl:text-[16px] text-black leading-snug xl:leading-[21px] 2xl:leading-[22px] 3xl:leading-[24px]">
+                      <p className="font-medium text-[11px] sm:text-[13px] xl:text-[12.5px] 2xl:text-[13.5px] 3xl:text-[14px] text-black leading-snug xl:leading-[21px] 2xl:leading-[22px] 3xl:leading-[24px]">
                         {feature}
                       </p>
                     </div>
@@ -199,7 +198,7 @@ export default function Services() {
                 <div className="pt-1 2xl:pt-2">
                   <a 
                     href="#contact"
-                    className="inline-flex gap-2 2xl:gap-2.5 3xl:gap-[10px] items-center font-bold text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] text-[#0094c5] hover:text-[#0074bc] transition-colors group cursor-pointer"
+                    className="inline-flex gap-2 2xl:gap-2.5 3xl:gap-[10px] items-center font-bold text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[14px] text-[#0094c5] hover:text-[#0074bc] transition-colors group cursor-pointer"
                   >
                     <span>{card.ctaText}</span>
                     <div className="relative shrink-0 size-4 sm:size-5 2xl:size-[20px] 3xl:size-[24px] group-hover:translate-x-1 transition-transform">
@@ -220,10 +219,10 @@ export default function Services() {
               {/* Left Column (Node 1:1206) */}
               <div className="p-5 sm:p-6 xl:p-[18px] 2xl:p-[20px] flex flex-col justify-between gap-5 sm:gap-6 2xl:gap-6 3xl:gap-[40px] flex-1">
                 <div className="flex flex-col gap-2 2xl:gap-[10px]">
-                  <h3 className="font-bold text-lg sm:text-xl xl:text-[19px] 2xl:text-[21px] 3xl:text-[24px] text-black leading-normal" data-node-id="1:1208">
+                  <h3 className="font-bold text-[17px] sm:text-[19px] xl:text-[18px] 2xl:text-[20px] 3xl:text-[22px] text-black leading-normal" data-node-id="1:1208">
                     Track on the go
                   </h3>
-                  <p className="font-medium text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[14.5px] 3xl:text-[16px] text-black leading-relaxed xl:leading-[21px] 2xl:leading-[22px] 3xl:leading-[24px]" data-node-id="1:1209">
+                  <p className="font-medium text-[11px] sm:text-[13px] xl:text-[12.5px] 2xl:text-[13.5px] 3xl:text-[14px] text-black leading-relaxed xl:leading-[21px] 2xl:leading-[22px] 3xl:leading-[24px]" data-node-id="1:1209">
                     Use our mobile app to track your filing status, contact with your preparer and more insights.
                   </p>
                 </div>
@@ -239,33 +238,29 @@ export default function Services() {
                     {/* App Store */}
                     <a 
                       href="#" 
-                      className="bg-white border-[1.037px] border-black flex gap-[8.294px] h-[48.384px] items-center justify-center px-[10.368px] rounded-[10.368px] w-[129.6px] hover:bg-black/5 transition-colors cursor-pointer" 
+                      className="block hover:opacity-90 transition-opacity cursor-pointer" 
                       data-node-id="1:1560"
+                      aria-label="Download on the App Store"
                     >
-                      <div className="h-[24.883px] w-[20.736px] shrink-0" data-node-id="1:1561">
-                        <img alt="Apple" className="size-full" src={imgGroup6894} />
-                      </div>
-                      <div className="flex flex-col h-[27.648px] items-start leading-none text-black" data-node-id="1:1564">
-                        <span className="text-[9.331px] font-medium leading-[9.331px]">Download on the</span>
-                        <span className="text-[18.662px] font-medium tracking-[-0.4873px] leading-tight mt-0.5">App Store</span>
-                      </div>
+                      <img 
+                        alt="Download on the App Store" 
+                        className="w-[129.6px] h-[48.384px] object-contain block" 
+                        src={imgAppStore} 
+                      />
                     </a>
 
                     {/* Google Play */}
                     <a 
                       href="#" 
-                      className="bg-white border-[1.037px] border-black flex gap-[7.258px] h-[48.384px] items-center justify-center px-[10.368px] rounded-[10.368px] w-[129.6px] hover:bg-black/5 transition-colors cursor-pointer" 
+                      className="block hover:opacity-90 transition-opacity cursor-pointer" 
                       data-node-id="1:1567"
+                      aria-label="Get it on Google Play"
                     >
-                      <div className="h-[24.883px] w-[21.772px] shrink-0" data-node-id="1:1568">
-                        <img alt="Google Play" className="size-full" src={imgGroup6893} />
-                      </div>
-                      <div className="flex flex-col gap-[3.11px] items-start leading-none text-black" data-node-id="1:1573">
-                        <span className="text-[9.331px] font-normal uppercase">GET IT ON</span>
-                        <div className="h-[15.552px] w-[76.723px]" data-name="path90">
-                          <img alt="Google Play" className="size-full" src={imgPath90} />
-                        </div>
-                      </div>
+                      <img 
+                        alt="Get it on Google Play" 
+                        className="w-[129.6px] h-[48.384px] object-contain block" 
+                        src={imgGoogleStore} 
+                      />
                     </a>
                   </div>
                 </div>

@@ -15,7 +15,7 @@ export default function Navbar() {
         className="bg-[#07152a] w-full px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] py-[10px] flex items-center justify-between" 
         data-node-id="1:1834"
       >
-        <div className="max-w-[1600px] w-full mx-auto flex flex-wrap gap-6 lg:gap-[49px] items-center text-[12px] text-white font-medium" data-node-id="1:1835">
+        <div className="max-w-[1600px] w-full mx-auto flex flex-wrap gap-6 lg:gap-[49px] items-center text-[11px] 3xl:text-[10px] text-white font-medium" data-node-id="1:1835">
           <a 
             href="tel:6122053354" 
             className="flex items-center gap-[6px] hover:text-[#0094c5] transition-colors"
@@ -57,7 +57,7 @@ export default function Navbar() {
           </a>
 
           {/* Desktop Nav Links (Node 1:1855) */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 2xl:gap-[32px] 3xl:gap-[40px] text-[14px] 2xl:text-[15px] text-white font-normal whitespace-nowrap" data-node-id="1:1855">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 2xl:gap-[32px] 3xl:gap-[40px] text-[13px] 2xl:text-[14px] 3xl:text-[13px] text-white font-normal whitespace-nowrap" data-node-id="1:1855">
             <a href="#services" className="hover:text-[#0094c5] transition-colors" data-node-id="1:1856">Services</a>
             <a href="#why-us" className="hover:text-[#0094c5] transition-colors" data-node-id="1:1857">Why TAXMAX</a>
             <a href="#estimator" className="hover:text-[#0094c5] transition-colors" data-node-id="1:1858">Estimator</a>
@@ -70,14 +70,14 @@ export default function Navbar() {
           <div className="hidden sm:flex items-center gap-3 lg:gap-[20px]" data-node-id="1:1862">
             <button 
               type="button" 
-              className="backdrop-blur-[10px] bg-white/10 border border-white/10 px-[20px] py-[12px] rounded-[100px] text-[14px] font-semibold text-white hover:bg-white/20 transition-all cursor-pointer whitespace-nowrap"
+              className="backdrop-blur-[10px] bg-white/10 border border-white/10 px-[20px] py-[12px] rounded-[100px] text-[13px] 3xl:text-[12px] font-semibold text-white hover:bg-white/20 transition-all cursor-pointer whitespace-nowrap"
               data-node-id="1:1863"
             >
               Login
             </button>
             <a 
               href="#contact"
-              className="bg-[#0094c5] border border-white/10 px-[20px] py-[12px] rounded-[100px] text-[14px] font-bold text-white hover:bg-[#0082ad] transition-all shadow-md hover:shadow-cyan-500/20 text-center cursor-pointer whitespace-nowrap"
+              className="bg-[#0094c5] border border-white/10 px-[20px] py-[12px] rounded-[100px] text-[13px] 3xl:text-[12px] font-bold text-white hover:bg-[#0082ad] transition-all shadow-md hover:shadow-cyan-500/20 text-center cursor-pointer whitespace-nowrap"
               data-node-id="1:1865"
             >
               Submit Documents
@@ -107,7 +107,7 @@ export default function Navbar() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden w-full bg-[#0d1d35] border-b border-white/10 px-6 py-6 flex flex-col gap-4 text-white">
-          <nav className="flex flex-col gap-3 text-[16px] font-medium">
+          <nav className="flex flex-col gap-3 text-[15px] font-medium">
             <a 
               href="#services" 
               onClick={() => setMobileMenuOpen(false)} 
@@ -154,14 +154,14 @@ export default function Navbar() {
           <div className="flex flex-col gap-3 pt-3">
             <button 
               type="button" 
-              className="w-full bg-white/10 border border-white/10 py-3 rounded-full text-[15px] font-semibold text-white"
+              className="w-full bg-white/10 border border-white/10 py-3 rounded-full text-[14px] font-semibold text-white"
             >
               Login
             </button>
             <a 
               href="#contact" 
               onClick={() => setMobileMenuOpen(false)} 
-              className="w-full bg-[#0094c5] py-3 rounded-full text-[15px] font-bold text-white text-center shadow-lg"
+              className="w-full bg-[#0094c5] py-3 rounded-full text-[14px] font-bold text-white text-center shadow-lg"
             >
               Submit Documents
             </a>

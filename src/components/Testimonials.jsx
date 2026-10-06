@@ -51,10 +51,10 @@ export default function Testimonials() {
         
         {/* Section Header (Node 1:1679) */}
         <div className="flex flex-col gap-2 2xl:gap-[8px] 3xl:gap-[10px] items-center text-center max-w-[1400px] w-full" data-node-id="1:1679">
-          <h2 className="font-bold text-2xl sm:text-3xl xl:text-[34px] 2xl:text-[40px] 3xl:text-[48px] tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px] text-black w-full" data-node-id="1:1680">
+          <h2 className="font-bold text-[23px] sm:text-[29px] xl:text-[33px] 2xl:text-[39px] 3xl:text-[46px] tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px] text-black w-full" data-node-id="1:1680">
             Trusted by Minnesota Businesses &amp; Families
           </h2>
-          <p className="font-medium text-sm sm:text-base xl:text-[15px] 2xl:text-[17px] 3xl:text-[20px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black w-full" data-node-id="1:1681">
+          <p className="font-medium text-[13px] sm:text-[15px] xl:text-[14px] 2xl:text-[16px] 3xl:text-[18px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black w-full" data-node-id="1:1681">
             Read verified reviews from clients who rely on TAXMAX Consulting for their corporate taxes, payroll, and personal returns.
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function Testimonials() {
             </div>
 
             {/* Testimonial Quote (Node 1:1694) */}
-            <blockquote className="font-medium text-base sm:text-xl xl:text-[22px] 2xl:text-[26px] 3xl:text-[32px] text-black leading-snug sm:leading-relaxed xl:leading-[34px] 2xl:leading-[40px] 3xl:leading-[50px] max-w-[832px] mx-auto min-h-[90px] 3xl:min-h-[100px] flex items-center justify-center transition-all duration-300" data-node-id="1:1694">
+            <blockquote className="font-medium text-[15px] sm:text-[19px] xl:text-[21px] 2xl:text-[25px] 3xl:text-[30px] text-black leading-snug sm:leading-relaxed xl:leading-[34px] 2xl:leading-[40px] 3xl:leading-[50px] max-w-[832px] mx-auto min-h-[90px] 3xl:min-h-[100px] flex items-center justify-center transition-all duration-300" data-node-id="1:1694">
               {current.quote}
             </blockquote>
 
@@ -134,10 +134,10 @@ export default function Testimonials() {
 
             {/* Author and Role (Node 1:1696) */}
             <div className="flex flex-col gap-1 items-center text-center" data-node-id="1:1696">
-              <p className="font-bold text-sm xl:text-[15px] 2xl:text-[15.5px] 3xl:text-[16px] leading-[22px] text-[#111111]" data-node-id="1:1697">
+              <p className="font-bold text-[13px] xl:text-[14px] 2xl:text-[14.5px] 3xl:text-[14px] leading-[22px] text-[#111111]" data-node-id="1:1697">
                 {current.author}
               </p>
-              <p className="font-normal text-xs xl:text-[13px] 2xl:text-[13.5px] 3xl:text-[14px] leading-[24px] opacity-80 text-[#111111]" data-node-id="1:1698">
+              <p className="font-normal text-[11px] xl:text-[12px] 2xl:text-[12.5px] 3xl:text-[12px] leading-[24px] opacity-80 text-[#111111]" data-node-id="1:1698">
                 {current.role}
               </p>
             </div>
