@@ -29,7 +29,7 @@ const trustItems = [
 export default function TrustBar() {
   return (
     <section className="w-full bg-[#f5f5f5]" data-node-id="1:960">
-      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 2xl:px-[160px] py-[20px]">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] py-[20px]">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-[20px] items-center justify-between">
           {trustItems.map((item, index) => (
             <div 
@@ -37,10 +37,10 @@ export default function TrustBar() {
               className="flex flex-col gap-[10px] items-start justify-center flex-1 min-w-0"
               data-node-id={item.nodeId}
             >
-              <div className="relative shrink-0 size-[32px] 2xl:size-[40px]">
+              <div className="relative shrink-0 size-[32px] 2xl:size-[36px] 3xl:size-[40px]">
                 <img alt={item.title} className="size-full" src={item.icon} />
               </div>
-              <p className="font-semibold text-base sm:text-lg xl:text-[18px] 2xl:text-[24px] text-[#111111] leading-normal whitespace-nowrap">
+              <p className="font-semibold text-base sm:text-lg xl:text-[18px] 2xl:text-[20px] 3xl:text-[24px] text-[#111111] leading-normal whitespace-nowrap">
                 {item.title}
               </p>
             </div>

@@ -117,14 +117,14 @@ export default function Services() {
 
   return (
     <section id="services" className="w-full bg-white py-16 sm:py-24 xl:py-[100px]" data-node-id="1:1075">
-      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 2xl:px-[160px] flex flex-col gap-10 xl:gap-[40px] items-center">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] flex flex-col gap-10 xl:gap-[40px] items-center">
         
         {/* Section Header (Node 1:1076) */}
-        <div className="flex flex-col gap-2 2xl:gap-[10px] items-center text-center max-w-[857px]" data-node-id="1:1076">
-          <h2 className="font-bold text-2xl sm:text-3xl xl:text-[34px] 2xl:text-[48px] tracking-tight text-black leading-tight xl:leading-[44px] 2xl:leading-[60px]" data-node-id="1:1077">
+        <div className="flex flex-col gap-2 2xl:gap-[8px] 3xl:gap-[10px] items-center text-center max-w-[857px]" data-node-id="1:1076">
+          <h2 className="font-bold text-2xl sm:text-3xl xl:text-[34px] 2xl:text-[40px] 3xl:text-[48px] tracking-tight text-black leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px]" data-node-id="1:1077">
             Full-Spectrum Tax &amp; Financial Advisory
           </h2>
-          <p className="font-medium text-sm sm:text-base xl:text-[15px] 2xl:text-[20px] leading-relaxed xl:leading-[24px] 2xl:leading-[32px] text-black" data-node-id="1:1078">
+          <p className="font-medium text-sm sm:text-base xl:text-[15px] 2xl:text-[17px] 3xl:text-[20px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black" data-node-id="1:1078">
             From complex corporate filings to monthly QuickBooks reconciliations, we deliver precision, proactive deductions, and ironclad compliance.
           </p>
         </div>
@@ -141,7 +141,7 @@ export default function Services() {
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`min-w-[60px] px-3.5 xl:px-4 2xl:px-[20px] py-2 xl:py-2.5 2xl:py-[12px] rounded-[26px] text-xs sm:text-sm xl:text-[14px] 2xl:text-[16px] leading-[22px] 2xl:leading-[24px] cursor-pointer whitespace-nowrap transition-all ${
+                className={`min-w-[60px] px-3.5 xl:px-4 2xl:px-[16px] 3xl:px-[20px] py-2 xl:py-2.5 2xl:py-[10px] 3xl:py-[12px] rounded-[26px] text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] leading-[22px] 3xl:leading-[24px] cursor-pointer whitespace-nowrap transition-all ${
                   isSelected
                     ? 'bg-white font-semibold text-[#111111] drop-shadow-[0px_2px_2px_rgba(0,0,0,0.1)]'
                     : 'font-normal text-[#111111] hover:text-[#0094c5]'
@@ -154,7 +154,7 @@ export default function Services() {
         </div>
 
         {/* Services Cards Grid (Node 1:1092) */}
-        <div className="w-full grid grid-cols-1 xl:grid-cols-2 gap-6 xl:gap-5 2xl:gap-[20px] drop-shadow-[0px_0px_30px_rgba(0,0,0,0.1)]" data-node-id="1:1092">
+        <div className="w-full grid grid-cols-1 xl:grid-cols-2 gap-6 xl:gap-5 2xl:gap-6 3xl:gap-[20px] drop-shadow-[0px_0px_30px_rgba(0,0,0,0.1)]" data-node-id="1:1092">
           {visibleCards.map((card) => (
             <div 
               key={card.id}
@@ -173,23 +173,23 @@ export default function Services() {
               </div>
 
               {/* Card Body */}
-              <div className="p-5 sm:p-6 xl:p-[18px] 2xl:p-[20px] flex flex-col gap-4 sm:gap-6 2xl:gap-[30px] flex-1 justify-between">
+              <div className="p-5 sm:p-6 xl:p-[18px] 2xl:p-[20px] flex flex-col gap-4 sm:gap-6 2xl:gap-6 3xl:gap-[30px] flex-1 justify-between">
                 <div className="flex flex-col gap-2 2xl:gap-[10px]">
-                  <h3 className="font-semibold text-lg sm:text-xl xl:text-[19px] 2xl:text-[24px] text-black leading-normal">
+                  <h3 className="font-semibold text-lg sm:text-xl xl:text-[19px] 2xl:text-[21px] 3xl:text-[24px] text-black leading-normal">
                     {card.title}
                   </h3>
-                  <p className="font-medium text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[16px] text-black leading-relaxed xl:leading-[21px] 2xl:leading-[24px]">
+                  <p className="font-medium text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[14.5px] 3xl:text-[16px] text-black leading-relaxed xl:leading-[21px] 2xl:leading-[22px] 3xl:leading-[24px]">
                     {card.description}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-2 2xl:gap-[10px]">
                   {card.features.map((feature, idx) => (
-                    <div key={idx} className="flex gap-2.5 2xl:gap-[14px] items-center">
-                      <div className="relative shrink-0 size-4 sm:size-5 2xl:size-[20px]">
+                    <div key={idx} className="flex gap-2.5 2xl:gap-3 3xl:gap-[14px] items-center">
+                      <div className="relative shrink-0 size-4 sm:size-5 2xl:size-[18px] 3xl:size-[20px]">
                         <img alt="" className="size-full" src={imgCheck} />
                       </div>
-                      <p className="font-medium text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[16px] text-black leading-snug xl:leading-[21px] 2xl:leading-[24px]">
+                      <p className="font-medium text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[14.5px] 3xl:text-[16px] text-black leading-snug xl:leading-[21px] 2xl:leading-[22px] 3xl:leading-[24px]">
                         {feature}
                       </p>
                     </div>
@@ -199,10 +199,10 @@ export default function Services() {
                 <div className="pt-1 2xl:pt-2">
                   <a 
                     href="#contact"
-                    className="inline-flex gap-2 2xl:gap-[10px] items-center font-bold text-xs sm:text-sm xl:text-[14px] 2xl:text-[16px] text-[#0094c5] hover:text-[#0074bc] transition-colors group cursor-pointer"
+                    className="inline-flex gap-2 2xl:gap-2.5 3xl:gap-[10px] items-center font-bold text-xs sm:text-sm xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] text-[#0094c5] hover:text-[#0074bc] transition-colors group cursor-pointer"
                   >
                     <span>{card.ctaText}</span>
-                    <div className="relative shrink-0 size-4 sm:size-5 2xl:size-[24px] group-hover:translate-x-1 transition-transform">
+                    <div className="relative shrink-0 size-4 sm:size-5 2xl:size-[20px] 3xl:size-[24px] group-hover:translate-x-1 transition-transform">
                       <img alt="" className="size-full" src={imgArrowRight} />
                     </div>
                   </a>
@@ -218,24 +218,24 @@ export default function Services() {
               data-node-id="1:1205"
             >
               {/* Left Column (Node 1:1206) */}
-              <div className="p-5 sm:p-6 xl:p-[18px] 2xl:p-[20px] flex flex-col justify-between gap-5 sm:gap-6 2xl:gap-[40px] flex-1">
+              <div className="p-5 sm:p-6 xl:p-[18px] 2xl:p-[20px] flex flex-col justify-between gap-5 sm:gap-6 2xl:gap-6 3xl:gap-[40px] flex-1">
                 <div className="flex flex-col gap-2 2xl:gap-[10px]">
-                  <h3 className="font-bold text-lg sm:text-xl xl:text-[19px] 2xl:text-[24px] text-black leading-normal" data-node-id="1:1208">
+                  <h3 className="font-bold text-lg sm:text-xl xl:text-[19px] 2xl:text-[21px] 3xl:text-[24px] text-black leading-normal" data-node-id="1:1208">
                     Track on the go
                   </h3>
-                  <p className="font-medium text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[16px] text-black leading-relaxed xl:leading-[21px] 2xl:leading-[24px]" data-node-id="1:1209">
+                  <p className="font-medium text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[14.5px] 3xl:text-[16px] text-black leading-relaxed xl:leading-[21px] 2xl:leading-[22px] 3xl:leading-[24px]" data-node-id="1:1209">
                     Use our mobile app to track your filing status, contact with your preparer and more insights.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap sm:flex-nowrap gap-[10px] items-center" data-node-id="1:1210">
                   {/* QR Code */}
-                  <div className="relative shrink-0 size-[110px] 2xl:size-[130px] rounded-xl border border-black/5 p-1 bg-white" data-node-id="1:1211">
+                  <div className="relative shrink-0 size-[110px] 2xl:size-[115px] 3xl:size-[130px] rounded-xl border border-black/5 p-1 bg-white" data-node-id="1:1211">
                     <img alt="QR Code" className="size-full" src={imgAdobeExpressQrCode1} />
                   </div>
 
                   {/* Store download buttons (Node 1:1559) */}
-                  <div className="flex flex-col gap-[16px] 2xl:gap-[19.2px] items-start justify-center" data-node-id="1:1559">
+                  <div className="flex flex-col gap-[16px] 3xl:gap-[19.2px] items-start justify-center" data-node-id="1:1559">
                     {/* App Store */}
                     <a 
                       href="#" 
@@ -273,21 +273,21 @@ export default function Services() {
 
               {/* Right Column with App Screenshots (Node 1:1576) */}
               <div 
-                className="bg-[rgba(0,148,197,0.1)] w-full sm:w-[300px] 2xl:w-[442px] h-[320px] sm:h-auto 2xl:h-[467px] relative overflow-hidden shrink-0" 
+                className="bg-[rgba(0,148,197,0.1)] w-full sm:w-[300px] xl:w-[300px] 2xl:w-[360px] 3xl:w-[442px] h-[320px] sm:h-auto 3xl:h-[467px] relative overflow-hidden shrink-0" 
                 data-node-id="1:1576"
               >
                 <div className="relative w-full h-full min-h-[320px]" data-node-id="1:1577">
                   {/* Image 17 */}
                   <img 
                     alt="App Screen 1" 
-                    className="absolute rounded-[20px] 2xl:rounded-[24px] object-cover shadow-2xl left-[20px] top-[30px] w-[135px] h-[295px] 2xl:left-[61px] 2xl:top-[47px] 2xl:w-[171px] 2xl:h-[373px]" 
+                    className="absolute rounded-[20px] 3xl:rounded-[24px] object-cover shadow-2xl left-[20px] top-[30px] w-[135px] h-[295px] 2xl:left-[35px] 2xl:top-[40px] 2xl:w-[150px] 2xl:h-[330px] 3xl:left-[61px] 3xl:top-[47px] 3xl:w-[171px] 3xl:h-[373px]" 
                     src={imgImage17} 
                     data-node-id="1:1578"
                   />
                   {/* Image 18 */}
                   <img 
                     alt="App Screen 2" 
-                    className="absolute rounded-[16px] 2xl:rounded-[18px] object-cover shadow-xl left-[165px] top-[75px] w-[105px] h-[225px] 2xl:left-[253px] 2xl:top-[95px] 2xl:w-[128px] 2xl:h-[277px]" 
+                    className="absolute rounded-[16px] 3xl:rounded-[18px] object-cover shadow-xl left-[165px] top-[75px] w-[105px] h-[225px] 2xl:left-[195px] 2xl:top-[85px] 2xl:w-[115px] 2xl:h-[250px] 3xl:left-[253px] 3xl:top-[95px] 3xl:w-[128px] 3xl:h-[277px]" 
                     src={imgImage18} 
                     data-node-id="1:1579"
                   />

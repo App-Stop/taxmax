@@ -44,33 +44,33 @@ export default function Testimonials() {
   return (
     <section 
       id="reviews" 
-      className="w-full bg-[#eef8fb] py-16 sm:py-20 xl:py-[120px] 2xl:py-[200px] overflow-hidden" 
+      className="w-full bg-[#eef8fb] py-16 sm:py-20 xl:py-[100px] 2xl:py-[130px] 3xl:py-[200px] overflow-hidden" 
       data-node-id="1:1678"
     >
-      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 2xl:px-[160px] flex flex-col gap-10 sm:gap-14 2xl:gap-[100px] items-center">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] flex flex-col gap-10 sm:gap-14 2xl:gap-16 3xl:gap-[100px] items-center">
         
         {/* Section Header (Node 1:1679) */}
-        <div className="flex flex-col gap-2 2xl:gap-[10px] items-center text-center max-w-[1400px] w-full" data-node-id="1:1679">
-          <h2 className="font-bold text-2xl sm:text-3xl xl:text-[34px] 2xl:text-[48px] tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[60px] text-black w-full" data-node-id="1:1680">
+        <div className="flex flex-col gap-2 2xl:gap-[8px] 3xl:gap-[10px] items-center text-center max-w-[1400px] w-full" data-node-id="1:1679">
+          <h2 className="font-bold text-2xl sm:text-3xl xl:text-[34px] 2xl:text-[40px] 3xl:text-[48px] tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px] text-black w-full" data-node-id="1:1680">
             Trusted by Minnesota Businesses &amp; Families
           </h2>
-          <p className="font-medium text-sm sm:text-base xl:text-[15px] 2xl:text-[20px] leading-relaxed xl:leading-[24px] 2xl:leading-[32px] text-black w-full" data-node-id="1:1681">
+          <p className="font-medium text-sm sm:text-base xl:text-[15px] 2xl:text-[17px] 3xl:text-[20px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black w-full" data-node-id="1:1681">
             Read verified reviews from clients who rely on TAXMAX Consulting for their corporate taxes, payroll, and personal returns.
           </p>
         </div>
 
         {/* Carousel Container (Node 1:1682) */}
-        <div className="w-full flex items-center justify-center gap-3 sm:gap-6 xl:gap-[40px] 2xl:gap-[100px] relative" data-node-id="1:1682">
+        <div className="w-full flex items-center justify-center gap-3 sm:gap-6 xl:gap-[32px] 2xl:gap-[48px] 3xl:gap-[100px] relative" data-node-id="1:1682">
           
           {/* Previous Button (Node 1:1683) */}
           <button
             type="button"
             onClick={prev}
-            className="size-11 sm:size-13 xl:size-[56px] 2xl:size-[72px] rounded-full bg-[#d6f0f8] hover:bg-[#c3eaf4] flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm hover:shadow active:scale-95"
+            className="size-11 sm:size-13 xl:size-[56px] 2xl:size-[62px] 3xl:size-[72px] rounded-full bg-[#d6f0f8] hover:bg-[#c3eaf4] flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm hover:shadow active:scale-95"
             aria-label="Previous review"
             data-node-id="1:1683"
           >
-            <div className="size-5 sm:size-7 xl:size-[30px] 2xl:size-[40px] rotate-180 flex items-center justify-center">
+            <div className="size-5 sm:size-7 xl:size-[30px] 2xl:size-[34px] 3xl:size-[40px] rotate-180 flex items-center justify-center">
               <img alt="Previous" className="size-full" src={imgArrowRight} />
             </div>
           </button>
@@ -80,50 +80,50 @@ export default function Testimonials() {
             
             {/* 7 Avatars Row with exact Figma sizes & vertical centering (Node 1:1686) */}
             <div 
-              className="flex items-center justify-center gap-1.5 sm:gap-3 xl:gap-[24px] 2xl:gap-[40px] h-[90px] 2xl:h-[100px] w-full max-w-[640px] mx-auto select-none" 
+              className="flex items-center justify-center gap-1.5 sm:gap-3 xl:gap-[20px] 2xl:gap-[28px] 3xl:gap-[40px] h-[90px] 2xl:h-[95px] 3xl:h-[100px] w-full max-w-[640px] mx-auto select-none" 
               data-node-id="1:1686"
             >
               {/* Avatar 1 (30px) */}
-              <div className="size-5 sm:size-[24px] 2xl:size-[30px] rounded-full overflow-hidden shrink-0" data-node-id="1:1687">
+              <div className="size-5 sm:size-[24px] 2xl:size-[26px] 3xl:size-[30px] rounded-full overflow-hidden shrink-0" data-node-id="1:1687">
                 <img alt="" className="size-full object-cover" src={imgAvatar1} />
               </div>
 
               {/* Avatar 2 (50px) */}
-              <div className="size-8 sm:size-[40px] 2xl:size-[50px] rounded-full overflow-hidden shrink-0" data-node-id="1:1688">
+              <div className="size-8 sm:size-[40px] 2xl:size-[44px] 3xl:size-[50px] rounded-full overflow-hidden shrink-0" data-node-id="1:1688">
                 <img alt="" className="size-full object-cover" src={imgAvatar2} />
               </div>
 
               {/* Avatar 3 (70px) */}
-              <div className="size-10 sm:size-[56px] 2xl:size-[70px] rounded-full overflow-hidden shrink-0" data-node-id="1:1689">
+              <div className="size-10 sm:size-[56px] 2xl:size-[62px] 3xl:size-[70px] rounded-full overflow-hidden shrink-0" data-node-id="1:1689">
                 <img alt="" className="size-full object-cover" src={imgAvatar3} />
               </div>
 
               {/* Avatar 4: Active Center Spotlight (100px) */}
               <div 
-                className="size-14 sm:size-18 xl:size-[80px] 2xl:size-[100px] rounded-full overflow-hidden shrink-0 border-[3px] 2xl:border-4 border-[#0094c5] shadow-[0px_16px_60px_0px_rgba(0,148,197,0.35)] transition-transform duration-300 ring-4 ring-[#0094c5]/20" 
+                className="size-14 sm:size-18 xl:size-[80px] 2xl:size-[88px] 3xl:size-[100px] rounded-full overflow-hidden shrink-0 border-[3px] 3xl:border-4 border-[#0094c5] shadow-[0px_16px_60px_0px_rgba(0,148,197,0.35)] transition-transform duration-300 ring-4 ring-[#0094c5]/20" 
                 data-node-id="1:1690"
               >
                 <img alt="" className="size-full object-cover" src={current.centerAvatar} />
               </div>
 
               {/* Avatar 5 (70px) */}
-              <div className="size-10 sm:size-[56px] 2xl:size-[70px] rounded-full overflow-hidden shrink-0" data-node-id="1:1691">
+              <div className="size-10 sm:size-[56px] 2xl:size-[62px] 3xl:size-[70px] rounded-full overflow-hidden shrink-0" data-node-id="1:1691">
                 <img alt="" className="size-full object-cover" src={imgAvatar5} />
               </div>
 
               {/* Avatar 6 (50px) */}
-              <div className="size-8 sm:size-[40px] 2xl:size-[50px] rounded-full overflow-hidden shrink-0" data-node-id="1:1692">
+              <div className="size-8 sm:size-[40px] 2xl:size-[44px] 3xl:size-[50px] rounded-full overflow-hidden shrink-0" data-node-id="1:1692">
                 <img alt="" className="size-full object-cover" src={imgAvatar6} />
               </div>
 
               {/* Avatar 7 (30px) */}
-              <div className="size-5 sm:size-[24px] 2xl:size-[30px] rounded-full overflow-hidden shrink-0" data-node-id="1:1693">
+              <div className="size-5 sm:size-[24px] 2xl:size-[26px] 3xl:size-[30px] rounded-full overflow-hidden shrink-0" data-node-id="1:1693">
                 <img alt="" className="size-full object-cover" src={imgAvatar7} />
               </div>
             </div>
 
             {/* Testimonial Quote (Node 1:1694) */}
-            <blockquote className="font-medium text-base sm:text-xl xl:text-[24px] 2xl:text-[32px] text-black leading-snug sm:leading-relaxed xl:leading-[38px] 2xl:leading-[50px] max-w-[832px] mx-auto min-h-[90px] 2xl:min-h-[100px] flex items-center justify-center transition-all duration-300" data-node-id="1:1694">
+            <blockquote className="font-medium text-base sm:text-xl xl:text-[22px] 2xl:text-[26px] 3xl:text-[32px] text-black leading-snug sm:leading-relaxed xl:leading-[34px] 2xl:leading-[40px] 3xl:leading-[50px] max-w-[832px] mx-auto min-h-[90px] 3xl:min-h-[100px] flex items-center justify-center transition-all duration-300" data-node-id="1:1694">
               {current.quote}
             </blockquote>
 
@@ -134,10 +134,10 @@ export default function Testimonials() {
 
             {/* Author and Role (Node 1:1696) */}
             <div className="flex flex-col gap-1 items-center text-center" data-node-id="1:1696">
-              <p className="font-bold text-sm xl:text-[15px] 2xl:text-[16px] leading-[22px] text-[#111111]" data-node-id="1:1697">
+              <p className="font-bold text-sm xl:text-[15px] 2xl:text-[15.5px] 3xl:text-[16px] leading-[22px] text-[#111111]" data-node-id="1:1697">
                 {current.author}
               </p>
-              <p className="font-normal text-xs xl:text-[13px] 2xl:text-[14px] leading-[24px] opacity-80 text-[#111111]" data-node-id="1:1698">
+              <p className="font-normal text-xs xl:text-[13px] 2xl:text-[13.5px] 3xl:text-[14px] leading-[24px] opacity-80 text-[#111111]" data-node-id="1:1698">
                 {current.role}
               </p>
             </div>
@@ -148,11 +148,11 @@ export default function Testimonials() {
           <button
             type="button"
             onClick={next}
-            className="size-12 sm:size-14 2xl:size-[72px] rounded-full bg-[#d6f0f8] hover:bg-[#c3eaf4] flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm hover:shadow active:scale-95"
+            className="size-11 sm:size-13 xl:size-[56px] 2xl:size-[62px] 3xl:size-[72px] rounded-full bg-[#d6f0f8] hover:bg-[#c3eaf4] flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm hover:shadow active:scale-95"
             aria-label="Next review"
             data-node-id="1:1699"
           >
-            <div className="size-6 sm:size-8 2xl:size-[40px] flex items-center justify-center" data-node-id="1:1700">
+            <div className="size-5 sm:size-7 xl:size-[30px] 2xl:size-[34px] 3xl:size-[40px] flex items-center justify-center" data-node-id="1:1700">
               <img alt="Next" className="size-full" src={imgArrowRight} />
             </div>
           </button>

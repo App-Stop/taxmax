@@ -12,7 +12,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full flex flex-col items-start" data-node-id="1:1833">
       {/* Top Bar (Node 1:1834) */}
       <div 
-        className="bg-[#07152a] w-full px-6 sm:px-10 lg:px-12 2xl:px-[160px] py-[10px] flex items-center justify-between" 
+        className="bg-[#07152a] w-full px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] py-[10px] flex items-center justify-between" 
         data-node-id="1:1834"
       >
         <div className="max-w-[1600px] w-full mx-auto flex flex-wrap gap-6 lg:gap-[49px] items-center text-[12px] text-white font-medium" data-node-id="1:1835">
@@ -47,7 +47,7 @@ export default function Navbar() {
 
       {/* Main Navigation Bar (Node 1:1845) */}
       <div 
-        className="backdrop-blur-[15px] bg-[rgba(18,30,51,0.9)] w-full px-6 sm:px-10 lg:px-12 2xl:px-[160px] py-[20px] shadow-[0px_27px_30px_rgba(0,0,0,0.06)] border-b border-white/10" 
+        className="backdrop-blur-[15px] bg-[rgba(18,30,51,0.9)] w-full px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] py-[20px] shadow-[0px_27px_30px_rgba(0,0,0,0.06)] border-b border-white/10" 
         data-node-id="1:1845"
       >
         <div className="max-w-[1600px] w-full mx-auto flex items-center justify-between">
@@ -57,7 +57,7 @@ export default function Navbar() {
           </a>
 
           {/* Desktop Nav Links (Node 1:1855) */}
-          <nav className="hidden lg:flex items-center gap-8 xl:gap-[40px] text-[14px] text-white font-normal whitespace-nowrap" data-node-id="1:1855">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 2xl:gap-[32px] 3xl:gap-[40px] text-[14px] 2xl:text-[15px] text-white font-normal whitespace-nowrap" data-node-id="1:1855">
             <a href="#services" className="hover:text-[#0094c5] transition-colors" data-node-id="1:1856">Services</a>
             <a href="#why-us" className="hover:text-[#0094c5] transition-colors" data-node-id="1:1857">Why TAXMAX</a>
             <a href="#estimator" className="hover:text-[#0094c5] transition-colors" data-node-id="1:1858">Estimator</a>

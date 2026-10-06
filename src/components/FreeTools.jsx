@@ -27,32 +27,32 @@ const tools = [
 export default function FreeTools() {
   return (
     <section className="w-full bg-white py-16 sm:py-20 xl:py-[70px] 2xl:py-[80px]" data-node-id="1:1701">
-      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 2xl:px-[160px]">
-        <div className="flex flex-col xl:flex-row gap-8 xl:gap-10 2xl:gap-[70px] items-start xl:items-center">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px]">
+        <div className="flex flex-col xl:flex-row gap-8 xl:gap-8 2xl:gap-10 3xl:gap-[70px] items-start xl:items-center">
           
           {/* Left Title and Subtitle (Node 1:1702) */}
           <div className="flex flex-col gap-2 sm:gap-[10px] items-start text-[#111111] flex-1 min-w-0" data-node-id="1:1702">
-            <h2 className="font-bold text-2xl sm:text-3xl xl:text-[28px] 2xl:text-[36px] tracking-tight leading-tight xl:leading-[38px] 2xl:leading-[50px]" data-node-id="1:1703">
+            <h2 className="font-bold text-2xl sm:text-3xl xl:text-[28px] 2xl:text-[32px] 3xl:text-[36px] tracking-tight leading-tight xl:leading-[38px] 2xl:leading-[44px] 3xl:leading-[50px]" data-node-id="1:1703">
               Free Tax Tools, Deadlines &amp; Record Retention Guide
             </h2>
-            <p className="font-medium text-sm sm:text-base xl:text-[15px] 2xl:text-[20px] leading-relaxed xl:leading-[24px] 2xl:leading-[32px] text-[#111111]" data-node-id="1:1704">
+            <p className="font-medium text-sm sm:text-base xl:text-[15px] 2xl:text-[17px] 3xl:text-[20px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-[#111111]" data-node-id="1:1704">
               Essential resources to track your refund status, stay ahead of IRS deadlines, and know exactly what paperwork to keep.
             </p>
           </div>
 
           {/* Right Cards Row (Node 1:1705) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 xl:gap-4 2xl:gap-[20px] w-full xl:w-auto shrink-0" data-node-id="1:1705">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 xl:gap-4 2xl:gap-4 3xl:gap-[20px] w-full xl:w-auto shrink-0" data-node-id="1:1705">
             {tools.map((tool) => (
               <div 
                 key={tool.title}
-                className="bg-[#f5f5f5] p-4 sm:p-5 2xl:p-[20px] rounded-[20px] flex flex-col justify-between gap-4 2xl:gap-[20px] w-full xl:w-[250px] 2xl:w-[324px] border border-transparent hover:border-[#0094c5]/20 transition-all shadow-sm"
+                className="bg-[#f5f5f5] p-4 sm:p-5 2xl:p-[18px] 3xl:p-[20px] rounded-[20px] flex flex-col justify-between gap-4 2xl:gap-4 3xl:gap-[20px] w-full xl:w-[250px] 2xl:w-[270px] 3xl:w-[324px] border border-transparent hover:border-[#0094c5]/20 transition-all shadow-sm"
                 data-node-id={tool.nodeId}
               >
                 <div className="flex flex-col gap-2 2xl:gap-[10px] items-start text-[#111111] w-full">
-                  <h3 className="font-semibold text-base xl:text-[16px] 2xl:text-[20px] leading-normal text-[#111111]">
+                  <h3 className="font-semibold text-base xl:text-[16px] 2xl:text-[18px] 3xl:text-[20px] leading-normal text-[#111111]">
                     {tool.title}
                   </h3>
-                  <p className="font-normal text-xs xl:text-[13px] 2xl:text-[16px] leading-relaxed xl:leading-[20px] 2xl:leading-[24px] opacity-80 text-[#111111]">
+                  <p className="font-normal text-xs xl:text-[13px] 2xl:text-[14px] 3xl:text-[16px] leading-relaxed xl:leading-[20px] 2xl:leading-[22px] 3xl:leading-[24px] opacity-80 text-[#111111]">
                     {tool.description}
                   </p>
                 </div>
@@ -62,10 +62,10 @@ export default function FreeTools() {
                     href={tool.href}
                     target={tool.href.startsWith('http') ? '_blank' : '_self'}
                     rel="noopener noreferrer"
-                    className="inline-flex gap-2 2xl:gap-[10px] items-center justify-center font-bold text-xs xl:text-[14px] 2xl:text-[16px] text-[#0094c5] hover:text-[#0074bc] transition-colors group cursor-pointer"
+                    className="inline-flex gap-2 2xl:gap-2.5 3xl:gap-[10px] items-center justify-center font-bold text-xs xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px] text-[#0094c5] hover:text-[#0074bc] transition-colors group cursor-pointer"
                   >
                     <span>{tool.cta}</span>
-                    <div className="relative shrink-0 size-4 sm:size-5 2xl:size-[24px] group-hover:translate-x-1 transition-transform">
+                    <div className="relative shrink-0 size-4 sm:size-5 2xl:size-[20px] 3xl:size-[24px] group-hover:translate-x-1 transition-transform">
                       <img alt="" className="size-full" src={imgArrowRight} />
                     </div>
                   </a>

@@ -41,41 +41,41 @@ export default function Process() {
       className="relative w-full bg-gradient-to-r from-[#0d1d35] via-1/2 via-[#132d54] to-[#0d1d35] py-16 sm:py-24 xl:py-[120px] overflow-hidden" 
       data-node-id="1:987"
     >
-      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 2xl:px-[160px] flex flex-col gap-10 xl:gap-[60px] items-center relative">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] flex flex-col gap-10 xl:gap-[48px] 3xl:gap-[60px] items-center relative">
         
         {/* Title (Node 1:989) */}
-        <h2 className="font-bold text-2xl sm:text-3xl xl:text-[34px] 2xl:text-[48px] text-white text-center tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[60px]" data-node-id="1:989">
+        <h2 className="font-bold text-2xl sm:text-3xl xl:text-[34px] 2xl:text-[40px] 3xl:text-[48px] text-white text-center tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px]" data-node-id="1:989">
           Four Steps to Stress-Free Tax Filing
         </h2>
 
         {/* Process Structure (Node 1:990) */}
         <div className="w-full flex flex-col gap-6 xl:gap-[30px] items-start relative" data-node-id="1:990">
           
-          {/* Connecting Vector Line (Node 1:988) behind number circles on 2xl */}
-          <div className="hidden 2xl:block absolute left-[185px] right-[185px] top-[272px] translate-y-[29px] h-0 pointer-events-none z-0">
+          {/* Connecting Vector Line (Node 1:988) behind number circles on 3xl */}
+          <div className="hidden 3xl:block absolute left-[185px] right-[185px] top-[272px] translate-y-[29px] h-0 pointer-events-none z-0">
             <div className="w-full h-0 relative">
               <img alt="" className="w-full block" src={imgVector4} />
             </div>
           </div>
 
           {/* Cards Row (Node 1:991) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 xl:gap-5 2xl:gap-[40px] items-stretch w-full z-10" data-node-id="1:991">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 xl:gap-5 2xl:gap-6 3xl:gap-[40px] items-stretch w-full z-10" data-node-id="1:991">
             {steps.map((step) => (
               <div 
                 key={step.number}
-                className="bg-[rgba(0,148,197,0.1)] p-5 sm:p-6 xl:p-[20px] 2xl:p-[30px] rounded-[20px] flex flex-col gap-4 2xl:gap-[20px] justify-between border border-transparent hover:border-[#0094c5]/30 transition-all duration-300"
+                className="bg-[rgba(0,148,197,0.1)] p-5 sm:p-6 xl:p-[20px] 2xl:p-[24px] 3xl:p-[30px] rounded-[20px] flex flex-col gap-4 2xl:gap-4 3xl:gap-[20px] justify-between border border-transparent hover:border-[#0094c5]/30 transition-all duration-300"
                 data-node-id={step.nodeId}
               >
-                <div className="flex gap-4 2xl:gap-[30px] items-start justify-between w-full">
-                  <h3 className="font-bold text-base sm:text-lg xl:text-[18px] 2xl:text-[24px] text-white leading-normal flex-1">
+                <div className="flex gap-4 2xl:gap-5 3xl:gap-[30px] items-start justify-between w-full">
+                  <h3 className="font-bold text-base sm:text-lg xl:text-[18px] 2xl:text-[20px] 3xl:text-[24px] text-white leading-normal flex-1">
                     {step.title}
                   </h3>
-                  <div className="relative shrink-0 size-[32px] 2xl:size-[40px]">
+                  <div className="relative shrink-0 size-[32px] 2xl:size-[36px] 3xl:size-[40px]">
                     <img alt="" className="size-full" src={step.icon} />
                   </div>
                 </div>
 
-                <p className="font-normal text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[16px] text-white opacity-80 leading-relaxed xl:leading-[20px] 2xl:leading-[24px]">
+                <p className="font-normal text-xs sm:text-sm xl:text-[13.5px] 2xl:text-[14.5px] 3xl:text-[16px] text-white opacity-80 leading-relaxed xl:leading-[20px] 2xl:leading-[22px] 3xl:leading-[24px]">
                   {step.description}
                 </p>
               </div>
@@ -83,11 +83,11 @@ export default function Process() {
           </div>
 
           {/* Number Badges Row (Node 1:1012) */}
-          <div className="hidden xl:grid grid-cols-4 gap-5 2xl:gap-[40px] w-full z-10" data-node-id="1:1012">
+          <div className="hidden xl:grid grid-cols-4 gap-5 2xl:gap-6 3xl:gap-[40px] w-full z-10" data-node-id="1:1012">
             {steps.map((step) => (
               <div key={step.number} className="flex items-center justify-center w-full">
                 <div 
-                  className="backdrop-blur-[30px] bg-[rgba(0,148,197,0.1)] border border-white/20 size-[48px] 2xl:size-[60px] rounded-[100px] flex items-center justify-center font-extrabold text-[18px] 2xl:text-[24px] text-white text-center leading-none shadow-lg shadow-black/20"
+                  className="backdrop-blur-[30px] bg-[rgba(0,148,197,0.1)] border border-white/20 size-[48px] 2xl:size-[54px] 3xl:size-[60px] rounded-[100px] flex items-center justify-center font-extrabold text-[18px] 2xl:text-[21px] 3xl:text-[24px] text-white text-center leading-none shadow-lg shadow-black/20"
                 >
                   {step.number}
                 </div>

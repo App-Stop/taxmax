@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --breakpoint-3xl: 1860px;
   --color-primary: #0094c5;
   --color-primary-light: rgba(0, 148, 197, 0.1);
   --color-primary-dark: #0074bc;
