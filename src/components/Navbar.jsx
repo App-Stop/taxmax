@@ -12,7 +12,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full flex flex-col items-start" data-node-id="1:1833">
       {/* Top Bar (Node 1:1834) */}
       <div 
-        className="bg-[#07152a] w-full px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] py-[10px] flex items-center justify-between" 
+        className="bg-[#07152a] w-full px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] py-[5px] flex items-center justify-between" 
         data-node-id="1:1834"
       >
         <div className="max-w-[1600px] w-full mx-auto flex flex-wrap gap-6 lg:gap-[49px] items-center text-[11px] 3xl:text-[10px] text-white font-medium" data-node-id="1:1835">
