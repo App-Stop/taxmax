@@ -11,7 +11,7 @@ const imgAvatar3 = "/figma/0a4b11473240ff5a19a7a51cc2920133cf790b96.png";
 
 export default function Hero() {
   return (
-    <section className="relative w-full bg-[#05162e] min-h-[640px] xl:min-h-[720px] 2xl:min-h-[800px] 3xl:h-[1066px] overflow-hidden" data-node-id="1:927">
+    <section className="relative w-full bg-[#05162e] min-h-[640px] xl:min-h-[720px] 2xl:min-h-[800px] 3xl:h-[800px] overflow-hidden" data-node-id="1:927">
       {/* Background Container matching Frame 2085663478 */}
       <div className="absolute inset-0 size-full pointer-events-none overflow-hidden" data-node-id="1:928">
         {/* Hero Background Team Image */}
@@ -72,7 +72,7 @@ export default function Hero() {
       </div>
 
       {/* Main Content Column (Node 1:938) */}
-      <div className="relative z-10 max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] pt-12 pb-16 sm:pt-16 sm:pb-20 xl:pt-[90px] xl:pb-[118px] 2xl:pt-[100px] 2xl:pb-[130px] 3xl:pt-[120px] 3xl:pb-[160px]">
+      <div className="relative z-10 max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px] pt-12 pb-16 sm:pt-16 sm:pb-20 xl:pt-[90px] xl:pb-[118px] 2xl:pt-[100px] 2xl:pb-[130px] 3xl:pt-[120px] 3xl:pb-[20px]">
         <div className="max-w-[713px] flex flex-col gap-8 sm:gap-12 xl:gap-[36px] 2xl:gap-[50px] 3xl:gap-[80px] items-start" data-node-id="1:938">
           
           {/* Text and Actions (Node 1:939) */}
