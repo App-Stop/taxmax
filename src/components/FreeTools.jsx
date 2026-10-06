@@ -27,7 +27,7 @@ const tools = [
 export default function FreeTools() {
   return (
     <section className="w-full bg-white py-16 sm:py-20 xl:py-[70px] 2xl:py-[80px]" data-node-id="1:1701">
-      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-40">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-10 xl:px-15 2xl:px-40">
         <div className="flex flex-col xl:flex-row gap-8 xl:gap-8 2xl:gap-10 3xl:gap-[70px] items-start xl:items-center">
           
           {/* Left Title and Subtitle (Node 1:1702) */}
@@ -41,7 +41,7 @@ export default function FreeTools() {
           </div>
 
           {/* Right Cards Row (Node 1:1705) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 xl:gap-4 2xl:gap-4 3xl:gap-[20px] w-full xl:w-253 shrink-0" data-node-id="1:1705">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 xl:gap-4 2xl:gap-4 3xl:gap-[20px] w-full lg:w-220 2xl:w-253 shrink-0" data-node-id="1:1705">
             {tools.map((tool) => (
               <div 
                 key={tool.title}
