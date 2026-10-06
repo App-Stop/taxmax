@@ -33,7 +33,7 @@ export default function IrsEstimates() {
               href="https://www.irs.gov"
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center gap-[10px] bg-[#0094c5] hover:bg-[#0074bc] border border-white/10 px-5 sm:px-6 py-3 sm:py-3.5 3xl:px-[24px] 3xl:py-[16px] rounded-full text-white font-extrabold text-[16px] xl:text-[18px] 3xl:text-[20px] transition-all shadow-md hover:shadow-cyan-500/20 cursor-pointer"
+              className="group inline-flex items-center gap-[10px] bg-[#0094c5] hover:bg-[#0074bc] border border-white/10 px-5 sm:px-6 py-3 sm:py-3.5 2xl:py-3 3xl:px-[24px] 3xl:py-[12px] rounded-full text-white font-extrabold text-[16px] xl:text-[186x] 3xl:text-[16px] transition-all shadow-md hover:shadow-cyan-500/20 cursor-pointer"
               data-node-id="36:882"
             >
               <span className="whitespace-nowrap leading-normal" data-node-id="36:883">

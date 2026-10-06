@@ -51,7 +51,7 @@ export default function Testimonials() {
         
         {/* Section Header (Node 1:1679) */}
         <div className="flex flex-col gap-2 2xl:gap-[8px] 3xl:gap-[10px] items-center text-center max-w-[1400px] w-full" data-node-id="1:1679">
-          <h2 className="font-bold text-[23px] sm:text-[29px] xl:text-[33px] 2xl:text-[39px] 3xl:text-[46px] tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px] text-black w-full" data-node-id="1:1680">
+          <h2 className="font-bold text-[23px] sm:text-[29px] xl:text-[28px] 2xl:text-[36px] 3xl:text-[42px] tracking-tight leading-tight xl:leading-[44px] 2xl:leading-[50px] 3xl:leading-[60px] text-black w-full" data-node-id="1:1680">
             Trusted by Minnesota Businesses &amp; Families
           </h2>
           <p className="font-medium text-[13px] sm:text-[15px] xl:text-[14px] 2xl:text-[16px] 3xl:text-[18px] leading-relaxed xl:leading-[24px] 2xl:leading-[27px] 3xl:leading-[32px] text-black w-full" data-node-id="1:1681">
@@ -123,7 +123,7 @@ export default function Testimonials() {
             </div>
 
             {/* Testimonial Quote (Node 1:1694) */}
-            <blockquote className="font-medium text-[15px] sm:text-[19px] xl:text-[21px] 2xl:text-[25px] 3xl:text-[30px] text-black leading-snug sm:leading-relaxed xl:leading-[34px] 2xl:leading-[40px] 3xl:leading-[50px] max-w-[832px] mx-auto min-h-[90px] 3xl:min-h-[100px] flex items-center justify-center transition-all duration-300" data-node-id="1:1694">
+            <blockquote className="font-medium text-[15px] sm:text-[19px] xl:text-[18px] 2xl:text-[22px] 3xl:text-[27px] text-black leading-snug sm:leading-relaxed xl:leading-[34px] 2xl:leading-[40px] 3xl:leading-[50px] max-w-[832px] mx-auto min-h-[90px] 3xl:min-h-[100px] flex items-center justify-center transition-all duration-300" data-node-id="1:1694">
               {current.quote}
             </blockquote>
 

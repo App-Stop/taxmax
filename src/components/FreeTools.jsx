@@ -27,7 +27,7 @@ const tools = [
 export default function FreeTools() {
   return (
     <section className="w-full bg-white py-16 sm:py-20 xl:py-[70px] 2xl:py-[80px]" data-node-id="1:1701">
-      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-10 xl:px-15 2xl:px-40">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-10 xl:px-15 2xl:px-20 3xl:px-40">
         <div className="flex flex-col xl:flex-row gap-8 xl:gap-8 2xl:gap-10 3xl:gap-[70px] items-start xl:items-center">
           
           {/* Left Title and Subtitle (Node 1:1702) */}

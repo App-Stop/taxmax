@@ -34,8 +34,8 @@ const pillars = [
 export default function WhyUs() {
   return (
     <section id="why-us" className="w-full bg-white py-16 sm:py-24 xl:py-[200px]" data-node-id="1:1580">
-      <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[100px] 3xl:px-[160px]">
-        <div className="flex flex-col xl:flex-row gap-10 xl:gap-10 2xl:gap-20 items-center">
+      <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[120px] 3xl:px-[160px]">
+        <div className="flex flex-col xl:flex-row gap-10 xl:gap-10 2xl:gap-25  items-center">
           
           {/* Left Column: Entire Frame 1:1581 as 1 single asset (Node 1:1581) */}
           <div className="relative w-full xl:w-[460px] 2xl:w-[540px] 3xl:w-[704px] shrink-0" data-node-id="1:1581">
