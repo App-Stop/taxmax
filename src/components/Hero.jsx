@@ -9,7 +9,7 @@ const imgAvatar1 = "/figma/1f2a595e337438d816a3ca15f9c2a1ed48f089f7.png";
 const imgAvatar2 = "/figma/8b49a6fff1d9c25a16fc8fc858f9f5efa2eac43e.png";
 const imgAvatar3 = "/figma/0a4b11473240ff5a19a7a51cc2920133cf790b96.png";
 
-export default function Hero() {
+export default function Hero({ onOpenUpload }) {
   return (
     <section className="relative w-full bg-[#05162e] min-h-[640px] xl:min-h-[720px] 2xl:min-h-[800px] 3xl:h-[800px] overflow-hidden" data-node-id="1:927">
       {/* Background Container matching Frame 2085663478 */}
@@ -95,8 +95,9 @@ export default function Hero() {
 
             {/* Action Buttons (Node 1:945) */}
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 xl:gap-3.5 2xl:gap-4 3xl:gap-[20px] pt-1 xl:pt-2" data-node-id="1:945">
-              <a 
-                href="#contact"
+              <button 
+                type="button"
+                onClick={onOpenUpload}
                 className="bg-[#0094c5] border border-white/10 flex gap-2 2xl:gap-2.5 3xl:gap-[10px] items-center justify-center overflow-clip px-5 sm:px-6 xl:px-[18px] 2xl:px-[20px] 3xl:px-[24px] py-3 sm:py-3.5 xl:py-[12px] 2xl:py-[14px] 3xl:py-[16px] rounded-[100px] hover:bg-[#0082ad] transition-all shadow-lg hover:shadow-cyan-500/20 cursor-pointer text-center"
                 data-node-id="1:946"
               >
@@ -106,7 +107,7 @@ export default function Hero() {
                 <div className="size-4 sm:size-5 2xl:size-[22px] 3xl:size-[24px] shrink-0" data-node-id="1:948">
                   <img alt="" className="size-full" src={imgArrowRight} />
                 </div>
-              </a>
+              </button>
 
               <a 
                 href="#process"

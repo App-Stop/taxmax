@@ -31,7 +31,7 @@ const pillars = [
   }
 ];
 
-export default function WhyUs() {
+export default function WhyUs({ onOpenUpload }) {
   return (
     <section id="why-us" className="w-full bg-white py-16 sm:py-24 xl:py-[200px]" data-node-id="1:1580">
       <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-[80px] 2xl:px-[120px] 3xl:px-[160px]">
@@ -64,13 +64,14 @@ export default function WhyUs() {
 
             {/* Quick CTA banner (Node 1:1592) */}
             <div className="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 2xl:gap-4 3xl:gap-[20px] items-center w-full" data-node-id="1:1592">
-              <a 
-                href="#contact"
+              <button 
+                type="button"
+                onClick={onOpenUpload}
                 className="bg-[#0094c5] border border-white/10 px-5 sm:px-6 xl:px-[20px] 2xl:px-[22px] 3xl:px-[20px] py-3 sm:py-3.5 xl:py-3 rounded-[100px] font-extrabold text-[13px] sm:text-[15px] xl:text-[15px] 2xl:text-[17px] 3xl:text-[16px] text-white hover:bg-[#0082ad] transition-all shadow-lg hover:shadow-cyan-500/20 shrink-0 cursor-pointer text-center"
                 data-node-id="1:1593"
               >
                 Upload Documents
-              </a>
+              </button>
               <p className="font-normal text-[11px] sm:text-[13px] xl:text-[13px] 2xl:text-[15px] 3xl:text-[18px] leading-snug xl:leading-[22px] 2xl:leading-[25px] 3xl:leading-[30px] text-[#444444] flex-1" data-node-id="1:1595">
                 Ready to file? Upload your documents securely and we'll handle the rest.
               </p>

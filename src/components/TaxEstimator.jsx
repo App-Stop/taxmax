@@ -34,7 +34,7 @@ const entities = [
   }
 ];
 
-export default function TaxEstimator() {
+export default function TaxEstimator({ onOpenUpload }) {
   const [selectedEntity, setSelectedEntity] = useState(entities[1]);
   const [revenue, setRevenue] = useState(175000);
   const [expenses, setExpenses] = useState(55000);
@@ -219,8 +219,9 @@ export default function TaxEstimator() {
             </div>
 
             {/* CTA Button (Node 1:1675) */}
-            <a 
-              href="#contact"
+            <button 
+              type="button"
+              onClick={onOpenUpload}
               className="relative z-10 bg-[#0094c5] border border-white/10 px-4 xl:px-5 2xl:px-[20px] 3xl:px-[24px] py-3 xl:py-3.5 2xl:py-[14px] 3xl:py-[16px] rounded-[100px] flex gap-2 2xl:gap-2.5 3xl:gap-[10px] items-center justify-center w-full hover:bg-[#0082ad] transition-all shadow-md cursor-pointer text-center"
               data-node-id="1:1675"
             >
@@ -230,7 +231,7 @@ export default function TaxEstimator() {
               <div className="relative shrink-0 size-4 sm:size-5 2xl:size-[22px] 3xl:size-[24px]" data-node-id="1:1677">
                 <img alt="" className="size-full" src={imgArrowRight} />
               </div>
-            </a>
+            </button>
 
           </div>
 

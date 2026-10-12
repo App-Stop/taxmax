@@ -7,7 +7,7 @@ const imgMapPin = "/figma/edd92a59924392934d80eef6c85831327df70411.svg";
 const imgCaretDown = "/figma/aa22a78781eab81e9ee437a8a8fa362e03191caa.svg";
 const imgArrowRight = "/figma/0836a6f58bee20c26ca9f18c84ce1cb5e104a898.svg";
 
-export default function ContactForm() {
+export default function ContactForm({ onOpenUpload }) {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -24,6 +24,9 @@ export default function ContactForm() {
       return;
     }
     setSubmitted(true);
+    if (onOpenUpload) {
+      onOpenUpload(formData);
+    }
   };
 
   return (

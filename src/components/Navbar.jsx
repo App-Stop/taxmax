@@ -5,7 +5,7 @@ const imgEnvelope = "/figma/b4aff258f247b9fe1cc03cf21ef622b3f6ebe517.svg";
 const imgClock = "/figma/ee1f1812981d3ecb5d456f147b101cb9258a7fa5.svg";
 const imgLogo = "/figma/b888a9396e41ae8b3746258887ab3eadbe9402d1.svg";
 
-export default function Navbar() {
+export default function Navbar({ onOpenUpload, onOpenLogin, user, onOpenDashboard }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -67,21 +67,34 @@ export default function Navbar() {
           </nav>
 
           {/* Action Buttons (Node 1:1862) */}
-          <div className="hidden sm:flex items-center gap-3 lg:gap-[20px]" data-node-id="1:1862">
+          <div className="hidden sm:flex items-center gap-3 lg:gap-[16px]" data-node-id="1:1862">
+            {user ? (
+              <button 
+                type="button" 
+                onClick={onOpenDashboard}
+                className="backdrop-blur-[10px] bg-white/15 border border-[#0094c5]/50 px-[18px] py-[10px] rounded-[100px] text-[13px] 3xl:text-[12px] font-semibold text-white hover:bg-white/25 transition-all cursor-pointer whitespace-nowrap flex items-center gap-2"
+              >
+                <span className="size-2 rounded-full bg-emerald-400" />
+                <span>Dashboard ({user.fullName?.split(' ')[0] || 'Client'})</span>
+              </button>
+            ) : (
+              <button 
+                type="button" 
+                onClick={onOpenLogin}
+                className="backdrop-blur-[10px] bg-white/10 border border-white/10 px-[20px] py-[12px] rounded-[100px] text-[13px] 3xl:text-[12px] font-semibold text-white hover:bg-white/20 transition-all cursor-pointer whitespace-nowrap"
+                data-node-id="1:1863"
+              >
+                Login
+              </button>
+            )}
             <button 
-              type="button" 
-              className="backdrop-blur-[10px] bg-white/10 border border-white/10 px-[20px] py-[12px] rounded-[100px] text-[13px] 3xl:text-[12px] font-semibold text-white hover:bg-white/20 transition-all cursor-pointer whitespace-nowrap"
-              data-node-id="1:1863"
-            >
-              Login
-            </button>
-            <a 
-              href="#contact"
+              type="button"
+              onClick={onOpenUpload}
               className="bg-[#0094c5] border border-white/10 px-[20px] py-[12px] rounded-[100px] text-[13px] 3xl:text-[12px] font-bold text-white hover:bg-[#0082ad] transition-all shadow-md hover:shadow-cyan-500/20 text-center cursor-pointer whitespace-nowrap"
               data-node-id="1:1865"
             >
-              Submit Documents
-            </a>
+              Upload Document
+            </button>
           </div>
 
           {/* Mobile menu toggle */}
@@ -152,19 +165,40 @@ export default function Navbar() {
             </a>
           </nav>
           <div className="flex flex-col gap-3 pt-3">
+            {user ? (
+              <button 
+                type="button" 
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenDashboard();
+                }}
+                className="w-full bg-white/15 border border-[#0094c5]/50 py-3 rounded-full text-[14px] font-semibold text-white flex items-center justify-center gap-2"
+              >
+                <span className="size-2 rounded-full bg-emerald-400" />
+                <span>Dashboard ({user.fullName?.split(' ')[0] || 'Client'})</span>
+              </button>
+            ) : (
+              <button 
+                type="button" 
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenLogin();
+                }}
+                className="w-full bg-white/10 border border-white/10 py-3 rounded-full text-[14px] font-semibold text-white cursor-pointer"
+              >
+                Login
+              </button>
+            )}
             <button 
               type="button" 
-              className="w-full bg-white/10 border border-white/10 py-3 rounded-full text-[14px] font-semibold text-white"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenUpload();
+              }}
+              className="w-full bg-[#0094c5] py-3 rounded-full text-[14px] font-bold text-white text-center shadow-lg cursor-pointer"
             >
-              Login
+              Upload Document
             </button>
-            <a 
-              href="#contact" 
-              onClick={() => setMobileMenuOpen(false)} 
-              className="w-full bg-[#0094c5] py-3 rounded-full text-[14px] font-bold text-white text-center shadow-lg"
-            >
-              Submit Documents
-            </a>
           </div>
         </div>
       )}
