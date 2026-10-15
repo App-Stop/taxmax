@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import DocumentThumb, { DocumentStatus } from './DocumentThumb';
 import NotificationItem from './NotificationItem';
 import { PREPARER } from './dashboardData';
@@ -13,6 +14,7 @@ const imgGoogleStore = "/figma/googlestore.png";
 const imgQrCode = "/figma/dashboard/qr-code.svg";
 const imgArrowRight = "/figma/dashboard/arrow-right.svg";
 
+const MAX_VISIBLE_DOCUMENTS = 3;
 const IRS_URL = "https://www.irs.gov/wheres-my-refund";
 
 const GUIDES = [
@@ -31,14 +33,31 @@ function SectionTitle({ children }) {
 }
 
 export default function HomeView({ documents, updates, newMessageCount, onOpenDocument, onOpenUpload, onContact, onViewTaxTools }) {
+  const [showAllDocuments, setShowAllDocuments] = useState(false);
+  const visibleDocuments = showAllDocuments ? documents : documents.slice(0, MAX_VISIBLE_DOCUMENTS);
+
   return (
     <div className="flex flex-col lg:flex-row gap-[30px] lg:gap-[122px] items-center lg:items-start lg:justify-center px-[16px] lg:pl-0 lg:pr-[36px] pt-[8px] lg:pt-[80px] pb-[60px] lg:pb-[80px]">
       {/* Left column (Node 71:1766) */}
       <div className="flex flex-col gap-[30px] items-start w-full max-w-[385px] lg:w-[385px] shrink-0" data-node-id="71:1766">
         <div className="flex flex-col gap-[16px] items-start w-full" data-node-id="71:1767">
-          <SectionTitle>Your documents</SectionTitle>
+          <div className="flex gap-[16px] items-center w-full">
+            <div className="flex-[1_0_0] min-w-px">
+              <SectionTitle>Your documents</SectionTitle>
+            </div>
+            {documents.length > MAX_VISIBLE_DOCUMENTS && (
+              <button
+                type="button"
+                onClick={() => setShowAllDocuments(!showAllDocuments)}
+                aria-expanded={showAllDocuments}
+                className="font-semibold leading-[normal] text-[14px] text-[#0094c5] whitespace-nowrap cursor-pointer hover:underline"
+              >
+                {showAllDocuments ? 'Show less' : 'See all'}
+              </button>
+            )}
+          </div>
           <div className="flex flex-col gap-[10px] items-center justify-center w-full" data-node-id="71:1769">
-            {documents.map((doc) => (
+            {visibleDocuments.map((doc) => (
               <button
                 key={doc.id}
                 type="button"

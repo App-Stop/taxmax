@@ -1,4 +1,4 @@
-// Phone + OTP auth. There is no backend yet, so sendCode / verifyCode are mocked;
+// Email + OTP auth. There is no backend yet, so sendCode / verifyCode are mocked;
 // swap their bodies for real API calls and keep the return shapes.
 
 const TOKEN_KEY = 'taxmax_token';
@@ -6,10 +6,10 @@ const USER_KEY = 'taxmax_user';
 const AUTH_KEY = 'taxmax_is_authenticated';
 
 export const OTP_LENGTH = 4;
-export const PHONE_LENGTH = 10;
 
 const MOCK_CODE = '1234';
-const MOCK_ADMIN_SUFFIX = '0000'; // phone numbers ending in 0000 sign in as admin staff
+const MOCK_ADMIN_PREFIX = 'admin'; // emails starting with "admin" sign in as admin staff
+const EMAIL_PATTERN = /^[^s@]+@[^s@]+.[^s@]+$/;
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -26,24 +26,24 @@ export function getRoleFromToken(token) {
   }
 }
 
-export const formatPhone = (digits) => `+1 ${digits.slice(0, 3)} ${digits.slice(3)}`.trim();
+export const isValidEmail = (email) => EMAIL_PATTERN.test(email.trim());
 
-export async function sendCode(phone) {
+export async function sendCode(email) {
   await wait(500);
-  if (phone.length !== PHONE_LENGTH) {
-    throw new Error('Enter a valid 10 digit phone number.');
+  if (!isValidEmail(email)) {
+    throw new Error('Enter a valid email address.');
   }
 }
 
-export async function verifyCode(phone, code) {
+export async function verifyCode(email, code) {
   await wait(600);
   if (code !== MOCK_CODE) {
     throw new Error('That code is incorrect. Please try again.');
   }
 
-  const role = phone.endsWith(MOCK_ADMIN_SUFFIX) ? 'admin' : 'customer';
-  const token = encodeMockToken({ sub: phone, role });
-  const user = role === 'admin' ? buildAdminUser(phone) : loadCustomerUser(phone);
+  const role = email.toLowerCase().startsWith(MOCK_ADMIN_PREFIX) ? 'admin' : 'customer';
+  const token = encodeMockToken({ sub: email, role });
+  const user = role === 'admin' ? buildAdminUser(email) : loadCustomerUser(email);
 
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -57,11 +57,11 @@ export function clearSession() {
   localStorage.removeItem(AUTH_KEY);
 }
 
-function buildAdminUser(phone) {
-  return { fullName: 'Admin Staff', phone: formatPhone(phone), role: 'admin' };
+function buildAdminUser(email) {
+  return { fullName: 'Admin Staff', email, role: 'admin' };
 }
 
-function loadCustomerUser(phone) {
+function loadCustomerUser(email) {
   try {
     const saved = JSON.parse(localStorage.getItem(USER_KEY));
     if (saved && saved.role !== 'admin') return { ...saved, role: 'customer' };
@@ -70,8 +70,8 @@ function loadCustomerUser(phone) {
   }
   return {
     fullName: 'Alex Morgan',
-    email: 'alex.morgan@taxmax.com',
-    phone: formatPhone(phone),
+    email,
+    phone: '+1 (555) 392-8190',
     address: 'Park Avenue, 234, Str, Texas, US',
     status: 'Single',
     dependents: 'No',

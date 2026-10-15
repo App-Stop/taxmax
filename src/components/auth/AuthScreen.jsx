@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import useDesignScale from '../../hooks/useDesignScale';
 import LoginShowcase from './LoginShowcase';
-import PhoneLoginCard from './PhoneLoginCard';
+import EmailLoginCard from './EmailLoginCard';
 import OtpVerificationCard from './OtpVerificationCard';
 import VerifiedModal from './VerifiedModal';
 
@@ -9,8 +9,8 @@ import VerifiedModal from './VerifiedModal';
 // (Figma 71:1595, 71:1632, 71:1669 → 71:1706, 71:1733 → 71:2416).
 export default function AuthScreen({ onAuthenticated, onBackToHome }) {
   const { isDesktop, scale, width, height } = useDesignScale();
-  const [step, setStep] = useState('phone'); // 'phone' | 'otp'
-  const [phone, setPhone] = useState('');
+  const [step, setStep] = useState('email'); // 'email' | 'otp'
+  const [email, setEmail] = useState('');
   const [session, setSession] = useState(null);
 
   const handleDone = useCallback(() => onAuthenticated(session), [onAuthenticated, session]);
@@ -21,20 +21,20 @@ export default function AuthScreen({ onAuthenticated, onBackToHome }) {
       style={isDesktop ? { zoom: scale, width, height } : { minHeight: '100dvh' }}
       data-node-id="71:1595"
     >
-      {isDesktop && step === 'phone' && <LoginShowcase />}
+      {isDesktop && step === 'email' && <LoginShowcase />}
 
       <div className="flex-1 min-w-0 flex items-center justify-center p-[16px]">
-        {step === 'phone' ? (
-          <PhoneLoginCard
-            initialPhone={phone}
+        {step === 'email' ? (
+          <EmailLoginCard
+            initialEmail={email}
             onCodeSent={(value) => {
-              setPhone(value);
+              setEmail(value);
               setStep('otp');
             }}
             onBackToHome={onBackToHome}
           />
         ) : (
-          <OtpVerificationCard phone={phone} onVerified={setSession} onBackToHome={onBackToHome} />
+          <OtpVerificationCard email={email} onVerified={setSession} onBackToHome={onBackToHome} />
         )}
       </div>
 

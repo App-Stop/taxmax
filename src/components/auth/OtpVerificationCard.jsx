@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { sendCode, verifyCode, formatPhone, OTP_LENGTH } from '../../services/auth';
+import { sendCode, verifyCode, OTP_LENGTH } from '../../services/auth';
 
 const imgLogo = "/figma/auth/logo.svg";
 const imgArrowRight = "/figma/auth/arrow-right.svg";
 
 const RESEND_SECONDS = 60;
 
-export default function OtpVerificationCard({ phone, onVerified, onBackToHome }) {
+export default function OtpVerificationCard({ email, onVerified, onBackToHome }) {
   const [digits, setDigits] = useState(() => Array(OTP_LENGTH).fill(''));
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
   const [error, setError] = useState('');
@@ -64,7 +64,7 @@ export default function OtpVerificationCard({ phone, onVerified, onBackToHome })
     setError('');
     focusInput(0);
     try {
-      await sendCode(phone);
+      await sendCode(email);
     } catch (err) {
       setError(err.message);
     }
@@ -76,7 +76,7 @@ export default function OtpVerificationCard({ phone, onVerified, onBackToHome })
     setVerifying(true);
     setError('');
     try {
-      onVerified(await verifyCode(phone, code));
+      onVerified(await verifyCode(email, code));
     } catch (err) {
       setError(err.message);
       setVerifying(false);
@@ -100,9 +100,9 @@ export default function OtpVerificationCard({ phone, onVerified, onBackToHome })
           Verification
         </h1>
         <p className="font-normal leading-[normal] text-[16px] text-[#444] w-full" data-node-id="71:1719">
-          Enter the {OTP_LENGTH} digit code sent to your phone number
+          Enter the {OTP_LENGTH} digit code sent to your email
           <br />
-          {formatPhone(phone)}
+          <span className="[word-break:break-word]">{email}</span>
         </p>
       </div>
 

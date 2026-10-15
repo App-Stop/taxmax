@@ -31,7 +31,7 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
       <main className="max-w-[1600px] mx-auto px-4 sm:px-8 py-10">
         <h1 className="text-2xl font-extrabold">Admin dashboard</h1>
         <p className="mt-2 text-sm text-gray-300">
-          Signed in as {user?.fullName || 'Admin Staff'} {user?.phone ? `(${user.phone})` : ''}
+          Signed in as {user?.fullName || 'Admin Staff'} {user?.email ? `(${user.email})` : ''}
         </p>
       </main>
     </div>
