@@ -15,11 +15,12 @@ import Footer from './components/Footer';
 
 import DocumentUploadFlow from './components/upload/DocumentUploadFlow';
 import ClientDashboard from './components/dashboard/ClientDashboard';
-import AdminDashboard from './components/dashboard/AdminDashboard';
+import AdminDashboard from './components/admin/AdminDashboard';
 import AuthScreen from './components/auth/AuthScreen';
-import { getRoleFromToken, clearSession } from './services/auth';
+import { getAccountType, getStoredToken, clearSession, logout } from './services/auth';
 
-const dashboardViewFor = (role) => (role === 'admin' ? 'admin' : 'dashboard');
+// Team members (admin and staff) use the admin portal; everyone else the customer dashboard.
+const dashboardViewFor = (accountType) => (accountType === 'team' ? 'admin' : 'dashboard');
 
 const readStoredUser = () => {
   try {
@@ -38,6 +39,12 @@ export default function App() {
   // Load existing authenticated user session from localStorage
   useEffect(() => {
     try {
+      // An expired API session means signing in again.
+      const token = getStoredToken();
+      if (token && !getAccountType(token)) {
+        clearSession();
+        return;
+      }
       const isAuth = localStorage.getItem('taxmax_is_authenticated') === 'true';
       const storedUser = localStorage.getItem('taxmax_user');
       if (isAuth && storedUser) {
@@ -57,10 +64,10 @@ export default function App() {
     window.scrollTo({ top: 0 });
   };
 
-  // Customers and admin staff share one login; the role in the returned token picks the dashboard.
+  // Customers and team members share one login; the token's account type picks the dashboard.
   const handleLoginSuccess = ({ token, user: userData }) => {
     setUser(userData);
-    setCurrentView(dashboardViewFor(getRoleFromToken(token)));
+    setCurrentView(dashboardViewFor(getAccountType(token)));
     window.scrollTo({ top: 0 });
   };
 
@@ -77,11 +84,8 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    try {
-      clearSession();
-    } catch (e) {
-      console.error(e);
-    }
+    // Clears the local session at once; the server-side revoke runs in the background.
+    logout();
     setUser(null);
     setCurrentView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -125,7 +129,7 @@ export default function App() {
         onOpenUpload={handleOpenUpload}
         onOpenLogin={handleOpenLogin}
         user={user}
-        onOpenDashboard={() => setCurrentView(dashboardViewFor(user?.role))}
+        onOpenDashboard={() => setCurrentView(dashboardViewFor(user?.accountType))}
       />
 
       <main className="w-full">

@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { sendCode, verifyCode, OTP_LENGTH } from '../../services/auth';
+import { sendCode, verifyCode, OTP_LENGTH, RESEND_SECONDS } from '../../services/auth';
 
 const imgLogo = "/figma/auth/logo.svg";
 const imgArrowRight = "/figma/auth/arrow-right.svg";
 
-const RESEND_SECONDS = 60;
-
-export default function OtpVerificationCard({ email, onVerified, onBackToHome }) {
+export default function OtpVerificationCard({ email, accountType, onVerified, onChangeEmail, onBackToHome }) {
   const [digits, setDigits] = useState(() => Array(OTP_LENGTH).fill(''));
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
   const [error, setError] = useState('');
@@ -64,9 +62,11 @@ export default function OtpVerificationCard({ email, onVerified, onBackToHome })
     setError('');
     focusInput(0);
     try {
-      await sendCode(email);
+      await sendCode(email, accountType);
     } catch (err) {
       setError(err.message);
+      // A 429 means the server's cooldown is still running; anything else can be retried now.
+      if (err.status !== 429) setSecondsLeft(0);
     }
   };
 
@@ -76,7 +76,7 @@ export default function OtpVerificationCard({ email, onVerified, onBackToHome })
     setVerifying(true);
     setError('');
     try {
-      onVerified(await verifyCode(email, code));
+      onVerified(await verifyCode(email, code, accountType));
     } catch (err) {
       setError(err.message);
       setVerifying(false);
@@ -103,7 +103,16 @@ export default function OtpVerificationCard({ email, onVerified, onBackToHome })
           Enter the {OTP_LENGTH} digit code sent to your email
           <br />
           <span className="[word-break:break-word]">{email}</span>
+          {accountType === 'team' && <span className="text-[#6a6a6a]"> · Team login</span>}
         </p>
+        <button
+          type="button"
+          onClick={onChangeEmail}
+          disabled={verifying}
+          className="font-semibold leading-[normal] text-[14px] text-[#0094c5] cursor-pointer hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Change email or account type
+        </button>
       </div>
 
       <div className="relative w-full">

@@ -1,9 +1,32 @@
 import { useState } from 'react';
-import { sendCode, isValidEmail } from '../../services/auth';
+import { sendCode, isValidEmail, ACCOUNT_TYPES } from '../../services/auth';
 
 const imgLogo = "/figma/auth/logo.svg";
 
-export default function EmailLoginCard({ initialEmail, onCodeSent, onBackToHome }) {
+function AccountTypeTabs({ value, onChange, disabled }) {
+  return (
+    <div role="tablist" aria-label="Log in as" className="bg-[#e8e8e8] flex items-center p-[2px] rounded-[30px] w-full">
+      {ACCOUNT_TYPES.map((t) => {
+        const active = t.id === value;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            disabled={disabled}
+            onClick={() => onChange(t.id)}
+            className={`flex-1 px-[20px] py-[8px] rounded-[20px] leading-[24px] text-[14px] text-[#111] text-center whitespace-nowrap cursor-pointer transition-colors disabled:cursor-not-allowed ${active ? 'bg-white font-semibold drop-shadow-[0px_2px_2px_rgba(0,0,0,0.1)]' : 'font-normal hover:bg-white/50'}`}
+          >
+            {t.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export default function EmailLoginCard({ initialEmail, accountType, onAccountTypeChange, onCodeSent, onBackToHome }) {
   const [email, setEmail] = useState(initialEmail);
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
@@ -17,7 +40,7 @@ export default function EmailLoginCard({ initialEmail, onCodeSent, onBackToHome 
     setError('');
     try {
       const address = email.trim();
-      await sendCode(address);
+      await sendCode(address, accountType);
       onCodeSent(address);
     } catch (err) {
       setError(err.message);
@@ -48,6 +71,14 @@ export default function EmailLoginCard({ initialEmail, onCodeSent, onBackToHome 
       </div>
 
       <div className="flex flex-col gap-[20px] items-start w-full" data-node-id="71:1620">
+        <AccountTypeTabs
+          value={accountType}
+          disabled={sending}
+          onChange={(type) => {
+            onAccountTypeChange(type);
+            setError('');
+          }}
+        />
         <div className="flex flex-col gap-[10px] items-start w-full" data-node-id="71:1621">
           <label htmlFor="login-email" className="font-normal leading-[normal] text-[16px] text-[#111] w-full" data-node-id="71:1622">
             Email address
@@ -69,7 +100,7 @@ export default function EmailLoginCard({ initialEmail, onCodeSent, onBackToHome 
           />
         </div>
         <p className={`font-normal min-h-[18px] leading-[normal] text-[12px] max-w-full w-[354px] ${error ? 'text-red-600' : 'text-[#444]'}`} role={error ? 'alert' : undefined} data-node-id="71:1629">
-          {error || 'A private login code, sent by email. No password.'}
+          {error || (accountType === 'team' ? 'For TaxMax staff and admins. A private login code, sent by email.' : 'A private login code, sent by email. No password.')}
         </p>
       </div>
 
