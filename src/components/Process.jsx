@@ -1,4 +1,3 @@
-const imgVector4 = "/figma/ad045c0ffcd5ae30bb134f369a9df3a00a4e5327.svg";
 const imgMonitorArrowUp = "/figma/2c58569c9c25925910df3d69a616cac3e8e53278.svg";
 const imgFiles = "/figma/cf64da49f98347b44496afdddfd52030c9b27d9c.svg";
 const imgListChecks = "/figma/fb748ab7ad4474be7e769fd03e6e4864062c98f6.svg";

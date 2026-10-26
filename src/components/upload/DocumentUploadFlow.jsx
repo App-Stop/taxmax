@@ -1,94 +1,128 @@
 import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import DocumentPreviewModal from './DocumentPreviewModal';
+import OtpVerificationCard from '../auth/OtpVerificationCard';
+import { getAccountType, getStoredToken, isValidEmail } from '../../services/auth';
+import {
+  FORM_TYPES,
+  MAX_PAGES,
+  IMAGE_TYPES,
+  imageProblem,
+  getFormTypes,
+  uploadDocuments,
+  deleteDocument,
+} from '../../services/documents';
+import {
+  ensureOnboardingToken,
+  clearOnboarding,
+  onboardingAuth,
+  isExpiredSignup,
+  EXPIRED_SIGNUP_MESSAGE,
+  submitDetails,
+  resendSignupCode,
+  verifySignup,
+} from '../../services/onboarding';
 
 const imgLogo = "/figma/b888a9396e41ae8b3746258887ab3eadbe9402d1.svg";
 const imgArrowRight = "/figma/0836a6f58bee20c26ca9f18c84ce1cb5e104a898.svg";
 const imgQrCode = "/figma/ade0003ecd704f4f58f8be66d8f520692faa8db1.svg";
 const imgAllDonePhone = "/figma/upload/all-done-phone-mockup.png";
 const imgCameraBox = "/figma/upload/camera-box.png";
-const imgDocPageThumb = "/figma/upload/doc-page-thumb.png";
 
 const MIN_MODAL_SCALE = 0.7;
 
-const FORM_OPTIONS = [
-  {
-    id: 'w2',
-    name: 'W-2 Form',
-    desc: 'Wage and tax statement',
-    thumb: '/figma/upload/w2-thumbnail.png',
-  },
-  {
-    id: '1099-nec',
-    name: '1099-NEC',
-    desc: 'Nonemployee compensation',
-    thumb: '/figma/upload/1099-nec-thumbnail.png',
-  },
-  {
-    id: '1099-int',
-    name: '1099-INT',
-    desc: 'Interest income',
-    thumb: '/figma/upload/1099-int-thumbnail.png',
-  },
-  {
-    id: '1099-t',
-    name: '1099-T',
-    desc: 'Tuition statement',
-    thumb: '/figma/upload/1099-t-thumbnail.png',
-  },
-  {
-    id: 'other',
-    name: 'Or other similar documents',
-    desc: 'Anything else your accountant needs',
-    thumb: '/figma/upload/other-doc-thumbnail.png',
-  },
-];
+// Choose form -> upload its pages -> review the forms -> (sign-up only) details -> email code -> done.
+const STEP = { CHOOSE: 1, UPLOAD: 2, REVIEW: 3, DETAILS: 4, VERIFY: 5, DONE: 6 };
 
-export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashboard }) {
-  // Step 1: Choose Form Type (67:407)
-  // Step 2: Upload Documents (67:496 / 67:530)
-  // Step 3: Uploaded Documents / Identified (67:605)
-  // Step 4: Last Few Details (67:648)
-  // Step 5: All Done (67:775)
-  const [step, setStep] = useState(1);
-  const [selectedFormId, setSelectedFormId] = useState('w2');
+const FORM_THUMBS = {
+  w2: '/figma/upload/w2-thumbnail.png',
+  '1099_nec': '/figma/upload/1099-nec-thumbnail.png',
+  '1099_int': '/figma/upload/1099-int-thumbnail.png',
+  '1099_t': '/figma/upload/1099-t-thumbnail.png',
+};
+const thumbFor = (formType) => FORM_THUMBS[formType] || '/figma/upload/other-doc-thumbnail.png';
 
-  // Uploaded pages state for Step 2
-  const [pages, setPages] = useState([
-    { id: 'p1', preview: imgDocPageThumb, name: 'Page 1' },
-    { id: 'p2', preview: imgDocPageThumb, name: 'Page 2' },
-    { id: 'p3', preview: imgDocPageThumb, name: 'Page 3' },
-  ]);
+const EMPTY_DETAILS = {
+  fullName: '',
+  phone: '',
+  email: '',
+  address: '',
+  ssn: '',
+  dob: '',
+  maritalStatus: 'single',
+  hasDependents: 'No',
+};
 
-  // Identified documents for Step 3
-  const [identifiedDocs, setIdentifiedDocs] = useState([
-    {
-      id: 'doc-1',
-      type: 'w2',
-      name: 'W-2 Form',
-      pageCount: 2,
-      thumb: '/figma/upload/w2-thumbnail.png',
-    },
-    {
-      id: 'doc-2',
-      type: '1099-nec',
-      name: '1099-NEC',
-      pageCount: 1,
-      thumb: '/figma/upload/1099-nec-thumbnail.png',
-    },
-  ]);
+// API field name (from a 422's `body.<name>` path) -> details form field.
+const DETAIL_FIELDS = { phoneNumber: 'phone' };
 
-  // Personal details state for Step 4
-  const [formData, setFormData] = useState({
-    fullName: 'John Doe',
-    phone: '(612) 213 231421',
-    email: 'johndoe@gmail.com',
-    address: 'Park Avenue, 234, Str, Texas, US',
-    ssn: '123-45-6789',
-    dob: '1999-02-14',
-    status: 'Single',
-    dependents: 'No',
-  });
+const inputClass =
+  'w-full h-[50px] sm:h-[54px] px-[16px] bg-white border rounded-[20px] font-medium text-[15px] sm:text-[16px] text-[#111] focus:outline-none focus:border-[#0094c5]';
+const ctaClass =
+  'w-full h-[52px] sm:h-[56px] bg-[#0094c5] hover:bg-[#0082ad] text-white font-bold text-[16px] rounded-[100px] flex items-center justify-center gap-[8px] p-[12px] shadow-md hover:shadow-cyan-500/25 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#0094c5]';
 
+let nextId = 0;
+const localId = (prefix) => `${prefix}-${Date.now()}-${(nextId += 1)}`;
+
+function ErrorText({ children, className = '' }) {
+  if (!children) return null;
+  return (
+    <p className={`font-normal text-[12px] text-red-600 leading-normal ${className}`} role="alert">
+      {children}
+    </p>
+  );
+}
+
+function Field({ label, optional, error, children }) {
+  return (
+    <div className="flex flex-col gap-[8px] items-start w-full">
+      <label className="font-normal text-[15px] sm:text-[16px] text-[#111]">
+        {label}
+        {optional && <span className="text-[#888]"> (optional)</span>}
+      </label>
+      {children}
+      <ErrorText>{error}</ErrorText>
+    </div>
+  );
+}
+
+function SelectChevron() {
+  return (
+    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 7L10 13L4 7" />
+      </svg>
+    </div>
+  );
+}
+
+function CtaArrow() {
+  return (
+    <div className="size-[24px] shrink-0">
+      <img src={imgArrowRight} alt="" className="size-full" />
+    </div>
+  );
+}
+
+// Signed-in customers add forms to their account; everyone else signs up with their first forms.
+export default function DocumentUploadFlow({ isOpen, onClose, onSignedUp, onDocumentsAdded, onLogin }) {
+  const [isCustomer] = useState(() => getAccountType(getStoredToken()) === 'customer');
+  const [step, setStep] = useState(STEP.CHOOSE);
+  const [formTypes, setFormTypes] = useState(FORM_TYPES);
+  const [selectedType, setSelectedType] = useState('w2');
+
+  // Pages of the form being uploaded: { id, file, preview }.
+  const [pages, setPages] = useState([]);
+  // Forms ready to send: { id, formType, files, serverId?, pageCount, thumbnailUrl? }.
+  // `serverId` is set once the form has been created on the server.
+  const [docs, setDocs] = useState([]);
+
+  const [details, setDetails] = useState(EMPTY_DETAILS);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [accountExists, setAccountExists] = useState(false);
+  const [session, setSession] = useState(null);
+
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
   const [showSsn, setShowSsn] = useState(false);
   const [activePreviewDoc, setActivePreviewDoc] = useState(null);
   const [draggedPageIndex, setDraggedPageIndex] = useState(null);
@@ -96,27 +130,25 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
 
   const fileInputRef = useRef(null);
   const scaleRef = useRef(null);
+  const previewUrlsRef = useRef([]);
 
-  // Sync with existing stored user if available
+  // The server's form list; the bundled copy stays if it can't be loaded.
   useEffect(() => {
-    try {
-      const savedUser = localStorage.getItem('taxmax_user');
-      if (savedUser) {
-        const parsed = JSON.parse(savedUser);
-        setFormData((prev) => ({
-          ...prev,
-          fullName: parsed.fullName || prev.fullName,
-          phone: parsed.phone || prev.phone,
-          email: parsed.email || prev.email,
-          address: parsed.address || prev.address,
-          status: parsed.status || prev.status,
-          dependents: parsed.dependents || prev.dependents,
-        }));
-      }
-    } catch (e) {
-      console.error(e);
-    }
+    let active = true;
+    getFormTypes().then((types) => active && types?.length && setFormTypes(types), () => {});
+    return () => {
+      active = false;
+    };
   }, []);
+
+  // Every sign-up starts empty: an unfinished one from an earlier visit is dropped, so its
+  // forms are neither shown nor sent with this one.
+  useEffect(() => {
+    if (!isCustomer) clearOnboarding();
+  }, [isCustomer]);
+
+  // Release the in-memory image previews when the flow closes.
+  useEffect(() => () => previewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url)), []);
 
   // Scale the modal down so the whole card fits inside the viewport height
   useLayoutEffect(() => {
@@ -137,44 +169,67 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
     fitToViewport();
     window.addEventListener('resize', fitToViewport);
     return () => window.removeEventListener('resize', fitToViewport);
-  }, [isOpen, step, pages.length, identifiedDocs.length]);
+  }, [isOpen, step, pages.length, docs.length, error]);
 
   if (!isOpen) return null;
 
-  const currentForm = FORM_OPTIONS.find((f) => f.id === selectedFormId) || FORM_OPTIONS[0];
+  const labelFor = (formType) => formTypes.find((f) => f.key === formType)?.label || 'Document';
+  const currentForm = formTypes.find((f) => f.key === selectedType) || formTypes[0];
+  const signupAuth = async () => (isCustomer ? undefined : onboardingAuth(await ensureOnboardingToken()));
+
+  const goTo = (next) => {
+    setError('');
+    setStep(next);
+  };
+
+  // Finishing sign-up signs the customer in, so leaving the last screen opens their dashboard.
+  const close = () => (session ? onSignedUp(session) : onClose());
 
   const handleBack = () => {
-    if (step === 1) {
-      onClose();
+    if (busy) return;
+    if (step === STEP.CHOOSE) {
+      if (docs.length) goTo(STEP.REVIEW);
+      else close();
+    } else if (step === STEP.UPLOAD) {
+      goTo(STEP.CHOOSE);
+    } else if (step === STEP.REVIEW) {
+      // Going back reopens the last form for editing, unless it has already been sent.
+      const last = docs[docs.length - 1];
+      if (last && !last.serverId) {
+        setDocs(docs.slice(0, -1));
+        setPages(last.files);
+        setSelectedType(last.formType);
+        goTo(STEP.UPLOAD);
+      } else {
+        goTo(STEP.CHOOSE);
+      }
+    } else if (step === STEP.DETAILS) {
+      goTo(STEP.REVIEW);
+    } else if (step === STEP.VERIFY) {
+      goTo(STEP.DETAILS);
     } else {
-      setStep((prev) => prev - 1);
+      close();
     }
   };
 
-  const handleFilesAdded = (e) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-
-    const newPages = files.map((file, i) => ({
-      id: `p-${Date.now()}-${i}`,
-      preview: URL.createObjectURL(file),
-      name: file.name,
-    }));
-
-    setPages((prev) => [...prev, ...newPages]);
+  const addFiles = (fileList) => {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+    const problems = files.map(imageProblem).filter(Boolean);
+    const accepted = files.filter((file) => !imageProblem(file)).slice(0, MAX_PAGES - pages.length);
+    const dropped = files.length - problems.length - accepted.length;
+    setError(problems[0] || (dropped > 0 ? `A document can have at most ${MAX_PAGES} pages.` : ''));
+    const added = accepted.map((file) => {
+      const preview = URL.createObjectURL(file);
+      previewUrlsRef.current.push(preview);
+      return { id: localId('page'), file, preview };
+    });
+    setPages((prev) => [...prev, ...added]);
   };
 
   const handleRemovePage = (indexToRemove, e) => {
     e.stopPropagation();
     setPages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
-  };
-
-  const handleDragStart = (idx) => {
-    setDraggedPageIndex(idx);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
   };
 
   const handleDropPage = (targetIdx) => {
@@ -186,45 +241,109 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
     setDraggedPageIndex(null);
   };
 
-  const handleDetailsSubmit = (e) => {
-    e.preventDefault();
+  const finishForm = () => {
+    if (!pages.length) return;
+    setDocs((prev) => [...prev, { id: localId('doc'), formType: selectedType, files: pages, pageCount: pages.length }]);
+    setPages([]);
+    goTo(STEP.REVIEW);
+  };
 
-    // Create or update account in localStorage
-    const userAccount = {
-      ...formData,
-      accountCreatedDate: new Date().toISOString(),
-      filingId: 'TM-' + Math.floor(100000 + Math.random() * 900000),
-      documents: identifiedDocs,
-      estimatedRefund: {
-        total: '$5,213.23',
-        federal: '$2,340',
-        state: '$2,726',
-      },
-      filingStatus: 'In Review',
-    };
+  const changeFormType = (docId, formType) => {
+    setDocs((prev) => prev.map((d) => (d.id === docId ? { ...d, formType } : d)));
+  };
 
+  // The sign-up draft (and the forms sent with it) is gone; forms still in memory can be sent again.
+  const restartSignup = () => {
+    setDocs((prev) => prev.filter((d) => d.files).map((d) => ({ ...d, serverId: undefined })));
+    setError(EXPIRED_SIGNUP_MESSAGE);
+    setStep(STEP.REVIEW);
+  };
+
+  const removeDoc = async (doc) => {
+    if (!doc.serverId) {
+      setDocs((prev) => prev.filter((d) => d.id !== doc.id));
+      return;
+    }
+    setBusy(true);
+    setError('');
     try {
-      localStorage.setItem('taxmax_user', JSON.stringify(userAccount));
-      localStorage.setItem('taxmax_is_authenticated', 'true');
+      await deleteDocument(doc.serverId, await signupAuth());
+      setDocs((prev) => prev.filter((d) => d.id !== doc.id));
     } catch (err) {
-      console.error(err);
+      if (!isCustomer && isExpiredSignup(err)) restartSignup();
+      else setError(err.message);
+    } finally {
+      setBusy(false);
     }
-
-    // Move to All Done screen
-    setStep(5);
   };
 
-  const handleLoginClick = () => {
+  // Sends every form not sent yet: upload URLs, the images to storage, then the documents.
+  const submitDocuments = async () => {
+    const pending = docs.filter((d) => !d.serverId);
+    setBusy(true);
+    setError('');
     try {
-      localStorage.setItem('taxmax_is_authenticated', 'true');
-    } catch (e) {
-      console.error(e);
+      if (pending.length) {
+        const created = await uploadDocuments(
+          pending.map((d) => ({ formType: d.formType, files: d.files.map((p) => p.file) })),
+          await signupAuth(),
+        );
+        const sentIds = new Map(pending.map((d, i) => [d.id, created[i]._id]));
+        setDocs((prev) => prev.map((d) => (sentIds.has(d.id) ? { ...d, serverId: sentIds.get(d.id) } : d)));
+      }
+      if (isCustomer) {
+        onDocumentsAdded?.();
+        setStep(STEP.DONE);
+      } else {
+        setStep(STEP.DETAILS);
+      }
+    } catch (err) {
+      if (!isCustomer && isExpiredSignup(err)) restartSignup();
+      else setError(err.message);
+    } finally {
+      setBusy(false);
     }
-    if (onCompleteToDashboard) {
-      onCompleteToDashboard(formData);
-    }
-    onClose();
   };
+
+  const updateDetail = (name, value) => {
+    setDetails((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
+
+  const handleDetailsSubmit = async (e) => {
+    e.preventDefault();
+    if (!isValidEmail(details.email)) {
+      setFieldErrors({ email: 'Please enter a valid email address' });
+      return;
+    }
+    setBusy(true);
+    setError('');
+    setAccountExists(false);
+    try {
+      await submitDetails(details);
+      setStep(STEP.VERIFY);
+    } catch (err) {
+      if (err.status === 401) {
+        restartSignup();
+      } else if (err.status === 422 && err.fieldErrors.length) {
+        setFieldErrors(
+          Object.fromEntries(
+            err.fieldErrors.map(({ path, message }) => {
+              const name = path.replace(/^body\./, '');
+              return [DETAIL_FIELDS[name] || name, message];
+            }),
+          ),
+        );
+      } else {
+        setAccountExists(err.status === 409);
+        setError(err.message);
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-[6px] flex items-center justify-center p-3 sm:p-6 lg:p-8 animate-in fade-in duration-200">
@@ -235,8 +354,9 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
         <button
           type="button"
           onClick={handleBack}
+          disabled={busy}
           aria-label="Go back"
-          className="absolute -top-14 sm:-top-16 left-0 lg:-left-20 lg:top-1/2 lg:-translate-y-1/2 z-10 size-11 sm:size-12 lg:size-[52px] bg-white rounded-full drop-shadow-[0px_4px_15px_rgba(0,0,0,0.12)] border border-gray-200/60 flex items-center justify-center text-[#111] hover:bg-gray-50 hover:scale-105 active:scale-95 transition-all cursor-pointer group"
+          className="absolute -top-14 sm:-top-16 left-0 lg:-left-20 lg:top-1/2 lg:-translate-y-1/2 z-10 size-11 sm:size-12 lg:size-[52px] bg-white rounded-full drop-shadow-[0px_4px_15px_rgba(0,0,0,0.12)] border border-gray-200/60 flex items-center justify-center text-[#111] hover:bg-gray-50 hover:scale-105 active:scale-95 transition-all cursor-pointer group disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <svg
             width="22"
@@ -255,9 +375,9 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
 
         {/* Main Figma Card */}
         <div className="w-full bg-white rounded-[20px] drop-shadow-[0px_10px_50px_rgba(0,0,0,0.1)] overflow-hidden transition-all duration-300">
-          
+
           {/* ==================== STEP 1: CHOOSE FORM TYPE (Node 67:407) ==================== */}
-          {step === 1 && (
+          {step === STEP.CHOOSE && (
             <div className="p-6 sm:p-8 lg:px-[40px] lg:pt-[30px] lg:pb-[40px] flex flex-col gap-5 sm:gap-[20px]" data-node-id="67:408">
               {/* Header: Logo & 3-Step Indicator Dots */}
               <div className="flex items-center justify-between w-full" data-node-id="67:410">
@@ -289,32 +409,36 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                   Choose a form type
                 </p>
 
-                {FORM_OPTIONS.map((form) => {
-                  const isSelected = selectedFormId === form.id;
+                {formTypes.map((form) => {
+                  const isSelected = selectedType === form.key;
                   return (
-                    <div
-                      key={form.id}
-                      onClick={() => setSelectedFormId(form.id)}
-                      className={`w-full flex gap-3 sm:gap-[16px] items-center p-3 sm:p-[16px] rounded-[20px] cursor-pointer transition-all ${
+                    <button
+                      type="button"
+                      key={form.key}
+                      onClick={() => setSelectedType(form.key)}
+                      aria-pressed={isSelected}
+                      className={`w-full flex gap-3 sm:gap-[16px] items-center p-3 sm:p-[16px] rounded-[20px] cursor-pointer transition-all text-left ${
                         isSelected
                           ? 'bg-[#f5f5f5] ring-2 ring-[#0094c5] shadow-xs'
                           : 'bg-[#f5f5f5] hover:bg-[#ededed]'
                       }`}
-                      data-node-id={`form-${form.id}`}
+                      data-node-id={`form-${form.key}`}
                     >
                       {/* Icon */}
                       <div className="size-[40px] shrink-0 rounded-lg overflow-hidden flex items-center justify-center bg-white border border-gray-100">
-                        <img src={form.thumb} alt={form.name} className="size-full object-contain" />
+                        <img src={thumbFor(form.key)} alt="" className="size-full object-contain" />
                       </div>
 
                       {/* Labels */}
                       <div className="flex flex-col gap-[4px] items-start justify-center flex-1 min-w-0">
-                        <span className="font-semibold text-[14px] text-[#111] leading-normal truncate">
-                          {form.name}
+                        <span className="font-semibold text-[14px] text-[#111] leading-normal truncate w-full">
+                          {form.label}
                         </span>
-                        <span className="font-normal text-[12px] text-[#444] leading-normal truncate">
-                          {form.desc}
-                        </span>
+                        {form.description && (
+                          <span className="font-normal text-[12px] text-[#444] leading-normal truncate w-full">
+                            {form.description}
+                          </span>
+                        )}
                       </div>
 
                       {/* Selected check circle */}
@@ -327,28 +451,21 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                       ) : (
                         <div className="size-[30px] shrink-0 rounded-full border border-gray-300 opacity-40 hover:opacity-100 transition-opacity" />
                       )}
-                    </div>
+                    </button>
                   );
                 })}
               </div>
 
               {/* Start Secure Upload CTA Button */}
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="w-full h-[52px] sm:h-[56px] bg-[#0094c5] hover:bg-[#0082ad] text-white font-bold text-[16px] rounded-[100px] flex items-center justify-center gap-[8px] p-[12px] shadow-md hover:shadow-cyan-500/25 transition-all cursor-pointer mt-1"
-                data-node-id="67:456"
-              >
+              <button type="button" onClick={() => goTo(STEP.UPLOAD)} className={`${ctaClass} mt-1`} data-node-id="67:456">
                 <span>Start secure upload</span>
-                <div className="size-[24px] shrink-0">
-                  <img src={imgArrowRight} alt="" className="size-full" />
-                </div>
+                <CtaArrow />
               </button>
             </div>
           )}
 
           {/* ==================== STEP 2: UPLOAD DOCUMENTS (Nodes 67:496 & 67:530) ==================== */}
-          {step === 2 && (
+          {step === STEP.UPLOAD && (
             <div className="p-6 sm:p-8 lg:p-[40px] flex flex-col gap-5 sm:gap-[20px] items-center" data-node-id="67:497">
               {/* Header */}
               <div className="flex flex-col gap-[20px] items-start w-full">
@@ -377,15 +494,17 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                 {/* Selected Form Pill */}
                 <div className="w-full bg-[#f5f5f5] flex gap-3 sm:gap-[16px] items-center p-3 sm:p-[16px] rounded-[20px]">
                   <div className="size-[40px] shrink-0 rounded-lg overflow-hidden bg-white border border-gray-100 flex items-center justify-center">
-                    <img src={currentForm.thumb} alt={currentForm.name} className="size-full object-contain" />
+                    <img src={thumbFor(currentForm.key)} alt="" className="size-full object-contain" />
                   </div>
                   <div className="flex flex-col gap-[4px] items-start justify-center flex-1 min-w-0">
-                    <span className="font-semibold text-[14px] text-[#111] leading-normal truncate">{currentForm.name}</span>
-                    <span className="font-normal text-[12px] text-[#444] leading-normal truncate">{currentForm.desc}</span>
+                    <span className="font-semibold text-[14px] text-[#111] leading-normal truncate w-full">{currentForm.label}</span>
+                    {currentForm.description && (
+                      <span className="font-normal text-[12px] text-[#444] leading-normal truncate w-full">{currentForm.description}</span>
+                    )}
                   </div>
                   <button
                     type="button"
-                    onClick={() => setStep(1)}
+                    onClick={() => goTo(STEP.CHOOSE)}
                     className="font-bold text-[14px] text-[#0094c5] hover:underline cursor-pointer"
                   >
                     Change
@@ -397,16 +516,21 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
               <input
                 type="file"
                 ref={fileInputRef}
-                onChange={handleFilesAdded}
+                onChange={(e) => {
+                  addFiles(e.target.files);
+                  e.target.value = '';
+                }}
                 multiple
-                accept="image/*,application/pdf"
+                accept={IMAGE_TYPES.join(',')}
                 className="hidden"
               />
 
               {/* Camera / Drop Zone Box */}
               <div className="flex flex-col gap-[10px] items-start justify-center w-full">
-                <div
+                <button
+                  type="button"
                   onClick={() => fileInputRef.current?.click()}
+                  disabled={pages.length >= MAX_PAGES}
                   onDragOver={(e) => {
                     e.preventDefault();
                     setIsDraggingOver(true);
@@ -415,17 +539,9 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                   onDrop={(e) => {
                     e.preventDefault();
                     setIsDraggingOver(false);
-                    const files = Array.from(e.dataTransfer.files || []);
-                    if (files.length > 0) {
-                      const newPages = files.map((file, i) => ({
-                        id: `p-${Date.now()}-${i}`,
-                        preview: URL.createObjectURL(file),
-                        name: file.name,
-                      }));
-                      setPages((prev) => [...prev, ...newPages]);
-                    }
+                    addFiles(e.dataTransfer.files);
                   }}
-                  className={`w-full h-[220px] sm:h-[260px] rounded-[20px] p-[16px] flex flex-col gap-[16px] items-center justify-center cursor-pointer transition-all border-2 border-dashed ${
+                  className={`w-full h-[220px] sm:h-[260px] rounded-[20px] p-[16px] flex flex-col gap-[16px] items-center justify-center cursor-pointer transition-all border-2 border-dashed disabled:cursor-not-allowed disabled:opacity-60 ${
                     isDraggingOver
                       ? 'bg-[#0094c5]/5 border-[#0094c5]'
                       : 'bg-[#f5f5f5] hover:bg-[#eaeaea] border-transparent'
@@ -433,12 +549,21 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                   data-node-id="67:522"
                 >
                   <div className="size-[60px] rounded-[10px] shrink-0 overflow-hidden shadow-xs">
-                    <img src={imgCameraBox} alt="Camera" className="size-full object-contain" />
+                    <img src={imgCameraBox} alt="" className="size-full object-contain" />
                   </div>
-                  <p className="font-normal text-[14px] text-[#444] text-center leading-normal">
-                    {pages.length > 0 ? "Tap to open your camera, or upload" : "Tap to open your camera"}
-                  </p>
-                </div>
+                  <span className="font-normal text-[14px] text-[#444] text-center leading-normal">
+                    {pages.length >= MAX_PAGES
+                      ? `You've added the maximum of ${MAX_PAGES} pages`
+                      : pages.length > 0
+                        ? 'Tap to open your camera, or upload'
+                        : 'Tap to open your camera'}
+                  </span>
+                  <span className="font-normal text-[12px] text-[#848484] text-center leading-normal">
+                    JPG, PNG or WebP · up to 10 MB each
+                  </span>
+                </button>
+
+                <ErrorText>{error}</ErrorText>
 
                 {/* Page Thumbnails Row (as shown in Node 67:530) */}
                 {pages.length > 0 && (
@@ -448,8 +573,8 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                         <div
                           key={p.id}
                           draggable
-                          onDragStart={() => handleDragStart(idx)}
-                          onDragOver={handleDragOver}
+                          onDragStart={() => setDraggedPageIndex(idx)}
+                          onDragOver={(e) => e.preventDefault()}
                           onDrop={() => handleDropPage(idx)}
                           className="relative flex flex-col items-center group cursor-grab active:cursor-grabbing"
                         >
@@ -496,22 +621,15 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
               </div>
 
               {/* Continue CTA Button */}
-              <button
-                type="button"
-                onClick={() => setStep(3)}
-                className="w-full h-[52px] sm:h-[56px] bg-[#0094c5] hover:bg-[#0082ad] text-white font-bold text-[16px] rounded-[100px] flex items-center justify-center gap-[8px] p-[12px] shadow-md hover:shadow-cyan-500/25 transition-all cursor-pointer mt-1"
-                data-node-id="67:576"
-              >
+              <button type="button" onClick={finishForm} disabled={!pages.length} className={`${ctaClass} mt-1`} data-node-id="67:576">
                 <span>Continue</span>
-                <div className="size-[24px] shrink-0">
-                  <img src={imgArrowRight} alt="" className="size-full" />
-                </div>
+                <CtaArrow />
               </button>
             </div>
           )}
 
-          {/* ==================== STEP 3: UPLOADED DOCUMENTS / IDENTIFIED (Node 67:605) ==================== */}
-          {step === 3 && (
+          {/* ==================== STEP 3: UPLOADED DOCUMENTS (Node 67:605) ==================== */}
+          {step === STEP.REVIEW && (
             <div className="p-6 sm:p-8 lg:p-[40px] flex flex-col gap-6 sm:gap-[32px] items-center" data-node-id="67:606">
               {/* Header */}
               <div className="flex flex-col gap-[20px] items-start w-full">
@@ -533,14 +651,16 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                     Upload documents
                   </h2>
                   <p className="font-normal text-[14px] sm:text-[16px] text-[#444] leading-normal">
-                    We identified the following documents that you uploaded.
+                    {docs.length
+                      ? 'Check each document is the right form type before sending.'
+                      : 'Add the documents you want to send to your accountant.'}
                   </p>
                 </div>
               </div>
 
-              {/* Identified Documents List */}
+              {/* Documents List */}
               <div className="flex flex-col gap-[12px] items-start w-full" data-node-id="67:625">
-                {identifiedDocs.map((doc, docIdx) => (
+                {docs.map((doc) => (
                   <div
                     key={doc.id}
                     className="w-full bg-[#f5f5f5] flex gap-3 sm:gap-[16px] items-center p-3 sm:p-[16px] rounded-[20px] relative"
@@ -548,7 +668,7 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                     {/* Thumbnail with page count badge */}
                     <div className="relative size-[40px] shrink-0">
                       <div className="size-[40px] rounded-lg overflow-hidden bg-white border border-gray-100 flex items-center justify-center">
-                        <img src={doc.thumb} alt={doc.name} className="size-full object-contain" />
+                        <img src={thumbFor(doc.formType)} alt="" className="size-full object-contain" />
                       </div>
                       {doc.pageCount > 1 && (
                         <div className="absolute -top-1.5 -right-1.5 bg-white shadow-xs rounded-full size-[22px] flex items-center justify-center text-[12px] font-semibold text-[#111] border border-gray-200">
@@ -557,43 +677,64 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                       )}
                     </div>
 
-                    {/* Select/Dropdown box for form type */}
+                    {/* Form type: changeable until the document is sent */}
                     <div className="relative flex-1 min-w-0">
-                      <select
-                        value={doc.type}
-                        onChange={(e) => {
-                          const newType = e.target.value;
-                          const matched = FORM_OPTIONS.find((f) => f.id === newType);
-                          setIdentifiedDocs((prev) =>
-                            prev.map((d, i) =>
-                              i === docIdx
-                                ? { ...d, type: newType, name: matched ? matched.name : d.name, thumb: matched ? matched.thumb : d.thumb }
-                                : d
-                            )
-                          );
-                        }}
-                        className="w-full h-[40px] px-[12px] py-[8px] bg-white border border-[#cfcfcf] rounded-[10px] font-semibold text-[15px] sm:text-[16px] text-[#111] appearance-none cursor-pointer focus:outline-none focus:border-[#0094c5] pr-8"
-                      >
-                        {FORM_OPTIONS.map((opt) => (
-                          <option key={opt.id} value={opt.id}>
-                            {opt.name}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M16 7L10 13L4 7" />
-                        </svg>
-                      </div>
+                      {doc.serverId ? (
+                        <div className="flex flex-col gap-[2px]">
+                          <span className="font-semibold text-[15px] sm:text-[16px] text-[#111] truncate">{labelFor(doc.formType)}</span>
+                          <span className="font-medium text-[12px] text-[#0094c5]">Sent securely</span>
+                        </div>
+                      ) : (
+                        <>
+                          <select
+                            value={doc.formType}
+                            onChange={(e) => changeFormType(doc.id, e.target.value)}
+                            disabled={busy}
+                            aria-label="Form type"
+                            className="w-full h-[40px] px-[12px] py-[8px] bg-white border border-[#cfcfcf] rounded-[10px] font-semibold text-[15px] sm:text-[16px] text-[#111] appearance-none cursor-pointer focus:outline-none focus:border-[#0094c5] pr-8"
+                          >
+                            {formTypes.map((opt) => (
+                              <option key={opt.key} value={opt.key}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M16 7L10 13L4 7" />
+                            </svg>
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     {/* View Button */}
                     <button
                       type="button"
-                      onClick={() => setActivePreviewDoc(doc)}
+                      onClick={() =>
+                        setActivePreviewDoc({
+                          name: labelFor(doc.formType),
+                          thumb: thumbFor(doc.formType),
+                          pageCount: doc.pageCount,
+                          pages: doc.files ? doc.files : [{ preview: doc.thumbnailUrl }],
+                        })
+                      }
                       className="font-bold text-[14px] text-[#0094c5] hover:underline cursor-pointer px-1"
                     >
                       View
+                    </button>
+
+                    {/* Remove */}
+                    <button
+                      type="button"
+                      onClick={() => removeDoc(doc)}
+                      disabled={busy}
+                      aria-label={`Remove ${labelFor(doc.formType)}`}
+                      className="size-[24px] shrink-0 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-white cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
                     </button>
                   </div>
                 ))}
@@ -601,34 +742,31 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                 {/* Upload another document button */}
                 <button
                   type="button"
-                  onClick={() => setStep(2)}
-                  className="w-full h-[52px] bg-[#0094c5]/10 hover:bg-[#0094c5]/15 text-[#0094c5] font-semibold text-[15px] sm:text-[16px] rounded-[100px] flex items-center justify-center gap-[8px] p-[12px] transition-colors cursor-pointer mt-1"
+                  onClick={() => goTo(STEP.CHOOSE)}
+                  disabled={busy}
+                  className="w-full h-[52px] bg-[#0094c5]/10 hover:bg-[#0094c5]/15 text-[#0094c5] font-semibold text-[15px] sm:text-[16px] rounded-[100px] flex items-center justify-center gap-[8px] p-[12px] transition-colors cursor-pointer mt-1 disabled:opacity-40 disabled:cursor-not-allowed"
                   data-node-id="67:640"
                 >
-                  <span>Upload another document</span>
+                  <span>{docs.length ? 'Upload another document' : 'Upload a document'}</span>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
                   </svg>
                 </button>
               </div>
 
-              {/* Continue CTA Button */}
-              <button
-                type="button"
-                onClick={() => setStep(4)}
-                className="w-full h-[52px] sm:h-[56px] bg-[#0094c5] hover:bg-[#0082ad] text-white font-bold text-[16px] rounded-[100px] flex items-center justify-center gap-[8px] p-[12px] shadow-md hover:shadow-cyan-500/25 transition-all cursor-pointer"
-                data-node-id="67:643"
-              >
-                <span>Continue</span>
-                <div className="size-[24px] shrink-0">
-                  <img src={imgArrowRight} alt="" className="size-full" />
-                </div>
-              </button>
+              <div className="flex flex-col gap-[10px] w-full">
+                <ErrorText className="text-center">{error}</ErrorText>
+                {/* Continue CTA Button */}
+                <button type="button" onClick={submitDocuments} disabled={busy || !docs.length} className={ctaClass} data-node-id="67:643">
+                  <span>{busy ? 'Uploading securely…' : isCustomer ? 'Send documents' : 'Continue'}</span>
+                  {!busy && <CtaArrow />}
+                </button>
+              </div>
             </div>
           )}
 
           {/* ==================== STEP 4: LAST FEW DETAILS (Node 67:648) ==================== */}
-          {step === 4 && (
+          {step === STEP.DETAILS && (
             <form onSubmit={handleDetailsSubmit} className="p-6 sm:p-8 lg:p-[40px] flex flex-col gap-5 sm:gap-[20px] items-center" data-node-id="67:649">
               {/* Header */}
               <div className="flex flex-col gap-[20px] items-start w-full">
@@ -657,63 +795,63 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
 
               {/* Form Fields */}
               <div className="flex flex-col gap-[14px] sm:gap-[16px] items-start w-full max-h-[48vh] overflow-y-auto pr-1" data-node-id="67:668">
-                {/* Full name */}
-                <div className="flex flex-col gap-[8px] items-start w-full">
-                  <label className="font-normal text-[15px] sm:text-[16px] text-[#111]">Full name</label>
+                <Field label="Full name" error={fieldErrors.fullName}>
                   <input
                     type="text"
                     required
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full h-[50px] sm:h-[54px] px-[16px] bg-white border border-[#dcdcdc] rounded-[20px] font-medium text-[15px] sm:text-[16px] text-[#111] focus:outline-none focus:border-[#0094c5]"
+                    autoComplete="name"
+                    placeholder="Jane Doe"
+                    value={details.fullName}
+                    onChange={(e) => updateDetail('fullName', e.target.value)}
+                    className={`${inputClass} ${fieldErrors.fullName ? 'border-red-500' : 'border-[#dcdcdc]'}`}
                   />
-                </div>
+                </Field>
 
-                {/* Phone */}
-                <div className="flex flex-col gap-[8px] items-start w-full">
-                  <label className="font-normal text-[15px] sm:text-[16px] text-[#111]">Phone</label>
+                <Field label="Phone" optional error={fieldErrors.phone}>
                   <input
                     type="tel"
-                    required
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full h-[50px] sm:h-[54px] px-[16px] bg-white border border-[#dcdcdc] rounded-[20px] font-medium text-[15px] sm:text-[16px] text-[#111] focus:outline-none focus:border-[#0094c5]"
+                    autoComplete="tel"
+                    placeholder="(555) 123-4567"
+                    value={details.phone}
+                    onChange={(e) => updateDetail('phone', e.target.value)}
+                    className={`${inputClass} ${fieldErrors.phone ? 'border-red-500' : 'border-[#dcdcdc]'}`}
                   />
-                </div>
+                </Field>
 
-                {/* Email */}
-                <div className="flex flex-col gap-[8px] items-start w-full">
-                  <label className="font-normal text-[15px] sm:text-[16px] text-[#111]">Email</label>
+                <Field label="Email" error={fieldErrors.email}>
                   <input
                     type="email"
                     required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full h-[50px] sm:h-[54px] px-[16px] bg-white border border-[#dcdcdc] rounded-[20px] font-medium text-[15px] sm:text-[16px] text-[#111] focus:outline-none focus:border-[#0094c5]"
+                    autoComplete="email"
+                    placeholder="jane@example.com"
+                    value={details.email}
+                    onChange={(e) => updateDetail('email', e.target.value)}
+                    className={`${inputClass} ${fieldErrors.email ? 'border-red-500' : 'border-[#dcdcdc]'}`}
                   />
-                </div>
+                </Field>
 
-                {/* Address */}
-                <div className="flex flex-col gap-[8px] items-start w-full">
-                  <label className="font-normal text-[15px] sm:text-[16px] text-[#111]">Address</label>
+                <Field label="Address" error={fieldErrors.address}>
                   <input
                     type="text"
                     required
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="w-full h-[50px] sm:h-[54px] px-[16px] bg-white border border-[#dcdcdc] rounded-[20px] font-medium text-[15px] sm:text-[16px] text-[#111] focus:outline-none focus:border-[#0094c5]"
+                    autoComplete="street-address"
+                    placeholder="123 Main St, Apt 4B, Springfield, IL 62701"
+                    value={details.address}
+                    onChange={(e) => updateDetail('address', e.target.value)}
+                    className={`${inputClass} ${fieldErrors.address ? 'border-red-500' : 'border-[#dcdcdc]'}`}
                   />
-                </div>
+                </Field>
 
                 {/* Social security number with Eye toggle */}
-                <div className="flex flex-col gap-[8px] items-start w-full">
-                  <label className="font-normal text-[15px] sm:text-[16px] text-[#111]">Social security number</label>
-                  <div className="w-full h-[50px] sm:h-[54px] px-[16px] bg-white border border-[#dcdcdc] rounded-[20px] flex items-center justify-between focus-within:border-[#0094c5]">
+                <Field label="Social security number" error={fieldErrors.ssn}>
+                  <div className={`w-full h-[50px] sm:h-[54px] px-[16px] bg-white border rounded-[20px] flex items-center justify-between focus-within:border-[#0094c5] ${fieldErrors.ssn ? 'border-red-500' : 'border-[#dcdcdc]'}`}>
                     <input
                       type={showSsn ? "text" : "password"}
                       required
-                      value={formData.ssn}
-                      onChange={(e) => setFormData({ ...formData, ssn: e.target.value })}
+                      autoComplete="off"
+                      inputMode="numeric"
+                      value={details.ssn}
+                      onChange={(e) => updateDetail('ssn', e.target.value)}
                       placeholder="XXX-XX-XXXX"
                       className="w-full bg-transparent font-medium text-[15px] sm:text-[16px] text-[#111] focus:outline-none tracking-wider"
                     />
@@ -736,95 +874,86 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                       )}
                     </button>
                   </div>
-                </div>
+                </Field>
 
-                {/* Date of birth with Calendar icon */}
-                <div className="flex flex-col gap-[8px] items-start w-full">
-                  <label className="font-normal text-[15px] sm:text-[16px] text-[#111]">Date of birth</label>
-                  <div className="w-full h-[50px] sm:h-[54px] px-[16px] bg-white border border-[#dcdcdc] rounded-[20px] flex items-center justify-between focus-within:border-[#0094c5]">
-                    <input
-                      type="date"
-                      required
-                      value={formData.dob}
-                      onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
-                      className="w-full bg-transparent font-medium text-[15px] sm:text-[16px] text-[#111] focus:outline-none"
-                    />
-                    <div className="size-[20px] text-gray-500 pointer-events-none shrink-0 ml-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                        <line x1="16" y1="2" x2="16" y2="6" />
-                        <line x1="8" y1="2" x2="8" y2="6" />
-                        <line x1="3" y1="10" x2="21" y2="10" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
+                <Field label="Date of birth" error={fieldErrors.dob}>
+                  <input
+                    type="date"
+                    required
+                    autoComplete="bday"
+                    min="1900-01-01"
+                    max={today}
+                    value={details.dob}
+                    onChange={(e) => updateDetail('dob', e.target.value)}
+                    className={`${inputClass} ${fieldErrors.dob ? 'border-red-500' : 'border-[#dcdcdc]'}`}
+                  />
+                </Field>
 
-                {/* Status dropdown */}
-                <div className="flex flex-col gap-[8px] items-start w-full">
-                  <label className="font-normal text-[15px] sm:text-[16px] text-[#111]">Status</label>
+                <Field label="Status" error={fieldErrors.maritalStatus}>
                   <div className="relative w-full">
                     <select
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full h-[50px] sm:h-[54px] px-[16px] bg-white border border-[#dcdcdc] rounded-[20px] font-medium text-[15px] sm:text-[16px] text-[#111] appearance-none focus:outline-none focus:border-[#0094c5] pr-10 cursor-pointer"
+                      value={details.maritalStatus}
+                      onChange={(e) => updateDetail('maritalStatus', e.target.value)}
+                      className={`${inputClass} border-[#dcdcdc] appearance-none pr-10 cursor-pointer`}
                     >
-                      <option value="Single">Single</option>
-                      <option value="Married Filing Jointly">Married Filing Jointly</option>
-                      <option value="Married Filing Separately">Married Filing Separately</option>
-                      <option value="Head of Household">Head of Household</option>
-                      <option value="Qualifying Surviving Spouse">Qualifying Surviving Spouse</option>
+                      <option value="single">Single</option>
+                      <option value="married">Married</option>
+                      <option value="divorced">Divorced</option>
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M16 7L10 13L4 7" />
-                      </svg>
-                    </div>
+                    <SelectChevron />
                   </div>
-                </div>
+                </Field>
 
-                {/* Dependents dropdown */}
-                <div className="flex flex-col gap-[8px] items-start w-full">
-                  <label className="font-normal text-[15px] sm:text-[16px] text-[#111]">Dependents</label>
+                <Field label="Dependents" error={fieldErrors.hasDependents}>
                   <div className="relative w-full">
                     <select
-                      value={formData.dependents}
-                      onChange={(e) => setFormData({ ...formData, dependents: e.target.value })}
-                      className="w-full h-[50px] sm:h-[54px] px-[16px] bg-white border border-[#dcdcdc] rounded-[20px] font-medium text-[15px] sm:text-[16px] text-[#111] appearance-none focus:outline-none focus:border-[#0094c5] pr-10 cursor-pointer"
+                      value={details.hasDependents}
+                      onChange={(e) => updateDetail('hasDependents', e.target.value)}
+                      className={`${inputClass} border-[#dcdcdc] appearance-none pr-10 cursor-pointer`}
                     >
                       <option value="No">No</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4+">4 or more</option>
+                      <option value="Yes">Yes</option>
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M16 7L10 13L4 7" />
-                      </svg>
-                    </div>
+                    <SelectChevron />
                   </div>
-                </div>
+                </Field>
               </div>
 
-              {/* Continue CTA Button */}
-              <button
-                type="submit"
-                className="w-full h-[52px] sm:h-[56px] bg-[#0094c5] hover:bg-[#0082ad] text-white font-bold text-[16px] rounded-[100px] flex items-center justify-center gap-[8px] p-[12px] shadow-md hover:shadow-cyan-500/25 transition-all cursor-pointer mt-1"
-                data-node-id="67:705"
-              >
-                <span>Continue</span>
-                <div className="size-[24px] shrink-0">
-                  <img src={imgArrowRight} alt="" className="size-full" />
-                </div>
-              </button>
+              <div className="flex flex-col gap-[10px] w-full items-center">
+                <ErrorText className="text-center">{error}</ErrorText>
+                {accountExists && (
+                  <button type="button" onClick={onLogin} className="font-bold text-[14px] text-[#0094c5] hover:underline cursor-pointer">
+                    Log in instead
+                  </button>
+                )}
+                {/* Continue CTA Button */}
+                <button type="submit" disabled={busy} className={`${ctaClass} mt-1`} data-node-id="67:705">
+                  <span>{busy ? 'Sending your code…' : 'Continue'}</span>
+                  {!busy && <CtaArrow />}
+                </button>
+              </div>
             </form>
           )}
 
-          {/* ==================== STEP 5: ALL DONE (Node 67:775) ==================== */}
-          {step === 5 && (
+          {/* ==================== STEP 5: VERIFY EMAIL (sign-up only) ==================== */}
+          {step === STEP.VERIFY && (
+            <OtpVerificationCard
+              email={details.email.trim()}
+              verify={verifySignup}
+              resend={resendSignupCode}
+              changeLabel="Change your details"
+              onChangeEmail={() => goTo(STEP.DETAILS)}
+              onVerified={(signedIn) => {
+                setSession(signedIn);
+                setStep(STEP.DONE);
+              }}
+            />
+          )}
+
+          {/* ==================== STEP 6: ALL DONE (Node 67:775) ==================== */}
+          {step === STEP.DONE && (
             <div className="flex flex-col items-center relative overflow-hidden" data-node-id="67:776">
-              
+
               {/* Top Arched Blue Graphic with Mobile Phone Refund Mockup */}
               <div className="relative w-full aspect-[2000/1112] overflow-hidden bg-[#0094c5] rounded-b-[50%_40%]">
                 {/* Phone mockup export covers the full header frame, so the phone is already centered inside it */}
@@ -843,21 +972,16 @@ export default function DocumentUploadFlow({ isOpen, onClose, onCompleteToDashbo
                     All done
                   </h2>
                   <p className="font-normal text-[15px] sm:text-[16px] text-[#444] leading-normal" data-node-id="67:780">
-                    Your documents are with TaxMax and your account is ready, login to start tracking &amp; get useful insights
+                    {isCustomer
+                      ? 'Your documents are with TaxMax. Track their progress from your dashboard.'
+                      : 'Your documents are with TaxMax and your account is ready. Head to your dashboard to start tracking & get useful insights.'}
                   </p>
                 </div>
 
-                {/* Login to TaxMax CTA Button */}
-                <button
-                  type="button"
-                  onClick={handleLoginClick}
-                  className="w-full h-[52px] sm:h-[56px] bg-[#0094c5] hover:bg-[#0082ad] text-white font-bold text-[16px] rounded-[100px] flex items-center justify-center gap-[8px] p-[12px] shadow-lg hover:shadow-cyan-500/25 transition-all cursor-pointer"
-                  data-node-id="67:781"
-                >
-                  <span>Login to TaxMax</span>
-                  <div className="size-[24px] shrink-0">
-                    <img src={imgArrowRight} alt="" className="size-full" />
-                  </div>
+                {/* Dashboard CTA Button */}
+                <button type="button" onClick={close} className={ctaClass} data-node-id="67:781">
+                  <span>{isCustomer ? 'Back to dashboard' : 'Go to your dashboard'}</span>
+                  <CtaArrow />
                 </button>
 
                 {/* Mobile App Promotion Footer */}

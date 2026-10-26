@@ -1,53 +1,65 @@
 import { useMemo } from 'react';
-import { Avatar, StatusBadge, Dropdown, SearchField, PillButton, PageHeader, Pagination, SortHeader, RowMenu } from './ui';
-import { PAGE_SIZE, STATUSES, formatDate, statusById, toCsv, downloadFile } from './adminData';
+import { Avatar, StatusBadge, Dropdown, SearchField, PillButton, PageHeader, Pagination, SortHeader, RowMenu, ListState } from './ui';
+import { CLIENT_STATUSES, formatDate, statusById, toCsv, downloadFile } from './adminData';
+import { mapDirectoryClient } from './adminApiMappers';
+import { FIRST_PAGE, cursorFor, pageCountFor, goToPage } from './cursorPages';
+import { listClientDirectory } from '../../services/dashboard';
+import useApiQuery from '../../hooks/useApiQuery';
+import useDebouncedValue from '../../hooks/useDebouncedValue';
 
 const A = '/figma/admin';
 
-const STATUS_FILTERS = [{ value: 'all', label: 'All statuses' }, ...STATUSES.map(({ id, label }) => ({ value: id, label }))];
+const STATUS_FILTERS = [{ value: 'all', label: 'All statuses' }, ...CLIENT_STATUSES.map(({ id, label }) => ({ value: id, label }))];
 const COLUMNS = 'grid-cols-[230px_170px_150px_110px_100px_130px_170px_minmax(56px,1fr)]';
 const headerCell = 'flex h-[48px] items-center pl-[14px] pr-[10px] font-semibold leading-[normal] text-[12px] text-[#6a6a6a] tracking-[0.24px] uppercase whitespace-nowrap';
 const textCell = 'flex items-center px-[16px] font-medium leading-[normal] text-[14px] text-[#111] whitespace-nowrap';
 
-// Client directory (Node 87:2446)
-export default function ClientsDirectoryView({ clients, documents, filters, onFiltersChange, onOpenClient, onMessageClient }) {
-  const { status, query, page, sortDir } = filters;
-  const update = (patch) => onFiltersChange({ ...filters, page: 1, ...patch });
+const dash = (value) => (value === null || value === undefined || value === '' ? '—' : value);
 
-  const submissionCounts = useMemo(() => {
-    const counts = {};
-    documents.forEach((d) => {
-      counts[d.clientId] = (counts[d.clientId] || 0) + 1;
-    });
-    return counts;
-  }, [documents]);
+// Client directory (Node 87:2446). Status, search and paging run on the API; the sort
+// only orders the loaded page.
+export default function ClientsDirectoryView({ filters, onFiltersChange, onOpenClient, onMessageClient }) {
+  const { status, query, page, sortDir } = filters;
+  const update = (patch) => onFiltersChange({ ...filters, ...FIRST_PAGE, ...patch });
+  const search = useDebouncedValue(query.trim());
+  const cursor = cursorFor(filters);
+
+  const { data, loading, error, reload } = useApiQuery(`clients:${status}:${search}:${cursor}`, () =>
+    listClientDirectory({ status, search, cursor }),
+  );
+
+  const clients = useMemo(() => (data?.data || []).map(mapDirectoryClient), [data]);
+  const hasMore = Boolean(data?.pagination?.hasMore);
+  const pageSize = data?.pagination?.limit || 10;
+  const pageCount = pageCountFor(filters, hasMore);
 
   const rows = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = clients.filter((c) => {
-      if (status !== 'all' && c.status !== status) return false;
-      if (!q) return true;
-      return [c.name, c.email, c.phone].some((v) => v.toLowerCase().includes(q));
-    });
+    const list = [...clients];
     if (sortDir) {
       const dir = sortDir === 'asc' ? 1 : -1;
       list.sort((a, b) => dir * a.name.localeCompare(b.name));
     }
     return list;
-  }, [clients, status, query, sortDir]);
+  }, [clients, sortDir]);
 
-  const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
-  const current = Math.min(page, pageCount);
-  const pageRows = rows.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
-  const first = rows.length ? (current - 1) * PAGE_SIZE + 1 : 0;
-  const last = Math.min(current * PAGE_SIZE, rows.length);
+  const first = clients.length ? (page - 1) * pageSize + 1 : 0;
+  const last = clients.length ? first + clients.length - 1 : 0;
 
   const exportCsv = () =>
     downloadFile(
       'clients.csv',
       toCsv([
         ['Client', 'Email', 'Phone', 'SSN', 'Submissions', 'Tax Year', 'Status', 'Account Created'],
-        ...rows.map((c) => [c.name, c.email, c.phone, c.ssn, submissionCounts[c.id] || 0, c.taxYear, statusById(c.status).label, formatDate(c.createdAt)]),
+        ...rows.map((c) => [
+          c.name,
+          c.email,
+          c.phone,
+          c.ssn,
+          c.submissionCount ?? '',
+          c.taxYear ?? '',
+          statusById(c.status).label,
+          c.createdAt ? formatDate(c.createdAt) : '',
+        ]),
       ]),
     );
 
@@ -71,7 +83,7 @@ export default function ClientsDirectoryView({ clients, documents, filters, onFi
         </div>
 
         <div className="bg-white overflow-x-auto rounded-[20px] w-full" data-node-id="87:2498">
-          <div className="min-w-[1116px]" role="table" aria-label="Clients">
+          <div className="min-w-[1116px]" role="table" aria-label="Clients" aria-busy={loading}>
             <div role="row" className={`grid ${COLUMNS} border-[#e8e8e8] border-b border-solid`}>
               <div role="columnheader">
                 <SortHeader
@@ -86,52 +98,66 @@ export default function ClientsDirectoryView({ clients, documents, filters, onFi
               <div role="columnheader" />
             </div>
 
-            {pageRows.map((client) => (
-              <div
-                key={client.id}
-                role="row"
-                tabIndex={0}
-                onClick={() => onOpenClient(client.id)}
-                onKeyDown={(e) => e.key === 'Enter' && onOpenClient(client.id)}
-                className={`grid ${COLUMNS} h-[73px] border-[#e8e8e8] border-b border-solid cursor-pointer transition-colors hover:bg-[#fafafa] focus-visible:outline-none focus-visible:bg-[rgba(0,148,197,0.05)]`}
-              >
-                <div role="cell" className="flex gap-[6px] items-center min-w-0 px-[14px]">
-                  <Avatar name={client.name} />
-                  <div className="flex flex-col gap-[2px] items-start justify-center leading-[normal] min-w-0 whitespace-nowrap">
-                    <p className="font-medium max-w-full overflow-hidden text-[14px] text-[#111] text-ellipsis">{client.name}</p>
-                    <p className="font-normal max-w-full overflow-hidden text-[12px] text-[#6a6a6a] text-ellipsis">{client.email}</p>
+            {!error && (
+              <div className={`transition-opacity ${loading && data ? 'opacity-50' : ''}`}>
+                {rows.map((client) => (
+                  <div
+                    key={client.id}
+                    role="row"
+                    tabIndex={0}
+                    onClick={() => onOpenClient(client)}
+                    onKeyDown={(e) => e.key === 'Enter' && onOpenClient(client)}
+                    className={`grid ${COLUMNS} h-[73px] border-[#e8e8e8] border-b border-solid cursor-pointer transition-colors hover:bg-[#fafafa] focus-visible:outline-none focus-visible:bg-[rgba(0,148,197,0.05)]`}
+                  >
+                    <div role="cell" className="flex gap-[6px] items-center min-w-0 px-[14px]">
+                      <Avatar name={client.name} />
+                      <div className="flex flex-col gap-[2px] items-start justify-center leading-[normal] min-w-0 whitespace-nowrap">
+                        <p className="font-medium max-w-full overflow-hidden text-[14px] text-[#111] text-ellipsis">{client.name}</p>
+                        <p className="font-normal max-w-full overflow-hidden text-[12px] text-[#6a6a6a] text-ellipsis">{client.email}</p>
+                      </div>
+                    </div>
+                    <div role="cell" className={textCell}>{dash(client.phone)}</div>
+                    <div role="cell" className={textCell}>{dash(client.ssn)}</div>
+                    <div role="cell" className={textCell}>{dash(client.submissionCount)}</div>
+                    <div role="cell" className={textCell}>{dash(client.taxYear)}</div>
+                    <div role="cell" className="flex items-center px-[16px]">
+                      <StatusBadge status={client.status} />
+                    </div>
+                    <div role="cell" className={textCell}>{client.createdAt ? formatDate(client.createdAt) : '—'}</div>
+                    <div role="cell" className="flex items-center justify-center px-[10px]">
+                      <RowMenu
+                        items={[
+                          { key: 'view', label: 'View client', onSelect: () => onOpenClient(client) },
+                          { key: 'message', label: 'Message client', onSelect: () => onMessageClient(client) },
+                        ]}
+                      />
+                    </div>
                   </div>
-                </div>
-                <div role="cell" className={textCell}>{client.phone}</div>
-                <div role="cell" className={textCell}>{client.ssn}</div>
-                <div role="cell" className={textCell}>{submissionCounts[client.id] || 0}</div>
-                <div role="cell" className={textCell}>{client.taxYear}</div>
-                <div role="cell" className="flex items-center px-[16px]">
-                  <StatusBadge status={client.status} />
-                </div>
-                <div role="cell" className={textCell}>{formatDate(client.createdAt)}</div>
-                <div role="cell" className="flex items-center justify-center px-[10px]">
-                  <RowMenu
-                    items={[
-                      { key: 'view', label: 'View client', onSelect: () => onOpenClient(client.id) },
-                      { key: 'message', label: 'Message client', onSelect: () => onMessageClient(client.id) },
-                    ]}
-                  />
-                </div>
+                ))}
               </div>
-            ))}
+            )}
 
-            {pageRows.length === 0 && (
-              <div className="flex h-[200px] items-center justify-center text-[14px] text-[#6a6a6a]">No clients match your filters.</div>
+            {(error || rows.length === 0) && (
+              <ListState
+                loading={loading}
+                error={error}
+                onRetry={reload}
+                empty={search || status !== 'all' ? 'No clients match your filters.' : 'No clients yet.'}
+              />
             )}
           </div>
         </div>
 
         <div className="flex flex-wrap gap-[10px] items-center justify-between w-full" data-node-id="87:2713">
           <p className="font-normal leading-[normal] text-[16px] text-[#444] whitespace-nowrap">
-            Showing {first}-{last} of {rows.length} clients
+            {clients.length ? `Showing ${first}-${last}${hasMore ? '' : ` of ${last}`} clients` : 'No clients'}
           </p>
-          <Pagination page={current} pageCount={pageCount} onChange={(n) => onFiltersChange({ ...filters, page: n })} />
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            // The next page's cursor comes from the loaded page, so wait for it to settle.
+            onChange={(n) => !loading && onFiltersChange({ ...filters, ...goToPage(filters, n, data?.pagination?.nextCursor) })}
+          />
         </div>
       </div>
     </div>

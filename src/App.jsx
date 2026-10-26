@@ -17,42 +17,58 @@ import DocumentUploadFlow from './components/upload/DocumentUploadFlow';
 import ClientDashboard from './components/dashboard/ClientDashboard';
 import AdminDashboard from './components/admin/AdminDashboard';
 import AuthScreen from './components/auth/AuthScreen';
-import { getAccountType, getStoredToken, clearSession, logout } from './services/auth';
+import { getAccountType, getStoredToken, clearSession, logout, refreshCustomerProfile } from './services/auth';
+import { setUnauthorizedHandler } from './services/api';
 
 // Team members (admin and staff) use the admin portal; everyone else the customer dashboard.
 const dashboardViewFor = (accountType) => (accountType === 'team' ? 'admin' : 'dashboard');
 
-const readStoredUser = () => {
+// The session saved in localStorage: { accountType, user }, or null when there is no live one.
+// Read before the first render, so a signed-in reload opens on the dashboard, not the landing page.
+function restoreSession() {
   try {
-    return JSON.parse(localStorage.getItem('taxmax_user'));
+    // No live API session (expired, or an old local-only account) means signing in again.
+    const accountType = getAccountType(getStoredToken());
+    if (!accountType) {
+      clearSession();
+      return null;
+    }
+    const isAuth = localStorage.getItem('taxmax_is_authenticated') === 'true';
+    const storedUser = localStorage.getItem('taxmax_user');
+    return { accountType, user: isAuth && storedUser ? JSON.parse(storedUser) : null };
   } catch (e) {
     console.error(e);
     return null;
   }
-};
+}
 
 export default function App() {
+  const [session] = useState(restoreSession);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'login' | 'dashboard' | 'admin'
-  const [user, setUser] = useState(null);
+  // 'landing' | 'login' | 'dashboard' | 'admin'
+  const [currentView, setCurrentView] = useState(() =>
+    session?.user ? dashboardViewFor(session.accountType) : 'landing',
+  );
+  const [user, setUser] = useState(session?.user ?? null);
+  // Bumped when the upload flow adds documents, so the dashboard reloads them.
+  const [documentsVersion, setDocumentsVersion] = useState(0);
 
-  // Load existing authenticated user session from localStorage
+  // Show the cached profile at once, then swap in the current one from the API.
+  // A revoked session is handled by the 401 handler; other failures keep the cache.
   useEffect(() => {
-    try {
-      // An expired API session means signing in again.
-      const token = getStoredToken();
-      if (token && !getAccountType(token)) {
-        clearSession();
-        return;
-      }
-      const isAuth = localStorage.getItem('taxmax_is_authenticated') === 'true';
-      const storedUser = localStorage.getItem('taxmax_user');
-      if (isAuth && storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-    } catch (e) {
-      console.error(e);
+    if (session?.accountType === 'customer') {
+      refreshCustomerProfile().then(setUser, (err) => console.error(err));
     }
+  }, [session]);
+
+  // A 401 on any signed-in request means the session expired or was revoked: back to login.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      clearSession();
+      setUser(null);
+      setCurrentView('login');
+    });
+    return () => setUnauthorizedHandler(null);
   }, []);
 
   const handleOpenUpload = () => {
@@ -71,12 +87,29 @@ export default function App() {
     window.scrollTo({ top: 0 });
   };
 
-  const handleCompleteToDashboard = (userData) => {
-    // The upload flow saves the full account (filing id, documents) before handing over.
-    setUser(readStoredUser() || userData);
+  // Finishing sign-up in the upload flow signs the new customer in.
+  const handleSignedUp = ({ user: userData }) => {
+    setIsUploadOpen(false);
+    setUser(userData);
     setCurrentView('dashboard');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // An existing account found during sign-up: log in instead.
+  const handleLoginFromUpload = () => {
+    setIsUploadOpen(false);
+    handleOpenLogin();
+  };
+
+  const uploadFlow = isUploadOpen && (
+    <DocumentUploadFlow
+      isOpen
+      onClose={() => setIsUploadOpen(false)}
+      onSignedUp={handleSignedUp}
+      onDocumentsAdded={() => setDocumentsVersion((v) => v + 1)}
+      onLogin={handleLoginFromUpload}
+    />
+  );
 
   const handleViewTaxTools = () => {
     setCurrentView('landing');
@@ -104,8 +137,9 @@ export default function App() {
     return (
       <div className="min-h-screen w-full bg-[#07152a] font-['Manrope',sans-serif] selection:bg-[#0094c5] selection:text-white">
         <ClientDashboard
-          key={user?.filingId}
+          key={user?.id}
           user={user}
+          documentsVersion={documentsVersion}
           onLogout={handleLogout}
           onBackToHome={() => setCurrentView('landing')}
           onOpenUpload={handleOpenUpload}
@@ -113,11 +147,7 @@ export default function App() {
         />
 
         {/* Global Document Upload Modal accessible anytime */}
-        <DocumentUploadFlow
-          isOpen={isUploadOpen}
-          onClose={() => setIsUploadOpen(false)}
-          onCompleteToDashboard={handleCompleteToDashboard}
-        />
+        {uploadFlow}
       </div>
     );
   }
@@ -171,11 +201,7 @@ export default function App() {
       <Footer />
 
       {/* Document Upload Flow (Figma Screens 67:407, 67:496, 67:530, 67:605, 67:648, 67:775) */}
-      <DocumentUploadFlow
-        isOpen={isUploadOpen}
-        onClose={() => setIsUploadOpen(false)}
-        onCompleteToDashboard={handleCompleteToDashboard}
-      />
+      {uploadFlow}
     </div>
   );
 }

@@ -1,23 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const imgLogo = "/figma/b888a9396e41ae8b3746258887ab3eadbe9402d1.svg";
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess, onOpenUpload }) {
-  const [email, setEmail] = useState('johndoe@gmail.com');
-  const [password, setPassword] = useState('••••••••••••');
-  const [error, setError] = useState('');
-
-  useEffect(() => {
+  const [email, setEmail] = useState(() => {
     try {
       const savedUser = localStorage.getItem('taxmax_user');
       if (savedUser) {
         const parsed = JSON.parse(savedUser);
-        if (parsed.email) setEmail(parsed.email);
+        if (parsed.email) return parsed.email;
       }
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // Ignore
     }
-  }, [isOpen]);
+    return 'johndoe@gmail.com';
+  });
+  const [password, setPassword] = useState('••••••••••••');
+  const [error, setError] = useState('');
 
   if (!isOpen) return null;
 
@@ -64,7 +63,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onOpenUplo
       localStorage.setItem('taxmax_is_authenticated', 'true');
       onLoginSuccess(user);
       onClose();
-    } catch (err) {
+    } catch {
       setError('An error occurred during login. Please try again.');
     }
   };

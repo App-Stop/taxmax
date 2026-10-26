@@ -1,21 +1,30 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import useDesignScale from '../../hooks/useDesignScale';
+import useApiQuery from '../../hooks/useApiQuery';
+import { getCustomerDashboard } from '../../services/dashboard';
 import DashboardSidebar from './DashboardSidebar';
 import HomeView from './HomeView';
 import ChatView from './ChatView';
 import ProfileView from './ProfileView';
 import NotificationsPanel from './NotificationsPanel';
 import DocumentViewModal from './DocumentViewModal';
-import { normalizeDocuments, buildMessages, buildNotifications, firstNameOf, formatTime } from './dashboardData';
+import { toDashboardDocument, toRecentUpdate, buildMessages, buildNotifications, firstNameOf, formatTime, preparerFor } from './dashboardData';
+
+const RECENT_UPDATES_SHOWN = 2;
 
 const imgWaves = "/figma/dashboard/waves.svg";
 const imgBell = "/figma/dashboard/bell.svg";
 
 // Customer dashboard (Figma 71:1760 Home, 71:2266 Chat, 71:2348 Profile).
-export default function ClientDashboard({ user, onLogout, onBackToHome, onOpenUpload, onViewTaxTools }) {
+// `documentsVersion` changes when documents were added elsewhere (the upload flow), to reload them.
+export default function ClientDashboard({ user, documentsVersion = 0, onLogout, onBackToHome, onOpenUpload, onViewTaxTools }) {
   const { isDesktop, scale, width, height } = useDesignScale();
   const [tab, setTab] = useState('home'); // 'home' | 'chat' | 'profile'
-  const [documents, setDocuments] = useState(() => normalizeDocuments(user));
+  // Always fetched: image links in the list expire, so they are never cached across sessions.
+  const dashboardQuery = useApiQuery(`customer-dashboard#${documentsVersion}`, () => getCustomerDashboard());
+  const dashboard = dashboardQuery.data;
+  const documents = useMemo(() => (dashboard?.documents || []).map(toDashboardDocument), [dashboard]);
+  const recentUpdates = useMemo(() => (dashboard?.recentUpdates || []).map(toRecentUpdate), [dashboard]);
   const [messages, setMessages] = useState(() => buildMessages(firstNameOf(user)));
   const [notifications, setNotifications] = useState(() => buildNotifications(firstNameOf(user)));
   const [viewedDocId, setViewedDocId] = useState(null);
@@ -44,15 +53,12 @@ export default function ClientDashboard({ user, onLogout, onBackToHome, onOpenUp
     ]);
   };
 
-  const changePages = (docId, pages) => {
-    setDocuments((list) => list.map((doc) => (doc.id === docId ? { ...doc, pages } : doc)));
-  };
-
   const closeDocument = useCallback(() => setViewedDocId(null), []);
 
-  const retakeDocument = () => {
+  // A deleted document leaves the viewer; any other change only refreshes the list.
+  const handleDocumentDeleted = () => {
     setViewedDocId(null);
-    onOpenUpload();
+    dashboardQuery.reload();
   };
 
   const toggleNotifications = () => setNotificationsOpen((open) => !open);
@@ -84,8 +90,12 @@ export default function ClientDashboard({ user, onLogout, onBackToHome, onOpenUp
         {tab === 'home' && (
           <HomeView
             documents={documents}
-            updates={notifications.filter((n) => n.kind === 'document').slice(0, 2)}
-            newMessageCount={notifications.filter((n) => n.kind === 'message' && n.unread).length}
+            documentsLoading={dashboardQuery.loading && !dashboard}
+            documentsError={dashboardQuery.error?.message}
+            onRetryDocuments={dashboardQuery.reload}
+            preparer={preparerFor(user, dashboard?.assignedPreparers)}
+            updates={recentUpdates.slice(0, RECENT_UPDATES_SHOWN)}
+            newMessageCount={dashboard?.newMessageCount ?? 0}
             onOpenDocument={setViewedDocId}
             onOpenUpload={onOpenUpload}
             onContact={() => selectTab('chat')}
@@ -124,8 +134,8 @@ export default function ClientDashboard({ user, onLogout, onBackToHome, onOpenUp
           documents={documents}
           docId={viewedDocId}
           onSelectDocument={setViewedDocId}
-          onPagesChange={changePages}
-          onRetake={retakeDocument}
+          onChanged={dashboardQuery.reload}
+          onDeleted={handleDocumentDeleted}
           onClose={closeDocument}
         />
       )}

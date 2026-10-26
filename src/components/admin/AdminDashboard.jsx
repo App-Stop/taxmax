@@ -17,9 +17,7 @@ import {
   ADMIN_PROFILE,
   INITIAL_CLIENTS,
   INITIAL_DOCUMENTS,
-  INITIAL_ACTIVITY,
   INITIAL_CONVERSATIONS,
-  QUICK_REPLIES,
   INITIAL_CAMPAIGNS,
   INITIAL_REFERRALS,
   INITIAL_STAFF_ACCOUNTS,
@@ -29,14 +27,13 @@ import {
   statusById,
 } from './adminData';
 
-const DEFAULT_QUEUE_FILTERS = { status: 'all', range: '30', query: '', page: 1, sortDir: null };
-const DEFAULT_CLIENT_FILTERS = { status: 'all', query: '', page: 1, sortDir: null };
+// `cursors`: see cursorPages.js. The queue's `range` is in days.
+const DEFAULT_QUEUE_FILTERS = { status: 'all', range: 30, query: '', page: 1, cursors: [null], sortDir: null };
+const DEFAULT_CLIENT_FILTERS = { status: 'all', query: '', page: 1, cursors: [null], sortDir: null };
+// The widest range the queue endpoint allows, used when jumping in from the dashboard.
+const WIDEST_QUEUE_RANGE = 60;
 
 const nowTime = () => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-const shortName = (name) => {
-  const [first, ...rest] = name.split(' ');
-  return rest.length ? `${first} ${rest[rest.length - 1][0]}.` : first;
-};
 
 // Admin portal shell (Figma 87:1625 Dashboard, 87:1921 Queue, 87:2258 Review, 87:2446 Clients,
 // 87:2736 Client detail, 87:2886 Messages, 87:3566 Campaigns, 87:3046 Activity log, 87:3224 Settings). Drawn for a 1440px frame and zoomed to fit on desktop.
@@ -46,8 +43,9 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
 
   const [route, setRoute] = useState({ view: 'dashboard' });
   const [clients, setClients] = useState(INITIAL_CLIENTS);
-  const [documents, setDocuments] = useState(INITIAL_DOCUMENTS);
-  const [activity, setActivity] = useState(INITIAL_ACTIVITY);
+  // Dummy documents, only for the conversations' submission ids until chat uses the API.
+  const [documents] = useState(INITIAL_DOCUMENTS);
+  const [dashboardSearch, setDashboardSearch] = useState('');
   const [conversations, setConversations] = useState(INITIAL_CONVERSATIONS);
   const [activeChat, setActiveChat] = useState(INITIAL_CONVERSATIONS[0].clientId);
   const [queueFilters, setQueueFilters] = useState(DEFAULT_QUEUE_FILTERS);
@@ -78,9 +76,6 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
     window.scrollTo({ top: 0 });
   };
 
-  const logActivity = (kind, action, target) =>
-    setActivity((list) => [{ id: `a${Date.now()}`, kind, actor: shortName(profile.name), action, target, time: 'Just now' }, ...list]);
-
   const appendStaffMessage = (clientId, text) => {
     const message = { id: `${clientId}-m${Date.now()}`, from: 'staff', text, time: nowTime(), receipt: 'Delivered' };
     setConversations((list) => {
@@ -93,19 +88,30 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
     });
   };
 
-  const setDocStatus = (doc, status) => {
-    setDocuments((list) => list.map((d) => (d.id === doc.id ? { ...d, status } : d)));
-    setClients((list) => list.map((c) => (c.id === doc.clientId ? { ...c, status } : c)));
+  // Clients loaded from the API join the local list so the screens still on dummy
+  // data (messages, document review) can look them up by id.
+  const rememberClient = (client) => {
+    if (!client) return;
+    setClients((list) => (list.some((c) => c.id === client.id) ? list : [...list, client]));
   };
 
-  // Navigation
-  const openDocument = (id) => go({ view: 'review', id, back: route });
-  const openClient = (id) => go({ view: 'client', id, back: route });
+  // Navigation. API-backed screens pass the row object; dummy screens still pass ids.
+  const openDocument = (docOrId) => {
+    if (typeof docOrId !== 'object') return go({ view: 'review', id: docOrId, back: route });
+    rememberClient(docOrId.client);
+    go({ view: 'review', id: docOrId.id, doc: docOrId, client: docOrId.client, back: route });
+  };
+  const openClient = (clientOrId) => {
+    const client = typeof clientOrId === 'object' ? clientOrId : clientsById[clientOrId];
+    go({ view: 'client', id: client?.id ?? clientOrId, client, back: route });
+  };
   const openQueue = (status) => {
-    setQueueFilters({ ...DEFAULT_QUEUE_FILTERS, status, range: 'all' });
+    setQueueFilters({ ...DEFAULT_QUEUE_FILTERS, status, range: WIDEST_QUEUE_RANGE });
     go({ view: 'queue' });
   };
-  const messageClient = (clientId) => {
+  const messageClient = (clientOrId) => {
+    if (typeof clientOrId === 'object') rememberClient(clientOrId);
+    const clientId = typeof clientOrId === 'object' ? clientOrId.id : clientOrId;
     if (!conversations.some((c) => c.clientId === clientId)) {
       const doc = documents.find((d) => d.clientId === clientId);
       setConversations((list) => [{ clientId, submissionId: doc?.submissionId || '—', updatedAt: 'New', unread: false, messages: [] }, ...list]);
@@ -115,33 +121,10 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
   };
   const back = () => go(route.back || { view: 'dashboard' });
 
-  // Actions
-  const updateStatus = (doc, status) => {
-    const client = clientsById[doc.clientId];
-    setDocStatus(doc, status);
-    logActivity(status === 'filed' ? 'filed' : 'status', `Updated status to ${statusById(status).label} for`, `${client.name} (${doc.submissionId})`);
-    notify(`Status updated to ${statusById(status).label}`);
-  };
+  // Actions. The API records status changes in the activity log itself.
+  const updateStatus = (doc, status) => notify(`Status updated to ${statusById(status).label}`);
 
-  const requestReupload = (doc) => {
-    const client = clientsById[doc.clientId];
-    setDocStatus(doc, 'action_needed');
-    appendStaffMessage(client.id, QUICK_REPLIES[1].text);
-    logActivity('reupload', 'Requested re-upload from', `${client.name} (${doc.submissionId}) — ${doc.type}`);
-    notify(`Re-upload requested from ${client.name}`);
-  };
-
-  const confirmFields = (doc) => {
-    const client = clientsById[doc.clientId];
-    logActivity('verified', 'Verified OCR fields of', `${client.name} (${doc.submissionId})`);
-    notify('All fields confirmed');
-  };
-
-  const sendMessage = (clientId, text) => {
-    appendStaffMessage(clientId, text);
-    const conversation = conversations.find((c) => c.clientId === clientId);
-    logActivity('message', 'Sent message to', `${clientsById[clientId].name} (${conversation?.submissionId || '—'})`);
-  };
+  const sendMessage = (clientId, text) => appendStaffMessage(clientId, text);
 
   function selectChat(clientId) {
     setActiveChat(clientId);
@@ -153,17 +136,14 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
     notify('Marked as unread');
   };
 
-  const updateNotes = (clientId, notes) => setClients((list) => list.map((c) => (c.id === clientId ? { ...c, notes } : c)));
 
   // Campaigns
   const saveCampaign = (data) => {
     if (data.id) {
       setCampaigns((list) => list.map((c) => (c.id === data.id ? { ...c, ...data } : c)));
-      logActivity('filed', 'Updated campaign', data.title);
       notify('Campaign updated');
     } else {
       setCampaigns((list) => [{ ...data, id: `cp${Date.now()}`, scans: 0, conversions: 0, createdAt: REFERENCE_DATE }, ...list]);
-      logActivity('filed', 'Created campaign', data.title);
       notify('Campaign created');
     }
     setCampaignModal(null);
@@ -172,7 +152,6 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
   // Settings
   const addStaff = (member) => {
     setStaffAccounts((list) => [...list, { ...member, id: `s${Date.now()}`, createdAt: REFERENCE_DATE }]);
-    logActivity('filed', 'Added staff member', `${member.name} (${member.role})`);
     notify(`${member.name} added — an invite was sent to ${member.email}`);
   };
 
@@ -193,7 +172,6 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
       return;
     }
     setStaffAccounts((list) => list.filter((s) => s.id !== id));
-    logActivity('filed', 'Removed staff member', member.name);
     notify(`${member.name} removed`);
   };
 
@@ -201,7 +179,6 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
 
   const saveSecurity = (next) => {
     setSecurity(next);
-    logActivity('filed', 'Updated security settings for', 'Staff Portal');
     notify('Security settings saved');
   };
 
@@ -212,8 +189,7 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
     return r.view;
   };
 
-  const doc = route.view === 'review' ? documents.find((d) => d.id === route.id) : null;
-  const client = route.view === 'client' ? clientsById[route.id] : null;
+  const doc = route.view === 'review' ? route.doc || documents.find((d) => d.id === route.id) : null;
   const showTopBar = !['review', 'client'].includes(route.view);
   const modalCampaign = campaignModal?.id ? campaigns.find((c) => c.id === campaignModal.id) : null;
 
@@ -239,8 +215,8 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
               profile={profile}
               showSearch={['dashboard', 'campaigns', 'settings'].includes(route.view)}
               onSearch={(query) => {
-                setQueueFilters({ ...DEFAULT_QUEUE_FILTERS, query, range: 'all' });
-                go({ view: 'queue' });
+                setDashboardSearch(query);
+                go({ view: 'dashboard' });
               }}
               onOpenMenu={() => setMobileNavOpen(true)}
               onLogout={onLogout}
@@ -250,38 +226,45 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
         )}
 
         {route.view === 'dashboard' && (
-          <DashboardView documents={documents} activity={activity} onOpenQueue={openQueue} onViewAllActivity={() => go({ view: 'activity' })} />
+          <DashboardView
+            search={dashboardSearch}
+            onClearSearch={() => setDashboardSearch('')}
+            onOpenQueue={openQueue}
+            onViewAllActivity={() => go({ view: 'activity' })}
+            onOpenClient={openClient}
+            onOpenDocument={openDocument}
+          />
         )}
 
         {route.view === 'queue' && (
           <SubmissionQueueView
-            documents={documents}
-            clientsById={clientsById}
             filters={queueFilters}
             onFiltersChange={setQueueFilters}
             onOpenDocument={openDocument}
             onOpenClient={openClient}
             onMessageClient={messageClient}
+            onNotify={notify}
+            isAdmin={user?.role === 'admin'}
+            currentUserId={user?.id}
           />
         )}
 
         {doc && (
           <DocumentReviewView
-            key={doc.id}
+            key={doc.id || doc._id}
             doc={doc}
-            client={clientsById[doc.clientId]}
+            client={route.client || clientsById[doc.clientId]}
             onBack={back}
             onStatusChange={updateStatus}
-            onRequestReupload={requestReupload}
             onMessageClient={messageClient}
-            onFieldsConfirmed={confirmFields}
+            isAdmin={user?.role === 'admin'}
+            currentUserId={user?.id}
+            onNotify={notify}
           />
         )}
 
         {route.view === 'clients' && (
           <ClientsDirectoryView
-            clients={clients}
-            documents={documents}
             filters={clientFilters}
             onFiltersChange={setClientFilters}
             onOpenClient={openClient}
@@ -289,14 +272,14 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
           />
         )}
 
-        {client && (
+        {route.view === 'client' && (
           <ClientDetailView
-            client={client}
-            documents={documents}
+            key={route.id}
+            clientId={route.id}
+            initialClient={route.client}
             onBack={back}
             onOpenDocument={openDocument}
             onMessageClient={messageClient}
-            onNotesChange={updateNotes}
           />
         )}
 
@@ -324,7 +307,7 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
           />
         )}
 
-        {route.view === 'activity' && <ActivityLogView activity={activity} />}
+        {route.view === 'activity' && <ActivityLogView isAdmin={user?.role === 'admin'} />}
 
         {route.view === 'settings' && (
           <SettingsView

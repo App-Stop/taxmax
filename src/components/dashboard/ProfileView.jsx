@@ -3,7 +3,19 @@ import { initialsOf } from './dashboardData';
 
 const imgSignOut = "/figma/dashboard/sign-out.svg";
 
-const maskSsn = (ssn) => `**-**-${(ssn || '').replace(/\D/g, '').slice(-4) || '8492'}`;
+const EMPTY = '—';
+
+const maskSsn = (ssn) => {
+  const last4 = (ssn || '').replace(/\D/g, '').slice(-4);
+  return last4 ? `**-**-${last4}` : EMPTY;
+};
+
+// The API stores E.164 (+16122132314); US numbers read as (612) 213-2314.
+const formatPhone = (phone) => {
+  if (!phone) return EMPTY;
+  const us = phone.match(/^\+1(\d{3})(\d{3})(\d{4})$/);
+  return us ? `(${us[1]}) ${us[2]}-${us[3]}` : phone;
+};
 
 function InfoRow({ label, value }) {
   return (
@@ -30,11 +42,14 @@ export default function ProfileView({ user, onLogout }) {
               <p className="font-bold text-[20px] text-[#111]">{user?.fullName}</p>
               <p className="font-normal text-[14px] text-[#444] [word-break:break-word]">{user?.email}</p>
             </div>
-            <div className="bg-[#f5f5f5] border border-[#e8e8e8] border-solid flex items-start px-[10px] py-[4px] rounded-[100px] shrink-0">
-              <p className="font-medium leading-[normal] text-[10px] text-[#6a6a6a] text-center tracking-[0.1px] whitespace-nowrap">
-                Taxpayer ID: {user?.filingId}
-              </p>
-            </div>
+            {/* The API has no taxpayer ID yet; only locally created accounts carry one. */}
+            {user?.filingId && (
+              <div className="bg-[#f5f5f5] border border-[#e8e8e8] border-solid flex items-start px-[10px] py-[4px] rounded-[100px] shrink-0">
+                <p className="font-medium leading-[normal] text-[10px] text-[#6a6a6a] text-center tracking-[0.1px] whitespace-nowrap">
+                  Taxpayer ID: {user.filingId}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -43,8 +58,8 @@ export default function ProfileView({ user, onLogout }) {
             <p className="font-semibold leading-[normal] text-[16px] text-[#111] whitespace-nowrap">Personal Information</p>
             <div className="bg-white border border-[#e8e8e8] border-solid flex flex-col items-start overflow-clip rounded-[20px] shrink-0 w-full">
               <InfoRow label="Social Security" value={maskSsn(user?.ssn)} />
-              <InfoRow label="Phone Number" value={user?.phone} />
-              <InfoRow label="Filing Status" value={user?.status} />
+              <InfoRow label="Phone Number" value={formatPhone(user?.phone)} />
+              <InfoRow label="Filing Status" value={user?.status || EMPTY} />
             </div>
           </div>
 

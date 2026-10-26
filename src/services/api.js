@@ -18,6 +18,12 @@ export class ApiError extends Error {
   }
 }
 
+// Called when an authenticated request comes back 401 (expired or revoked session).
+let onUnauthorized = null;
+export const setUnauthorizedHandler = (handler) => {
+  onUnauthorized = handler;
+};
+
 const messageFor = (status, body) => {
   if (status >= 500) return SERVER_MESSAGE;
   // Validation: the first field message is written for end users; the top-level one is not.
@@ -25,7 +31,9 @@ const messageFor = (status, body) => {
   return body?.message || SERVER_MESSAGE;
 };
 
-export async function apiRequest(path, { method = 'GET', body, token } = {}) {
+// `sessionToken: false` marks a token that is not the signed-in session (the onboarding
+// token), so its 401s are left to the caller instead of ending the session.
+export async function apiRequest(path, { method = 'GET', body, token, sessionToken = true } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
@@ -55,6 +63,7 @@ export async function apiRequest(path, { method = 'GET', body, token } = {}) {
   }
 
   if (!response.ok || payload?.success === false) {
+    if (response.status === 401 && token && sessionToken) onUnauthorized?.();
     throw new ApiError(messageFor(response.status, payload), {
       status: response.status,
       fieldErrors: payload?.error || [],

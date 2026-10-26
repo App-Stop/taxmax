@@ -4,7 +4,17 @@ import { sendCode, verifyCode, OTP_LENGTH, RESEND_SECONDS } from '../../services
 const imgLogo = "/figma/auth/logo.svg";
 const imgArrowRight = "/figma/auth/arrow-right.svg";
 
-export default function OtpVerificationCard({ email, accountType, onVerified, onChangeEmail, onBackToHome }) {
+// Login by default; sign-up passes its own `verify(code)` / `resend()` calls and change-link label.
+export default function OtpVerificationCard({
+  email,
+  accountType,
+  onVerified,
+  onChangeEmail,
+  onBackToHome,
+  verify = (code) => verifyCode(email, code, accountType),
+  resend = () => sendCode(email, accountType),
+  changeLabel = 'Change email or account type',
+}) {
   const [digits, setDigits] = useState(() => Array(OTP_LENGTH).fill(''));
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
   const [error, setError] = useState('');
@@ -62,7 +72,7 @@ export default function OtpVerificationCard({ email, accountType, onVerified, on
     setError('');
     focusInput(0);
     try {
-      await sendCode(email, accountType);
+      await resend();
     } catch (err) {
       setError(err.message);
       // A 429 means the server's cooldown is still running; anything else can be retried now.
@@ -76,7 +86,7 @@ export default function OtpVerificationCard({ email, accountType, onVerified, on
     setVerifying(true);
     setError('');
     try {
-      onVerified(await verifyCode(email, code, accountType));
+      onVerified(await verify(code));
     } catch (err) {
       setError(err.message);
       setVerifying(false);
@@ -91,9 +101,15 @@ export default function OtpVerificationCard({ email, accountType, onVerified, on
       className="bg-white shadow-[0px_10px_50px_rgba(0,0,0,0.1)] flex flex-col gap-[40px] items-center p-[24px] sm:p-[40px] rounded-[20px] w-[500px] max-w-full"
       data-node-id="71:1707"
     >
-      <button type="button" onClick={onBackToHome} className="h-[38.107px] relative shrink-0 w-[159px] cursor-pointer" aria-label="TAXMAX home" data-node-id="71:1708">
-        <img alt="TAXMAX" className="absolute block inset-0 max-w-none size-full" src={imgLogo} />
-      </button>
+      {onBackToHome ? (
+        <button type="button" onClick={onBackToHome} className="h-[38.107px] relative shrink-0 w-[159px] cursor-pointer" aria-label="TAXMAX home" data-node-id="71:1708">
+          <img alt="TAXMAX" className="absolute block inset-0 max-w-none size-full" src={imgLogo} />
+        </button>
+      ) : (
+        <div className="h-[38.107px] relative shrink-0 w-[159px]">
+          <img alt="TAXMAX" className="absolute block inset-0 max-w-none size-full" src={imgLogo} />
+        </div>
+      )}
 
       <div className="flex flex-col gap-[10px] items-start justify-center w-full" data-node-id="71:1717">
         <h1 className="font-extrabold leading-[36px] text-[32px] text-[#111] tracking-[-0.32px] w-full" data-node-id="71:1718">
@@ -111,7 +127,7 @@ export default function OtpVerificationCard({ email, accountType, onVerified, on
           disabled={verifying}
           className="font-semibold leading-[normal] text-[14px] text-[#0094c5] cursor-pointer hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Change email or account type
+          {changeLabel}
         </button>
       </div>
 

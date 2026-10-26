@@ -22,7 +22,28 @@ export const STATUSES = [
   { id: 'filed', label: 'Filed', bg: 'bg-[#ffeefa]', text: 'text-[#ff1fad]' },
 ];
 
-export const statusById = (id) => STATUSES.find((s) => s.id === id) || STATUSES[0];
+// Document statuses as the API names them (GET /documents). The queue filters by these.
+export const DOCUMENT_STATUSES = [
+  { id: 'uploaded', label: 'Uploaded', bg: 'bg-[rgba(0,148,197,0.1)]', text: 'text-[#0094c5]' },
+  { id: 'in-review', label: 'In review', bg: 'bg-[#fff1e6]', text: 'text-[#e86907]' },
+  { id: 're-upload', label: 'Re-upload', bg: 'bg-[#ffecec]', text: 'text-[#ea0101]' },
+  { id: 'action-needed', label: 'Action needed', bg: 'bg-[#ffecec]', text: 'text-[#ea0101]' },
+  { id: 'accepted', label: 'Accepted', bg: 'bg-[#e5f7dc]', text: 'text-[#39ab00]' },
+  { id: 'submitted', label: 'Submitted', bg: 'bg-[#eee5ff]', text: 'text-[#7a3cf5]' },
+  { id: 'completed', label: 'Completed', bg: 'bg-[#ffeefa]', text: 'text-[#ff1fad]' },
+  { id: 'filed', label: 'Filed', bg: 'bg-[#ffeefa]', text: 'text-[#ff1fad]' },
+];
+
+// Client account statuses as the API names them (GET /dashboard/team/client-directory).
+export const CLIENT_STATUSES = [
+  { id: 'active', label: 'Active', bg: 'bg-[#e5f7dc]', text: 'text-[#39ab00]' },
+  { id: 'non-active', label: 'Non-active', bg: 'bg-[#f5f5f5]', text: 'text-[#6a6a6a]' },
+];
+
+export const findStatus = (id) =>
+  DOCUMENT_STATUSES.find((s) => s.id === id) || CLIENT_STATUSES.find((s) => s.id === id) || STATUSES.find((s) => s.id === id) || null;
+
+export const statusById = (id) => findStatus(id) || STATUSES[0];
 
 // The dataset's "today"; date-range filters are measured from here.
 export const REFERENCE_DATE = '2026-09-10';

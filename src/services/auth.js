@@ -1,4 +1,5 @@
-// Email + OTP auth against the TaxMax API (POST /auth/otp/request, /auth/otp/verify, /auth/logout).
+// Email + OTP auth against the TaxMax API (POST /auth/otp/request, /auth/otp/verify, /auth/logout),
+// plus the customer profile refresh (GET /users/me).
 // Customers and team members (admin / staff) share the flow; `accountType` picks which accounts are searched.
 
 import { apiRequest, ApiError } from './api';
@@ -31,13 +32,17 @@ const decodeToken = (token) => {
   }
 };
 
-// 'team' | 'customer' | null, from the token's `type` claim. Expired tokens count as no session.
-export function getAccountType(token) {
+// The token's `type` claim ('team' | 'customer' | 'onboarding'), or null when it is unreadable or expired.
+export function getTokenType(token) {
   const claims = token && decodeToken(token);
   if (!claims || (claims.exp && claims.exp * 1000 <= Date.now())) return null;
-  if (claims.type === 'team') return 'team';
-  if (claims.type === 'customer') return 'customer';
-  return null;
+  return claims.type || null;
+}
+
+// 'team' | 'customer' | null: the kind of signed-in session the token opens.
+export function getAccountType(token) {
+  const type = getTokenType(token);
+  return type === 'team' || type === 'customer' ? type : null;
 }
 
 export const getStoredToken = () => localStorage.getItem(TOKEN_KEY);
@@ -64,13 +69,33 @@ export async function verifyCode(email, code, accountType) {
     throw err;
   }
 
-  const user = accountType === 'team' ? toTeamUser(data.member) : toCustomerUser(data.user, data.documents);
+  const user = accountType === 'team' ? toTeamUser(data.member) : toCustomerProfile(data.user);
+  saveSession(data.token, user);
+  return { token: data.token, user, accountType };
+}
 
-  localStorage.setItem(TOKEN_KEY, data.token);
+// Signs the customer in with the session that finishing sign-up returns ({ token, user }).
+// The previous session (if any) is replaced.
+export function startCustomerSession(data) {
+  const user = toCustomerProfile(data.user);
+  saveSession(data.token, user);
+  return { token: data.token, user, accountType: 'customer' };
+}
+
+// Re-reads the signed-in customer's profile (GET /users/me) so a restored session
+// shows current details.
+export async function refreshCustomerProfile() {
+  const { data } = await apiRequest('/users/me', { token: getStoredToken() });
+  const user = toCustomerProfile(data);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  return user;
+}
+
+// Only the profile is stored; documents carry expiring image links and are always fetched.
+function saveSession(token, user) {
+  localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   localStorage.setItem(AUTH_KEY, 'true');
-
-  return { token: data.token, user, accountType };
 }
 
 // Revokes the session on every device. The local session is cleared whatever the server says.
@@ -102,22 +127,16 @@ function toTeamUser(member) {
   };
 }
 
-// Server document statuses -> the customer dashboard's three states.
-const CUSTOMER_DOC_STATUS = {
-  uploaded: 'submitted',
-  'in-review': 'reviewing',
-  're-upload': 'reviewing',
-  'action-needed': 'reviewing',
-  accepted: 'filed',
-  completed: 'filed',
-};
-
-const CUSTOMER_DOC_TYPE = { w2: 'w2', '1099_int': '1099-int', '1099_nec': '1099-nec' };
-
 const capitalize = (value) => (value ? value[0].toUpperCase() + value.slice(1) : value);
 
+// The first assignee is the customer's preparer; the API sends name and role label only.
+const preparerOf = (assignedTo = []) => {
+  const member = assignedTo.find((m) => m?.fullName);
+  return member ? { name: member.fullName, role: member.roleName } : null;
+};
+
 // Maps the API profile onto the shape the customer dashboard reads.
-function toCustomerUser(user, documents = []) {
+function toCustomerProfile(user) {
   return {
     id: user._id,
     fullName: user.fullName,
@@ -129,15 +148,7 @@ function toCustomerUser(user, documents = []) {
     dependents: user.hasDependents == null ? null : user.hasDependents ? 'Yes' : 'No',
     accountCreatedDate: user.createdAt,
     assignedTo: user.assignedTo,
+    preparer: preparerOf(user.assignedTo),
     accountType: 'customer',
-    documents: documents.map((doc) => ({
-      id: doc._id,
-      type: CUSTOMER_DOC_TYPE[doc.formType] || 'other',
-      name: doc.formLabel,
-      pageCount: doc.pageCount,
-      thumb: doc.thumbnailUrl,
-      status: CUSTOMER_DOC_STATUS[doc.status] || 'submitted',
-      submittedAt: doc.submittedAt,
-    })),
   };
 }

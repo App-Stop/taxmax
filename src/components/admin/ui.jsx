@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
-import { statusById, initialsOf } from './adminData';
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
+import { statusById, findStatus, initialsOf } from './adminData';
 
 const A = '/figma/admin';
 
@@ -12,6 +13,8 @@ export function Icon({ src, size = 24, className = '' }) {
 }
 
 export function StatusBadge({ status }) {
+  // Clients have no status in the API yet.
+  if (!findStatus(status)) return <span className="font-medium text-[14px] text-[#6a6a6a]">—</span>;
   const s = statusById(status);
   return (
     <span className={`${s.bg} inline-flex items-center justify-center px-[6px] py-[4px] rounded-[20px] shrink-0`}>
@@ -59,8 +62,72 @@ function useDismiss(open, onClose) {
   return ref;
 }
 
+// A panel drawn over the page next to `anchorRef`, so a scrolling or clipped parent (a table)
+// can't hide it. It flips above the anchor when there's no room below. The admin screen is
+// zoomed to fit, and a portal leaves that zoom behind, so the anchor's zoom is applied again.
+export function FloatingPanel({ anchorRef, onClose, align = 'right', className = '', children }) {
+  const panelRef = useRef(null);
+  const [style, setStyle] = useState({ position: 'fixed', top: 0, left: 0, visibility: 'hidden' });
+
+  useLayoutEffect(() => {
+    const place = () => {
+      const anchor = anchorRef.current;
+      const panel = panelRef.current;
+      if (!anchor || !panel) return;
+      const rect = anchor.getBoundingClientRect();
+      const zoom = anchor.offsetWidth ? rect.width / anchor.offsetWidth : 1;
+      const height = panel.getBoundingClientRect().height;
+      const gap = 6 * zoom;
+      const fitsBelow = rect.bottom + gap + height <= window.innerHeight - 8;
+      const top = fitsBelow || rect.top - gap - height < 8 ? rect.bottom + gap : rect.top - gap - height;
+      setStyle({
+        position: 'fixed',
+        zoom,
+        top: top / zoom,
+        ...(align === 'right' ? { right: (window.innerWidth - rect.right) / zoom } : { left: rect.left / zoom }),
+      });
+    };
+    place();
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    return () => {
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+    };
+  }, [anchorRef, align]);
+
+  useEffect(() => {
+    const onPointer = (e) => {
+      if (!panelRef.current?.contains(e.target) && !anchorRef.current?.contains(e.target)) onClose();
+    };
+    const onKey = (e) => e.key === 'Escape' && onClose();
+    document.addEventListener('mousedown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [anchorRef, onClose]);
+
+  return createPortal(
+    // React events bubble through portals: clicks and Enter inside must not reach a clickable
+    // row around the anchor. Escape is let through to the document listener that closes it.
+    <div
+      ref={panelRef}
+      style={style}
+      className={`z-50 ${className}`}
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => e.key !== 'Escape' && e.stopPropagation()}
+    >
+      {children}
+    </div>,
+    document.body,
+  );
+}
+
 // Pop-over list shared by dropdowns and row "more" menus.
-export function Popover({ trigger, items, align = 'left', className = '' }) {
+// `placement="top"` opens it above the trigger, for triggers near the bottom of the screen.
+export function Popover({ trigger, items, align = 'left', placement = 'bottom', className = '' }) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
   const ref = useDismiss(open, close);
@@ -71,7 +138,7 @@ export function Popover({ trigger, items, align = 'left', className = '' }) {
       {open && (
         <div
           role="menu"
-          className={`absolute top-full mt-[6px] z-30 min-w-full bg-white border border-[#e8e8e8] rounded-[12px] shadow-[0px_10px_30px_rgba(0,0,0,0.1)] py-[6px] ${align === 'right' ? 'right-0' : 'left-0'}`}
+          className={`absolute ${placement === 'top' ? 'bottom-full mb-[6px]' : 'top-full mt-[6px]'} z-30 min-w-full bg-white border border-[#e8e8e8] rounded-[12px] shadow-[0px_10px_30px_rgba(0,0,0,0.1)] py-[6px] ${align === 'right' ? 'right-0' : 'left-0'}`}
         >
           {items.map((item) => (
             <button
@@ -122,12 +189,13 @@ const DROPDOWN_VARIANTS = {
   },
 };
 
-export function Dropdown({ value, options, onChange, label, variant = 'outline', align = 'left', menuAlign }) {
+export function Dropdown({ value, options, onChange, label, variant = 'outline', align = 'left', menuAlign, placement }) {
   const v = DROPDOWN_VARIANTS[variant];
   const current = options.find((o) => o.value === value);
   return (
     <Popover
       align={menuAlign || align}
+      placement={placement}
       className="shrink-0"
       items={options.map((o) => ({ key: o.value, label: o.label, active: o.value === value, onSelect: () => onChange(o.value) }))}
       trigger={({ open, toggle }) => (
@@ -251,6 +319,27 @@ export function Checkbox({ checked, onChange, label }) {
   );
 }
 
+// Loading / error / empty placeholder for API-backed lists.
+export function ListState({ loading, error, onRetry, empty, className = 'h-[200px]' }) {
+  if (error) {
+    return (
+      <div role="alert" className={`flex flex-col gap-[12px] items-center justify-center px-[16px] text-center ${className}`}>
+        <p className="font-medium text-[14px] text-[#ea0101]">{error.message || 'Something went wrong.'}</p>
+        {onRetry && (
+          <button type="button" onClick={onRetry} className="bg-white border border-[#e8e8e8] border-solid px-[16px] py-[8px] rounded-[100px] font-medium text-[14px] text-[#111] cursor-pointer hover:bg-[#fafafa]">
+            Try again
+          </button>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className={`flex items-center justify-center text-[14px] text-[#6a6a6a] ${className}`} role={loading ? 'status' : undefined}>
+      {loading ? 'Loading…' : empty}
+    </div>
+  );
+}
+
 export function Toast({ message }) {
   if (!message) return null;
   return (
@@ -271,25 +360,58 @@ export function SortHeader({ label, direction, onToggle }) {
   );
 }
 
-export function RowMenu({ items }) {
+// Row "more" button. Its menu floats over the table so the table's scroll area can't clip it.
+// `items` is a list of actions, or `children(close)` renders custom menu content.
+export function RowMenu({ items, children, label = 'More actions', panelClassName }) {
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef(null);
+  const close = useCallback(() => setOpen(false), []);
+
   return (
-    <Popover
-      align="right"
-      items={items}
-      trigger={({ toggle }) => (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggle();
-          }}
-          aria-label="More actions"
-          className="flex items-center justify-center rounded-[100px] size-[36px] cursor-pointer hover:bg-[#f5f5f5]"
+    <>
+      <button
+        ref={anchorRef}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((o) => !o);
+        }}
+        aria-label={label}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex items-center justify-center rounded-[100px] size-[36px] cursor-pointer hover:bg-[#f5f5f5]"
+      >
+        <Icon src={`${A}/dots-three.svg`} />
+      </button>
+      {open && (
+        <FloatingPanel
+          anchorRef={anchorRef}
+          onClose={close}
+          className={panelClassName || 'bg-white border border-[#e8e8e8] rounded-[12px] shadow-[0px_10px_30px_rgba(0,0,0,0.1)] py-[6px]'}
         >
-          <Icon src={`${A}/dots-three.svg`} />
-        </button>
+          {children ? (
+            children(close)
+          ) : (
+            <div role="menu">
+              {items.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    close();
+                    item.onSelect();
+                  }}
+                  className={`block w-full text-left px-[14px] py-[8px] text-[14px] leading-[normal] whitespace-nowrap cursor-pointer hover:bg-[#f5f5f5] font-normal ${item.danger ? 'text-[#ea0101]' : 'text-[#111]'}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </FloatingPanel>
       )}
-    />
+    </>
   );
 }
 

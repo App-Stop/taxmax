@@ -1,8 +1,7 @@
-// Mock dashboard content. There is no backend yet: documents come from the stored
-// user when present, everything else is seeded from the Figma designs.
+// Dashboard content. The profile, preparer, documents, recent updates and new message
+// count come from the API; chat and the notifications panel are still seeded from the
+// Figma designs.
 
-const DOC_PAGE = '/figma/dashboard/doc-page.png';
-const DEFAULT_SUBMITTED_AT = '2026-10-08T13:30:00';
 const FALLBACK_CROP = 'inset-0 size-full object-contain';
 
 export const PREPARER = {
@@ -13,72 +12,130 @@ export const PREPARER = {
   photo: '/figma/dashboard/preparer-photo-40.png',
 };
 
-// Thumbnail art and its Figma crop, per document type.
+// Thumbnail art and its Figma crop, per API form type. Other types use the upload-flow icons.
 const DOC_TYPES = {
   w2: {
     thumb: '/figma/dashboard/doc-w2.png',
     crop: 'h-[124.02%] left-[-12.5%] top-[-10.45%] w-[125%]',
   },
-  '1099-int': {
+  '1099_int': {
     thumb: '/figma/dashboard/doc-1099-int.png',
     crop: 'h-[122.5%] left-[-11.73%] top-[-10%] w-[123.46%]',
   },
-  '1099-nec': {
+  '1099_nec': {
     thumb: '/figma/dashboard/doc-1099-nec.png',
     crop: 'h-[120%] left-[-10.47%] top-[-8.75%] w-[120.94%]',
   },
+  '1099_t': { thumb: '/figma/upload/1099-t-thumbnail.png', crop: FALLBACK_CROP },
 };
+const OTHER_TYPE = { thumb: '/figma/upload/other-doc-thumbnail.png', crop: FALLBACK_CROP };
 
+// Keyed by the API's document status. `icon: null` draws the attention (warning) icon.
 export const DOC_STATUS = {
+  uploaded: { label: 'Documents submitted', icon: '/figma/dashboard/files-16.svg', color: 'text-[#848484]' },
+  'in-review': { label: 'Preparer reviewing', icon: '/figma/dashboard/loader-16.svg', color: 'text-[#e86907]' },
+  're-upload': { label: 'New photos needed', icon: null, color: 'text-[#d92d20]' },
+  'action-needed': { label: 'Action needed', icon: null, color: 'text-[#d92d20]' },
+  accepted: { label: 'Verified', icon: '/figma/dashboard/check.svg', color: 'text-[#0094c5]' },
+  submitted: { label: 'Submitted for filing', icon: '/figma/dashboard/check.svg', color: 'text-[#0094c5]' },
+  completed: { label: 'Completed', icon: '/figma/dashboard/check.svg', color: 'text-[#0094c5]' },
   filed: { label: 'Filed', icon: '/figma/dashboard/check.svg', color: 'text-[#0094c5]' },
-  reviewing: { label: 'Preparer reviewing', icon: '/figma/dashboard/loader-16.svg', color: 'text-[#e86907]' },
-  submitted: { label: 'Documents submitted', icon: '/figma/dashboard/files-16.svg', color: 'text-[#848484]' },
 };
 
-// Statuses written by earlier versions of the stored user.
-const STATUS_ALIASES = {
-  filed: 'filed',
-  reviewing: 'reviewing',
-  submitted: 'submitted',
-  Verified: 'filed',
-  'Under Review': 'reviewing',
+// { name, role } of the assigned team member, or null while nobody is assigned. The
+// dashboard's own list wins over the one stored with the profile at sign-in.
+export const preparerFor = (user, assignedPreparers) => {
+  const member = assignedPreparers?.find((m) => m?.fullName);
+  if (member) return { name: member.fullName, role: member.roleName };
+  return user?.preparer || null;
 };
 
-const DEFAULT_DOCUMENTS = [
-  { id: 'doc-1099-int', type: '1099-int', name: '1099-INT', status: 'filed', pageCount: 1 },
-  { id: 'doc-1099-nec', type: '1099-nec', name: '1099-NEC', status: 'reviewing', pageCount: 1 },
-  { id: 'doc-w2', type: 'w2', name: 'W-2 Form', status: 'submitted', pageCount: 3 },
-];
-
-const inferType = (name = '') => {
-  const key = name.toLowerCase();
-  if (key.includes('w-2') || key.includes('w2')) return 'w2';
-  if (key.includes('1099-int')) return '1099-int';
-  if (key.includes('1099-nec')) return '1099-nec';
-  return 'other';
+const FORM_NAMES = {
+  w2: 'W-2 Form',
+  '1099_nec': '1099-NEC',
+  '1099_int': '1099-INT',
+  '1099_t': '1099-T',
+  w4: 'W-4 Form',
+  w3: 'W-3 Form',
+  1098: '1098',
+  other: 'Document',
 };
 
-export function normalizeDocuments(user) {
-  const source = user?.documents?.length ? user.documents : DEFAULT_DOCUMENTS;
-  return source.map((doc, index) => {
-    const id = doc.id || `doc-${index}`;
-    const type = doc.type || inferType(doc.name);
-    const art = DOC_TYPES[type];
-    const pageCount = doc.pages?.length || doc.pageCount || 1;
-    return {
-      id,
-      type,
-      name: doc.name,
-      status: STATUS_ALIASES[doc.status] || 'submitted',
-      thumb: art?.thumb || doc.thumb,
-      crop: art?.crop || FALLBACK_CROP,
-      pages: Array.from({ length: pageCount }, (_, n) => ({
-        id: `${id}-page-${n + 1}`,
-        preview: doc.pages?.[n]?.preview || DOC_PAGE,
-      })),
-      submittedAt: doc.submittedAt || user?.accountCreatedDate || DEFAULT_SUBMITTED_AT,
-    };
-  });
+const UPDATE_ICONS = {
+  created: '/figma/dashboard/documents-submitted.svg',
+  reviewing: '/figma/dashboard/loader-22.svg',
+  done: '/figma/dashboard/filed.svg',
+};
+
+const sameDay = (a, b) => a.toDateString() === b.toDateString();
+
+// "9:30 AM" today, "Yesterday", otherwise the date.
+const updateTime = (iso) => {
+  const date = new Date(iso);
+  const now = new Date();
+  if (sameDay(date, now)) return formatTime(date);
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (sameDay(date, yesterday)) return 'Yesterday';
+  return formatDate(date);
+};
+
+// An activity row from GET /dashboard/customer (`recentUpdates`) as a "Recent updates" card.
+export function toRecentUpdate(row) {
+  const form = FORM_NAMES[row.meta?.formType] || 'Document';
+  const by = row.actor?.type === 'customer' ? 'You' : row.actor?.name || 'Your preparer';
+  let title = form;
+  let body = `${by} updated your ${form}.`;
+  let icon = UPDATE_ICONS.reviewing;
+
+  switch (row.action) {
+    case 'document.created':
+      title = `${form} · Documents submitted`;
+      body = `Your ${form} pages have been submitted securely to your preparer.`;
+      icon = UPDATE_ICONS.created;
+      break;
+    case 'document.pages_updated':
+      title = `${form} · Photos updated`;
+      body = `${by} updated the photos of your ${form}.`;
+      break;
+    case 'document.status_changed': {
+      const status = DOC_STATUS[row.meta?.to];
+      title = `${form} · ${status?.label || 'Status updated'}`;
+      body = `Your ${form} status has been updated to ${status?.label || row.meta?.to}.`;
+      if (['accepted', 'submitted', 'completed', 'filed'].includes(row.meta?.to)) icon = UPDATE_ICONS.done;
+      break;
+    }
+    case 'document.ocr_completed':
+      title = `${form} · Details read`;
+      body = `The details on your ${form} have been read and are ready for review.`;
+      break;
+    case 'field.flagged':
+      title = `${form} · Detail flagged`;
+      body = `${by} flagged ${row.meta?.fieldName ? `“${row.meta.fieldName}”` : 'a detail'} on your ${form}.`;
+      break;
+    default:
+      break;
+  }
+
+  return { id: row._id, kind: 'document', icon, title, body, time: updateTime(row.createdAt), unread: false };
+}
+
+// An API document (list row or full document) in the shape the dashboard renders.
+export function toDashboardDocument(doc) {
+  const art = DOC_TYPES[doc.formType] || OTHER_TYPE;
+  return {
+    id: doc._id,
+    formType: doc.formType,
+    name: doc.formLabel || 'Document',
+    status: DOC_STATUS[doc.status] ? doc.status : 'uploaded',
+    statusNote: doc.statusNote,
+    ocrStatus: doc.ocrStatus,
+    pageCount: doc.pageCount,
+    fieldCounts: doc.fieldCounts,
+    thumb: art.thumb,
+    crop: art.crop,
+    submittedAt: doc.submittedAt,
+  };
 }
 
 export const firstNameOf = (user) => user?.fullName?.trim().split(/\s+/)[0] || 'there';

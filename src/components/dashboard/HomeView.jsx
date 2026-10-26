@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import DocumentThumb, { DocumentStatus } from './DocumentThumb';
 import NotificationItem from './NotificationItem';
-import { PREPARER } from './dashboardData';
+import { initialsOf } from './dashboardData';
 
 const imgCaretDown = "/figma/dashboard/caret-down.svg";
 const imgUploadSimple = "/figma/dashboard/upload-simple.svg";
@@ -32,7 +32,15 @@ function SectionTitle({ children }) {
   return <p className="font-bold leading-[normal] text-[16px] text-[#111] w-full">{children}</p>;
 }
 
-export default function HomeView({ documents, updates, newMessageCount, onOpenDocument, onOpenUpload, onContact, onViewTaxTools }) {
+function DocumentsPlaceholder({ children }) {
+  return (
+    <div className="bg-[#f5f5f5] flex flex-col gap-[8px] items-center justify-center p-[20px] rounded-[20px] w-full text-center">
+      {children}
+    </div>
+  );
+}
+
+export default function HomeView({ documents, documentsLoading, documentsError, onRetryDocuments, preparer, updates, newMessageCount, onOpenDocument, onOpenUpload, onContact, onViewTaxTools }) {
   const [showAllDocuments, setShowAllDocuments] = useState(false);
   const visibleDocuments = showAllDocuments ? documents : documents.slice(0, MAX_VISIBLE_DOCUMENTS);
 
@@ -57,6 +65,25 @@ export default function HomeView({ documents, updates, newMessageCount, onOpenDo
             )}
           </div>
           <div className="flex flex-col gap-[10px] items-center justify-center w-full" data-node-id="71:1769">
+            {documentsLoading && (
+              <DocumentsPlaceholder>
+                <p className="font-medium text-[14px] text-[#848484]">Loading your documents…</p>
+              </DocumentsPlaceholder>
+            )}
+            {!documentsLoading && documentsError && (
+              <DocumentsPlaceholder>
+                <p className="font-medium text-[14px] text-[#444]">{documentsError}</p>
+                <button type="button" onClick={onRetryDocuments} className="font-semibold text-[14px] text-[#0094c5] cursor-pointer hover:underline">
+                  Try again
+                </button>
+              </DocumentsPlaceholder>
+            )}
+            {!documentsLoading && !documentsError && documents.length === 0 && (
+              <DocumentsPlaceholder>
+                <p className="font-semibold text-[14px] text-[#111]">No documents yet</p>
+                <p className="font-medium text-[12px] text-[#848484]">Upload your W-2, 1099 or other tax forms to get started.</p>
+              </DocumentsPlaceholder>
+            )}
             {visibleDocuments.map((doc) => (
               <button
                 key={doc.id}
@@ -85,7 +112,7 @@ export default function HomeView({ documents, updates, newMessageCount, onOpenDo
               data-node-id="71:1802"
             >
               <span className="font-['DM_Sans',sans-serif] font-semibold leading-[normal] text-[16px] text-[#0094c5] whitespace-nowrap" style={{ fontVariationSettings: '"opsz" 14' }}>
-                Upload another document
+                {documents.length ? 'Upload another document' : 'Upload a document'}
               </span>
               <span className="relative shrink-0 size-[24px]">
                 <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgUploadSimple} />
@@ -101,21 +128,36 @@ export default function HomeView({ documents, updates, newMessageCount, onOpenDo
           <SectionTitle>Assigned preparer</SectionTitle>
           <div className="bg-[#f5f5f5] flex h-[81px] items-center justify-between p-[16px] rounded-[20px] shrink-0 w-full" data-node-id="71:1808">
             <div className="flex flex-[1_0_0] gap-[8px] items-center min-w-px">
-              <div className="relative shrink-0 size-[40px]">
-                <div className="absolute inset-[-2.5%]">
-                  <img alt="" className="block max-w-none size-full" height="42" src={PREPARER.avatar} width="42" />
+              {preparer?.avatar ? (
+                <div className="relative shrink-0 size-[40px]">
+                  <div className="absolute inset-[-2.5%]">
+                    <img alt="" className="block max-w-none size-full" height="42" src={preparer.avatar} width="42" />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                // Team members have no photo in the API, so their initials stand in.
+                <div className="bg-[rgba(0,148,197,0.1)] flex items-center justify-center rounded-[100px] shrink-0 size-[40px]">
+                  <p className="font-extrabold leading-[normal] text-[14px] text-[#0094c5]">
+                    {preparer ? initialsOf({ fullName: preparer.name }) : '?'}
+                  </p>
+                </div>
+              )}
               <div className="flex flex-[1_0_0] flex-col gap-[2px] items-start justify-center min-w-px">
-                <p className="font-semibold leading-[normal] text-[16px] text-[#111] w-full">{PREPARER.name}</p>
-                <p className={`leading-[20px] text-[12px] w-full ${newMessageCount ? 'font-bold text-[#0094c5]' : 'font-medium text-[#848484]'}`}>
-                  {newMessageCount ? `${newMessageCount} new message${newMessageCount > 1 ? 's' : ''}` : 'No new messages'}
-                </p>
+                <p className="font-semibold leading-[normal] text-[16px] text-[#111] w-full">{preparer ? preparer.name : 'Not assigned yet'}</p>
+                {preparer ? (
+                  <p className={`leading-[20px] text-[12px] w-full ${newMessageCount ? 'font-bold text-[#0094c5]' : 'font-medium text-[#848484]'}`}>
+                    {newMessageCount ? `${newMessageCount} new message${newMessageCount > 1 ? 's' : ''}` : 'No new messages'}
+                  </p>
+                ) : (
+                  <p className="font-medium leading-[20px] text-[12px] text-[#848484] w-full">A preparer will be assigned to you shortly</p>
+                )}
               </div>
             </div>
-            <button type="button" onClick={onContact} className="font-semibold leading-[normal] text-[14px] text-[#0094c5] whitespace-nowrap cursor-pointer hover:underline" data-node-id="71:1814">
-              Contact
-            </button>
+            {preparer && (
+              <button type="button" onClick={onContact} className="font-semibold leading-[normal] text-[14px] text-[#0094c5] whitespace-nowrap cursor-pointer hover:underline" data-node-id="71:1814">
+                Contact
+              </button>
+            )}
           </div>
         </div>
 
@@ -125,6 +167,9 @@ export default function HomeView({ documents, updates, newMessageCount, onOpenDo
             {updates.map((notification) => (
               <NotificationItem key={notification.id} notification={notification} />
             ))}
+            {updates.length === 0 && (
+              <p className="font-medium leading-[normal] text-[12px] text-[#848484]">Updates on your documents will show up here.</p>
+            )}
           </div>
         </div>
       </div>
