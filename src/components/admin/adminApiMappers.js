@@ -172,15 +172,6 @@ export function mapClientDetail(data, clientId) {
   return { client, documents, activity };
 }
 
-// One client from the team dashboard's `searchResults`, with the documents that matched.
-export function mapSearchResult(result) {
-  const client = mapClient(result);
-  return {
-    client,
-    documents: (result.matchingDocuments || []).map((doc) => mapDocument(doc, client)),
-  };
-}
-
 // Groups fields by their source page for clean display in DocumentReviewView
 export function groupDocumentFields(fields = []) {
   const groups = new Map();

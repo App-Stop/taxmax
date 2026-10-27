@@ -1,14 +1,16 @@
 import { useState, useCallback, useMemo } from 'react';
 import useDesignScale from '../../hooks/useDesignScale';
 import useApiQuery from '../../hooks/useApiQuery';
+import useChatUnread from '../../hooks/useChatUnread';
 import { getCustomerDashboard } from '../../services/dashboard';
+import { listNotifications, markNotificationRead, markAllNotificationsRead } from '../../services/notifications';
 import DashboardSidebar from './DashboardSidebar';
 import HomeView from './HomeView';
 import ChatView from './ChatView';
 import ProfileView from './ProfileView';
 import NotificationsPanel from './NotificationsPanel';
 import DocumentViewModal from './DocumentViewModal';
-import { toDashboardDocument, toRecentUpdate, buildMessages, buildNotifications, firstNameOf, formatTime, preparerFor } from './dashboardData';
+import { toDashboardDocument, toRecentUpdate, toNotification, preparerFor } from './dashboardData';
 
 const RECENT_UPDATES_SHOWN = 2;
 
@@ -25,32 +27,65 @@ export default function ClientDashboard({ user, documentsVersion = 0, onLogout, 
   const dashboard = dashboardQuery.data;
   const documents = useMemo(() => (dashboard?.documents || []).map(toDashboardDocument), [dashboard]);
   const recentUpdates = useMemo(() => (dashboard?.recentUpdates || []).map(toRecentUpdate), [dashboard]);
-  const [messages, setMessages] = useState(() => buildMessages(firstNameOf(user)));
-  const [notifications, setNotifications] = useState(() => buildNotifications(firstNameOf(user)));
   const [viewedDocId, setViewedDocId] = useState(null);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const unread = useChatUnread();
+  // Who is reading chat, so own messages can be told apart.
+  const viewer = useMemo(() => ({ id: user?.id, isTeam: false, type: 'customer', name: user?.fullName }), [user?.id, user?.fullName]);
 
-  const markRead = (match) => {
-    setNotifications((list) => list.map((n) => (match(n) ? { ...n, unread: false } : n)));
+  // Notifications: fetched for the bell's dot, refreshed each time the panel opens.
+  const [notificationsVersion, setNotificationsVersion] = useState(0);
+  const notificationsQuery = useApiQuery(`notifications#${notificationsVersion}`, listNotifications);
+  // Read locally ahead of the server ('all' after "Mark all read"), for the list they were
+  // marked in only: the next fetch carries the server's state. Undone if the request fails.
+  const [localRead, setLocalRead] = useState({ list: null, ids: new Set() });
+  const [notificationError, setNotificationError] = useState('');
+  const readIds = localRead.list === notificationsQuery.data ? localRead.ids : null;
+  const notifications = useMemo(
+    () =>
+      (notificationsQuery.data || [])
+        .map(toNotification)
+        .map((n) => (readIds && (readIds.has('all') || readIds.has(n.id)) ? { ...n, unread: false } : n)),
+    [notificationsQuery.data, readIds],
+  );
+
+  const changeRead = (id, read) =>
+    setLocalRead((prev) => {
+      const ids = new Set(prev.list === notificationsQuery.data ? prev.ids : []);
+      if (read) ids.add(id);
+      else ids.delete(id);
+      return { list: notificationsQuery.data, ids };
+    });
+  const forgetRead = (id) => changeRead(id, false);
+
+  const openNotification = (notification) => {
+    if (!notification.unread) return;
+    setNotificationError('');
+    changeRead(notification.id, true);
+    markNotificationRead(notification.id).catch((err) => {
+      forgetRead(notification.id);
+      setNotificationError(err.message);
+    });
+  };
+
+  const markAllRead = () => {
+    setNotificationError('');
+    changeRead('all', true);
+    markAllNotificationsRead().then(
+      () => setNotificationsVersion((v) => v + 1),
+      (err) => {
+        forgetRead('all');
+        setNotificationError(err.message);
+      },
+    );
   };
 
   const selectTab = (next) => {
     setTab(next);
     setNotificationsOpen(false);
-    if (next === 'chat') markRead((n) => n.kind === 'message');
+    // Coming back home: refresh the new-message count the chat may have cleared.
+    if (next === 'home') dashboardQuery.reload();
     window.scrollTo({ top: 0 });
-  };
-
-  const openNotification = (notification) => {
-    markRead((n) => n.id === notification.id);
-    if (notification.kind === 'message') selectTab('chat');
-  };
-
-  const sendMessage = (text) => {
-    setMessages((list) => [
-      ...list,
-      { id: `m${Date.now()}`, from: 'me', text, time: formatTime(new Date()), receipt: 'Delivered' },
-    ]);
   };
 
   const closeDocument = useCallback(() => setViewedDocId(null), []);
@@ -61,7 +96,14 @@ export default function ClientDashboard({ user, documentsVersion = 0, onLogout, 
     dashboardQuery.reload();
   };
 
-  const toggleNotifications = () => setNotificationsOpen((open) => !open);
+  const toggleNotifications = () => {
+    if (!notificationsOpen) {
+      setNotificationError('');
+      setNotificationsVersion((v) => v + 1);
+    }
+    setNotificationsOpen((open) => !open);
+  };
+  const hasUnreadNotifications = notifications.some((n) => n.unread);
 
   return (
     <div
@@ -84,7 +126,14 @@ export default function ClientDashboard({ user, documentsVersion = 0, onLogout, 
         </div>
       </div>
 
-      <DashboardSidebar activeTab={tab} onSelectTab={selectTab} onBackToHome={onBackToHome} onToggleNotifications={toggleNotifications} />
+      <DashboardSidebar
+        activeTab={tab}
+        onSelectTab={selectTab}
+        onBackToHome={onBackToHome}
+        onToggleNotifications={toggleNotifications}
+        unreadMessages={tab === 'chat' ? 0 : unread.unreadMessages}
+        hasUnreadNotifications={hasUnreadNotifications}
+      />
 
       <main className="relative flex-1 min-w-0">
         {tab === 'home' && (
@@ -95,14 +144,14 @@ export default function ClientDashboard({ user, documentsVersion = 0, onLogout, 
             onRetryDocuments={dashboardQuery.reload}
             preparer={preparerFor(user, dashboard?.assignedPreparers)}
             updates={recentUpdates.slice(0, RECENT_UPDATES_SHOWN)}
-            newMessageCount={dashboard?.newMessageCount ?? 0}
+            newMessageCount={unread.unreadMessages}
             onOpenDocument={setViewedDocId}
             onOpenUpload={onOpenUpload}
             onContact={() => selectTab('chat')}
             onViewTaxTools={onViewTaxTools}
           />
         )}
-        {tab === 'chat' && <ChatView messages={messages} onSend={sendMessage} />}
+        {tab === 'chat' && <ChatView viewer={viewer} />}
         {tab === 'profile' && <ProfileView user={user} onLogout={onLogout} />}
       </main>
 
@@ -117,14 +166,17 @@ export default function ClientDashboard({ user, documentsVersion = 0, onLogout, 
       >
         <div className="relative shrink-0 size-[24px]">
           <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgBell} />
+          {hasUnreadNotifications && <span aria-label="Unread notifications" className="absolute -top-[2px] -right-[2px] bg-[#ea0101] rounded-full size-[8px] ring-2 ring-white" />}
         </div>
       </button>
 
       {notificationsOpen && (
         <NotificationsPanel
           notifications={notifications}
+          status={{ loading: notificationsQuery.loading, error: notificationsQuery.error, onRetry: notificationsQuery.reload }}
+          actionError={notificationError}
           onOpenNotification={openNotification}
-          onMarkAllRead={() => markRead(() => true)}
+          onMarkAllRead={markAllRead}
           onClose={() => setNotificationsOpen(false)}
         />
       )}

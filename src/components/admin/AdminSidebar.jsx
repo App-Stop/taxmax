@@ -4,7 +4,8 @@ import { ADMIN_NAV } from './adminData';
 const A = '/figma/admin';
 
 // Side nav (Node 87:1626). Collapses to an icon rail on desktop and becomes a drawer below lg.
-export default function AdminSidebar({ active, onSelect, collapsed, onToggleCollapsed, mobileOpen, onCloseMobile, onBackToHome }) {
+// `badges`: nav id -> count shown beside the item (e.g. unread messages).
+export default function AdminSidebar({ active, badges = {}, onSelect, collapsed, onToggleCollapsed, mobileOpen, onCloseMobile, onBackToHome }) {
   return (
     <>
       {mobileOpen && <div className="lg:hidden fixed inset-0 z-40 bg-black/30" onClick={onCloseMobile} aria-hidden />}
@@ -52,6 +53,14 @@ export default function AdminSidebar({ active, onSelect, collapsed, onToggleColl
                   >
                     {item.label}
                   </span>
+                  {badges[item.id] > 0 && (
+                    <span
+                      aria-label={`${badges[item.id]} unread`}
+                      className={`bg-[#0094c5] text-white text-[10px] font-bold rounded-[100px] min-w-[18px] h-[18px] px-[5px] flex items-center justify-center ml-auto ${collapsed ? 'lg:absolute lg:top-[4px] lg:right-[4px] lg:min-w-[14px] lg:h-[14px] lg:px-[3px]' : ''}`}
+                    >
+                      {badges[item.id] > 99 ? '99+' : badges[item.id]}
+                    </span>
+                  )}
                   {isActive && <span className="-translate-y-1/2 absolute bg-[#0094c5] h-[16px] left-[-2px] rounded-[10px] top-1/2 w-[4px]" />}
                 </button>
               );

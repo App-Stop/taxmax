@@ -58,3 +58,24 @@ export const setCustomerAssignees = (id, teamMemberIds) =>
     body: { teamMemberIds },
     token: getStoredToken(),
   });
+
+// The signed-in team member: { _id, fullName, profilePicture, email, role, roleName, isActive, ... }
+export const getTeamMe = async () => (await get('/team/me')).data;
+
+// { newSubmissionReceived, reUploadCompleted, newClientMessage, irsAcceptanceNotification, dailySummaryEmail }
+export const getNotificationPreferences = async () => (await get('/team/me/notification-preferences')).data;
+
+// Any subset of the keys above. Returns the full, saved set.
+export const updateNotificationPreferences = async (changes) =>
+  (await patch('/team/me/notification-preferences', changes)).data;
+
+// Admin only. Always creates a staff-level member; `roleName` is a display label.
+export const createTeamMember = async ({ fullName, email, roleName }) =>
+  (await post('/team', { fullName, email, roleName })).data;
+
+// Admin only. Any of { fullName, roleName, isActive }. Deactivating signs the member out
+// everywhere and removes them from every customer they were assigned to.
+export const updateTeamMember = async (id, changes) => (await patch(`/team/${encodeURIComponent(id)}`, changes)).data;
+
+// Admin only. Same as updateTeamMember(id, { isActive: false }).
+export const deactivateTeamMember = async (id) => (await del(`/team/${encodeURIComponent(id)}`)).data;

@@ -21,11 +21,11 @@ const searchParam = (search) => (search && search.trim().length >= 2 ? search.tr
 // { documents, assignedPreparers: [{ _id, fullName, roleName }], newMessageCount, recentUpdates: Activity[] }
 export const getCustomerDashboard = async () => (await get('/dashboard/customer')).data;
 
-// days: 7 | 14 | 21 (submission volume window). With `search`, `searchResults` lists matching clients.
+// days: 7 | 14 | 21 (submission volume window). The top-bar search uses GET /search instead
+// of this endpoint's `search` parameter.
 // { totalSubmissions, totalUploaded, totalFiledAndAccepted, totalActionNeeded,
-//   submissionVolume: { days, data: [{ date, count }] }, totalDocumentsVolume, recentActivity, searchResults }
-export const getTeamDashboard = async ({ days, search }) =>
-  (await get(`/dashboard/team${query({ days, search: searchParam(search) })}`)).data;
+//   submissionVolume: { days, data: [{ date, count }] }, totalDocumentsVolume, recentActivity }
+export const getTeamDashboard = async ({ days }) => (await get(`/dashboard/team${query({ days })}`)).data;
 
 // 10 rows a page. { data: Activity[], pagination: { limit, hasMore, nextCursor } }
 export const listTeamRecentActivity = ({ cursor }) => get(`/dashboard/team/recent-activity${query({ cursor })}`);

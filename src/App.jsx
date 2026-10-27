@@ -19,6 +19,7 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import AuthScreen from './components/auth/AuthScreen';
 import { getAccountType, getStoredToken, clearSession, logout, refreshCustomerProfile } from './services/auth';
 import { setUnauthorizedHandler } from './services/api';
+import { disconnectChat } from './services/chatSocket';
 
 // Team members (admin and staff) use the admin portal; everyone else the customer dashboard.
 const dashboardViewFor = (accountType) => (accountType === 'team' ? 'admin' : 'dashboard');
@@ -65,6 +66,7 @@ export default function App() {
   useEffect(() => {
     setUnauthorizedHandler(() => {
       clearSession();
+      disconnectChat();
       setUser(null);
       setCurrentView('login');
     });
@@ -119,6 +121,7 @@ export default function App() {
   const handleLogout = () => {
     // Clears the local session at once; the server-side revoke runs in the background.
     logout();
+    disconnectChat();
     setUser(null);
     setCurrentView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -4,16 +4,16 @@ import NotificationItem from './NotificationItem';
 const FILTERS = [
   { id: 'all', label: 'All', match: () => true },
   { id: 'unread', label: 'Unread', match: (n) => n.unread },
-  { id: 'documents', label: 'Documents', match: (n) => n.kind === 'document' },
-  { id: 'messages', label: 'Messages', match: (n) => n.kind === 'message' },
 ];
 
 const GROUPS = ['Today', 'Earlier'];
 
-// Notifications Modal (Node 71:2462)
-export default function NotificationsPanel({ notifications, onOpenNotification, onMarkAllRead, onClose }) {
+// Notifications Modal (Node 71:2462). `notifications` are API rows mapped by
+// toNotification(); `status` is { loading, error, onRetry } for the list request.
+export default function NotificationsPanel({ notifications, status, actionError, onOpenNotification, onMarkAllRead, onClose }) {
   const [filterId, setFilterId] = useState('all');
   const visible = notifications.filter(FILTERS.find((f) => f.id === filterId).match);
+  const hasUnread = notifications.some((n) => n.unread);
 
   return (
     <>
@@ -22,12 +22,18 @@ export default function NotificationsPanel({ notifications, onOpenNotification, 
         className="absolute z-40 top-[88px] lg:top-[80px] right-[16px] lg:right-[30px] w-[402px] max-w-[calc(100%-32px)] max-h-[calc(var(--vh)-100px)] overflow-y-auto backdrop-blur-[10px] bg-[rgba(255,255,255,0.8)] border border-solid border-white flex flex-col gap-[20px] items-center p-[16px] rounded-[20px] shadow-[0px_0px_120px_0px_rgba(0,0,0,0.25)] animate-auth-fade-in"
         role="dialog"
         aria-label="Notifications"
+        aria-busy={status.loading}
         data-node-id="71:2462"
       >
         <div className="flex flex-col gap-[14px] items-start shrink-0 w-full" data-node-id="71:2464">
           <div className="flex gap-[16px] h-[27px] items-center leading-[normal] shrink-0 w-full">
             <p className="flex-[1_0_0] font-bold min-w-px text-[20px] text-[#111]">Notifications</p>
-            <button type="button" onClick={onMarkAllRead} className="font-semibold text-[12px] text-[#0094c5] whitespace-nowrap cursor-pointer hover:underline">
+            <button
+              type="button"
+              onClick={onMarkAllRead}
+              disabled={!hasUnread}
+              className="font-semibold text-[12px] text-[#0094c5] whitespace-nowrap cursor-pointer hover:underline disabled:opacity-40 disabled:cursor-default disabled:no-underline"
+            >
               Mark all read
             </button>
           </div>
@@ -47,23 +53,36 @@ export default function NotificationsPanel({ notifications, onOpenNotification, 
               );
             })}
           </div>
+          {actionError && <p role="alert" className="text-[12px] font-medium text-[#ea0101]">{actionError}</p>}
         </div>
 
-        {GROUPS.map((group) => {
-          const items = visible.filter((n) => n.group === group);
-          if (!items.length) return null;
-          return (
-            <div key={group} className="flex flex-col gap-[10px] items-start shrink-0 w-full">
-              <p className="font-semibold leading-[22px] text-[14px] text-[#111] w-full">{group}</p>
-              {items.map((notification) => (
-                <NotificationItem key={notification.id} notification={notification} onClick={() => onOpenNotification(notification)} />
-              ))}
-            </div>
-          );
-        })}
-
-        {!visible.length && (
-          <p className="font-medium leading-[18px] py-[24px] text-[12px] text-[#6a6a6a] text-center w-full">No notifications here.</p>
+        {status.error && !notifications.length ? (
+          <div role="alert" className="flex flex-col gap-[10px] items-center py-[24px] w-full">
+            <p className="font-medium text-[12px] text-[#ea0101] text-center">{status.error.message}</p>
+            <button type="button" onClick={status.onRetry} className="font-semibold text-[12px] text-[#0094c5] cursor-pointer hover:underline">Try again</button>
+          </div>
+        ) : status.loading && !notifications.length ? (
+          <p className="font-medium leading-[18px] py-[24px] text-[12px] text-[#6a6a6a] text-center w-full" role="status">Loading…</p>
+        ) : (
+          <>
+            {GROUPS.map((group) => {
+              const items = visible.filter((n) => n.group === group);
+              if (!items.length) return null;
+              return (
+                <div key={group} className="flex flex-col gap-[10px] items-start shrink-0 w-full">
+                  <p className="font-semibold leading-[22px] text-[14px] text-[#111] w-full">{group}</p>
+                  {items.map((notification) => (
+                    <NotificationItem key={notification.id} notification={notification} onClick={() => onOpenNotification(notification)} />
+                  ))}
+                </div>
+              );
+            })}
+            {!visible.length && (
+              <p className="font-medium leading-[18px] py-[24px] text-[12px] text-[#6a6a6a] text-center w-full">
+                {filterId === 'unread' ? 'You’re all caught up.' : 'No notifications yet.'}
+              </p>
+            )}
+          </>
         )}
       </div>
     </>

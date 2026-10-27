@@ -1,13 +1,31 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
-import { Icon, Avatar, StatusBadge, SearchField, PageHeader, Popover } from './ui';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Icon, Avatar, SearchField, PageHeader, Popover, ListState } from './ui';
 import { QUICK_REPLIES, initialsOf } from './adminData';
+import { relativeTime } from './adminApiMappers';
+import ChatMessages from '../chat/ChatMessages';
+import ChatComposer from '../chat/ChatComposer';
+import { listConversations } from '../../services/chat';
+import { onChatEvent, onChatReconnect, onChatStatus } from '../../services/chatSocket';
+import useChatThread from '../../hooks/useChatThread';
 
 const A = '/figma/admin';
+const PAGE_LIMIT = 30;
+const FILTERS = [
+  { id: 'all', label: 'All' },
+  { id: 'unread', label: 'Unread' },
+];
 
-function ConversationRow({ conversation, client, active, onSelect }) {
-  const last = conversation.messages[conversation.messages.length - 1];
-  const unread = conversation.unread && !active;
+function previewOf(last) {
+  if (!last) return 'No messages yet';
+  if (last.isDeleted) return 'Message deleted';
+  const text = last.preview || (last.attachmentCount ? `${last.attachmentCount} attachment${last.attachmentCount > 1 ? 's' : ''}` : '');
+  return last.senderType === 'customer' ? text : `${last.senderName || 'Team'}: ${text}`;
+}
+
+function ConversationRow({ conversation, active, onSelect }) {
+  const unread = conversation.unreadCount > 0 && !active;
   const muted = unread ? 'text-[#111]' : 'text-[#6a6a6a]';
+  const name = conversation.customer.fullName || 'Unnamed client';
   return (
     <button
       type="button"
@@ -15,88 +33,55 @@ function ConversationRow({ conversation, client, active, onSelect }) {
       aria-current={active ? 'true' : undefined}
       className={`border-[#e8e8e8] border-b border-solid flex gap-[6px] items-center px-[14px] py-[16px] relative shrink-0 w-full text-left cursor-pointer transition-colors ${active ? 'bg-[rgba(0,148,197,0.1)]' : 'hover:bg-[#fafafa]'}`}
     >
-      <Avatar name={client.name} size={40} />
+      <Avatar name={name} size={40} />
       <span className="flex flex-[1_0_0] flex-col gap-[4px] items-start justify-center leading-[normal] min-w-px whitespace-nowrap">
         <span className="flex gap-[8px] items-center justify-between w-full">
-          <span className={`overflow-hidden text-[14px] text-[#111] text-ellipsis ${active ? 'font-semibold' : 'font-medium'}`}>{client.name}</span>
-          <span className={`font-normal shrink-0 text-[12px] ${muted}`}>{conversation.updatedAt}</span>
+          <span className={`overflow-hidden text-[14px] text-[#111] text-ellipsis ${active || unread ? 'font-semibold' : 'font-medium'}`}>{name}</span>
+          <span className={`font-normal shrink-0 text-[12px] ${muted}`}>{conversation.lastMessageAt ? relativeTime(conversation.lastMessageAt) : 'New'}</span>
         </span>
-        <span className={`font-normal max-w-full overflow-hidden text-[12px] text-ellipsis ${muted}`}>{last?.text}</span>
+        <span className="flex gap-[8px] items-center justify-between w-full">
+          <span className={`font-normal max-w-full overflow-hidden text-[12px] text-ellipsis ${muted}`}>{previewOf(conversation.lastMessage)}</span>
+          {unread && (
+            <span className="bg-[#0094c5] text-white text-[10px] font-bold rounded-[100px] min-w-[18px] h-[18px] px-[5px] flex items-center justify-center shrink-0">
+              {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
+            </span>
+          )}
+        </span>
       </span>
-      {unread && (
-        <span className="-translate-x-1/2 -translate-y-1/2 absolute left-[7px] size-[6px] top-[calc(50%+0.5px)]">
-          <img alt="Unread" className="absolute block inset-0 max-w-none size-full" src={`${A}/unread-dot.svg`} />
-        </span>
-      )}
     </button>
   );
 }
 
-function MessageBubble({ message }) {
-  if (message.from === 'staff') {
-    return (
-      <div className="flex flex-col gap-[6px] items-end pl-[48px] pr-[16px] w-full">
-        <div className="bg-[#0094c5] flex items-center justify-center max-w-[400px] px-[14px] py-[10px] rounded-[20px]">
-          <p className="font-medium leading-[22px] text-[14px] text-white [word-break:break-word]">{message.text}</p>
-        </div>
-        <div className="flex font-normal gap-[6px] items-start leading-[normal] text-[12px] text-[#6a6a6a] whitespace-nowrap">
-          <p>{message.time}</p>
-          {message.receipt && <p>{message.receipt}</p>}
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div className="flex flex-col gap-[6px] items-start pl-[16px] pr-[48px] w-full">
-      <div className="bg-[#f5f5f5] flex items-center justify-center max-w-[400px] px-[14px] py-[10px] rounded-[20px]">
-        <p className="font-normal leading-[22px] text-[14px] text-[#111] [word-break:break-word]">{message.text}</p>
-      </div>
-      <p className="font-normal leading-[normal] text-[12px] text-[#6a6a6a] whitespace-nowrap">{message.time}</p>
-    </div>
-  );
-}
-
-function ChatPanel({ conversation, client, onSend, onOpenClient, onMarkUnread }) {
+function ChatPanel({ customerId, fallbackName, viewer, onOpenClient, onThreadRead }) {
+  const thread = useChatThread(customerId, viewer);
   const [draft, setDraft] = useState('');
-  const listRef = useRef(null);
-  const fileRef = useRef(null);
   const inputRef = useRef(null);
+  const name = thread.info?.customer?.fullName || fallbackName || 'Client';
+  const assignees = thread.info?.participants?.assignees || [];
 
+  // Opening the thread marks it read on the server.
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-  }, [conversation.messages.length]);
-
-  const submit = (e) => {
-    e.preventDefault();
-    const text = draft.trim();
-    if (!text) return;
-    onSend(text);
-    setDraft('');
-  };
-
-  const attach = (e) => {
-    const file = e.target.files?.[0];
-    if (file) onSend(`Attachment: ${file.name}`);
-    e.target.value = '';
-  };
+    if (thread.status === 'ready') onThreadRead(customerId);
+  }, [thread.status, customerId, onThreadRead]);
 
   return (
     <div className="bg-white flex flex-[1_0_0] flex-col items-start min-h-[520px] lg:min-h-0 min-w-px rounded-[20px] self-stretch" data-node-id="87:2997">
       <div className="border-[#e8e8e8] border-b border-solid flex gap-[10px] items-center justify-between p-[16px] shrink-0 w-full">
         <div className="flex gap-[14px] items-center min-w-0">
           <span className="bg-[#e8e8e8] flex items-center justify-center rounded-[262.5px] shrink-0 size-[42px]">
-            <span className="font-medium leading-[23.625px] text-[15.75px] text-[#6a6a6a] whitespace-nowrap">{initialsOf(client.name)}</span>
+            <span className="font-medium leading-[23.625px] text-[15.75px] text-[#6a6a6a] whitespace-nowrap">{initialsOf(name)}</span>
           </span>
           <div className="flex flex-col gap-[4px] items-start justify-center leading-[normal] min-w-0 whitespace-nowrap">
-            <p className="font-semibold max-w-full overflow-hidden text-[16px] text-[#111] text-ellipsis">{client.name}</p>
-            <p className="font-normal text-[12px] text-[#6a6a6a]">{conversation.submissionId}</p>
+            <p className="font-semibold max-w-full overflow-hidden text-[16px] text-[#111] text-ellipsis">{name}</p>
+            <p className="font-normal text-[12px] text-[#6a6a6a] max-w-full overflow-hidden text-ellipsis">
+              {thread.info ? (assignees.length ? `Assigned: ${assignees.map((a) => a.fullName).join(', ')}` : 'No preparer assigned') : ' '}
+            </p>
           </div>
         </div>
         <div className="flex gap-[10px] items-center justify-center shrink-0">
-          <StatusBadge status={client.status} />
           <button
             type="button"
-            onClick={onOpenClient}
+            onClick={() => onOpenClient({ id: customerId, name })}
             aria-label="View client submissions"
             className="bg-[#f5f5f5] flex items-center justify-center p-[10px] rounded-[100px] shrink-0 cursor-pointer hover:bg-[#ececec]"
           >
@@ -104,10 +89,7 @@ function ChatPanel({ conversation, client, onSend, onOpenClient, onMarkUnread })
           </button>
           <Popover
             align="right"
-            items={[
-              { key: 'profile', label: 'View client profile', onSelect: onOpenClient },
-              { key: 'unread', label: 'Mark as unread', onSelect: onMarkUnread },
-            ]}
+            items={[{ key: 'profile', label: 'View client profile', onSelect: () => onOpenClient({ id: customerId, name }) }]}
             trigger={({ toggle, open }) => (
               <button
                 type="button"
@@ -123,15 +105,23 @@ function ChatPanel({ conversation, client, onSend, onOpenClient, onMarkUnread })
         </div>
       </div>
 
-      <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto w-full pt-[30px] pb-[10px] [scrollbar-width:thin]">
-        <div className="flex flex-col gap-[20px] items-start w-full">
-          {conversation.messages.map((m) => (
-            <MessageBubble key={m.id} message={m} />
-          ))}
-        </div>
-      </div>
+      {thread.status === 'error' ? (
+        <ListState className="flex-1 w-full" error={thread.error} onRetry={thread.reload} />
+      ) : thread.status === 'loading' && !thread.messages.length ? (
+        <ListState className="flex-1 w-full" loading />
+      ) : (
+        <ChatMessages thread={thread} viewerIsTeam className="flex-1 min-h-0 w-full" innerClassName="pt-[30px] pb-[10px]" emptyText="No messages yet. Start the conversation." />
+      )}
 
-      <form onSubmit={submit} className="flex flex-col gap-[10px] items-end justify-center p-[16px] shrink-0 w-full">
+      <ChatComposer
+        variant="admin"
+        inputRef={inputRef}
+        draft={draft}
+        onDraftChange={setDraft}
+        onSend={thread.send}
+        onTyping={thread.setTyping}
+        blockedReason={thread.status === 'error' ? 'This conversation could not be loaded.' : thread.writeBlocked}
+      >
         <div className="flex flex-wrap justify-end gap-[10px] items-start">
           {QUICK_REPLIES.map((reply) => (
             <button
@@ -147,83 +137,180 @@ function ChatPanel({ conversation, client, onSend, onOpenClient, onMarkUnread })
             </button>
           ))}
         </div>
-        <div className="flex gap-[10px] h-[46px] items-center w-full">
-          <div className="backdrop-blur-[10px] bg-white border border-[#e8e8e8] border-solid flex flex-[1_0_0] gap-[20px] h-[46px] items-center min-w-px px-[16px] py-[2px] rounded-[100px] focus-within:border-[#0094c5] transition-colors">
-            <input
-              ref={inputRef}
-              type="text"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Type message..."
-              aria-label="Message"
-              className="flex-[1_0_0] min-w-px bg-transparent outline-none font-normal leading-[normal] text-[14px] text-[#111] placeholder:text-[#848484]"
-            />
-            <input ref={fileRef} type="file" className="hidden" onChange={attach} />
-            <button type="button" onClick={() => fileRef.current?.click()} aria-label="Attach a file" className="shrink-0 cursor-pointer opacity-90 hover:opacity-100">
-              <Icon src={`${A}/paperclip.svg`} />
-            </button>
-          </div>
-          <button
-            type="submit"
-            aria-label="Send message"
-            className="bg-[#0094c5] hover:bg-[#0082ad] transition-colors flex h-full items-center justify-center rounded-[100px] shrink-0 w-[60px] cursor-pointer"
-          >
-            <Icon src={`${A}/paper-plane-white.svg`} />
-          </button>
-        </div>
-      </form>
+      </ChatComposer>
     </div>
   );
 }
 
-// Messages (Node 87:2886)
-export default function MessagesView({ conversations, clientsById, activeClientId, onSelect, onSend, onOpenClient, onMarkUnread }) {
+// Messages (Node 87:2886). The inbox lists threads with at least one message, newest
+// first (staff see only their assigned customers). `activeClient` ({ id, name }) opens a
+// thread, including a new one with no messages yet.
+export default function MessagesView({ viewer, activeClient, onSelect, onOpenClient }) {
+  const [filter, setFilter] = useState('all');
   const [query, setQuery] = useState('');
+  const [list, setList] = useState({ rows: [], page: 1, hasMore: false, loading: true, error: null, loadingMore: false });
+  const [live, setLive] = useState(true);
+  const reloadTimer = useRef(null);
 
-  const visible = useMemo(() => {
+  const load = useCallback(
+    async (page) => {
+      setList((l) => ({ ...l, ...(page === 1 ? { loading: true } : { loadingMore: true }), error: null }));
+      try {
+        const res = await listConversations({ page, limit: PAGE_LIMIT, unread: filter === 'unread' });
+        setList((l) => ({
+          rows: page === 1 ? res.data : [...l.rows, ...res.data.filter((r) => !l.rows.some((x) => x.customer._id === r.customer._id))],
+          page,
+          hasMore: res.pagination.hasMore,
+          loading: false,
+          loadingMore: false,
+          error: null,
+        }));
+      } catch (error) {
+        setList((l) => ({ ...l, loading: false, loadingMore: false, error }));
+      }
+    },
+    [filter],
+  );
+
+  useEffect(() => {
+    load(1);
+  }, [load]);
+
+  const activeId = activeClient?.id || list.rows[0]?.customer._id || null;
+
+  // Keep the inbox current: update the row a message belongs to, or reload when it's a new thread.
+  useEffect(() => {
+    const reloadSoon = () => {
+      clearTimeout(reloadTimer.current);
+      reloadTimer.current = setTimeout(() => load(1), 500);
+    };
+    const offs = [
+      onChatEvent('chat:message', ({ customerId, message }) => {
+        setList((l) => {
+          const row = l.rows.find((r) => String(r.customer._id) === String(customerId));
+          if (!row) {
+            reloadSoon();
+            return l;
+          }
+          const fromCustomer = message.sender?.type === 'customer';
+          const updated = {
+            ...row,
+            lastMessage: {
+              _id: message._id,
+              senderType: message.sender?.type,
+              senderName: message.sender?.name,
+              preview: message.body,
+              attachmentCount: message.attachments?.length || 0,
+              isDeleted: false,
+              at: message.createdAt,
+            },
+            lastMessageAt: message.createdAt,
+            unreadCount: fromCustomer && String(customerId) !== String(activeId) ? row.unreadCount + 1 : row.unreadCount,
+          };
+          return { ...l, rows: [updated, ...l.rows.filter((r) => r !== row)] };
+        });
+      }),
+      onChatEvent('chat:message_deleted', ({ customerId, message }) =>
+        setList((l) => ({
+          ...l,
+          rows: l.rows.map((r) =>
+            String(r.customer._id) === String(customerId) && r.lastMessage?._id === message._id
+              ? { ...r, lastMessage: { ...r.lastMessage, isDeleted: true, preview: null, attachmentCount: 0 } }
+              : r,
+          ),
+        })),
+      ),
+      onChatReconnect(reloadSoon),
+      onChatStatus(setLive),
+    ];
+    return () => {
+      offs.forEach((off) => off());
+      clearTimeout(reloadTimer.current);
+    };
+  }, [load, activeId]);
+
+  const markRowRead = useCallback(
+    (customerId) => setList((l) => ({ ...l, rows: l.rows.map((r) => (String(r.customer._id) === String(customerId) ? { ...r, unreadCount: 0 } : r)) })),
+    [],
+  );
+
+  // A thread opened from elsewhere ("Message client") may have no messages yet, so it isn't in the inbox.
+  const rows = useMemo(() => {
+    const known = list.rows.some((r) => String(r.customer._id) === String(activeClient?.id));
+    const all = activeClient && !known && filter === 'all'
+      ? [{ customer: { _id: activeClient.id, fullName: activeClient.name }, lastMessage: null, lastMessageAt: null, unreadCount: 0 }, ...list.rows]
+      : list.rows;
+    // The API has no conversation search; this filters the loaded threads by name.
     const q = query.trim().toLowerCase();
-    if (!q) return conversations;
-    return conversations.filter((c) => {
-      const client = clientsById[c.clientId];
-      return client.name.toLowerCase().includes(q) || c.submissionId.toLowerCase().includes(q);
-    });
-  }, [conversations, clientsById, query]);
+    return q ? all.filter((r) => (r.customer.fullName || '').toLowerCase().includes(q)) : all;
+  }, [list.rows, activeClient, filter, query]);
 
-  const active = conversations.find((c) => c.clientId === activeClientId) || conversations[0];
+  const activeName = activeClient?.id === activeId ? activeClient.name : list.rows.find((r) => r.customer._id === activeId)?.customer.fullName;
 
   return (
     <div className="flex flex-col gap-[20px] items-start w-full lg:flex-1 lg:min-h-0" data-node-id="87:2934">
-      <PageHeader title="Messages" subtitle="Secure client-staff conversations tied to submissions" />
+      <PageHeader
+        title="Messages"
+        subtitle="Secure client-staff conversations tied to submissions"
+        action={!live && <span className="text-[12px] font-medium text-[#e86907] bg-[#fff1e6] px-[10px] py-[6px] rounded-[100px]">Reconnecting… new messages may be delayed</span>}
+      />
 
       <div className="flex flex-col lg:flex-row gap-[10px] items-stretch w-full lg:flex-1 lg:min-h-[560px]" data-node-id="87:2939">
         <div className="bg-white flex flex-col gap-[10px] items-start max-h-[420px] lg:max-h-none py-[16px] rounded-[20px] shrink-0 lg:w-[349px]" data-node-id="87:2940">
           <div className="flex flex-col gap-[10px] items-start px-[16px] w-full">
-            <p className="font-bold leading-[normal] text-[16px] text-[#111] whitespace-nowrap">Conversations</p>
+            <div className="flex items-center justify-between w-full">
+              <p className="font-bold leading-[normal] text-[16px] text-[#111] whitespace-nowrap">Conversations</p>
+              <div role="tablist" aria-label="Filter conversations" className="bg-[#e8e8e8] flex p-[2px] rounded-[30px]">
+                {FILTERS.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={filter === f.id}
+                    onClick={() => setFilter(f.id)}
+                    className={`px-[12px] py-[4px] rounded-[20px] text-[12px] cursor-pointer ${filter === f.id ? 'bg-white font-semibold' : 'font-normal'}`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <SearchField value={query} onChange={setQuery} placeholder="Search customers..." className="w-full" />
           </div>
           <div className="flex flex-col items-start min-h-0 overflow-y-auto w-full [scrollbar-width:thin]">
-            {visible.map((c) => (
+            {rows.map((c) => (
               <ConversationRow
-                key={c.clientId}
+                key={c.customer._id}
                 conversation={c}
-                client={clientsById[c.clientId]}
-                active={active && c.clientId === active.clientId}
-                onSelect={() => onSelect(c.clientId)}
+                active={String(c.customer._id) === String(activeId)}
+                onSelect={() => onSelect({ id: c.customer._id, name: c.customer.fullName })}
               />
             ))}
-            {visible.length === 0 && <p className="px-[16px] py-[20px] text-[14px] text-[#6a6a6a]">No conversations found.</p>}
+            {(list.error || list.loading || rows.length === 0) && (
+              <ListState
+                className="py-[20px] w-full"
+                loading={list.loading}
+                error={list.error}
+                onRetry={() => load(1)}
+                empty={query ? 'No loaded conversations match.' : filter === 'unread' ? 'No unread conversations.' : 'No conversations yet.'}
+              />
+            )}
+            {list.hasMore && !list.error && (
+              <button type="button" onClick={() => load(list.page + 1)} disabled={list.loadingMore} className="mx-auto my-[10px] text-[13px] font-semibold text-[#0094c5] cursor-pointer hover:underline disabled:opacity-60">
+                {list.loadingMore ? 'Loading…' : 'Load more'}
+              </button>
+            )}
           </div>
         </div>
 
-        {active && (
-          <ChatPanel
-            key={active.clientId}
-            conversation={active}
-            client={clientsById[active.clientId]}
-            onSend={(text) => onSend(active.clientId, text)}
-            onOpenClient={() => onOpenClient(active.clientId)}
-            onMarkUnread={() => onMarkUnread(active.clientId)}
-          />
+        {activeId ? (
+          <ChatPanel key={activeId} customerId={activeId} fallbackName={activeName} viewer={viewer} onOpenClient={onOpenClient} onThreadRead={markRowRead} />
+        ) : (
+          !list.loading && (
+            <div className="bg-white flex flex-[1_0_0] items-center justify-center rounded-[20px] min-h-[300px] text-[14px] text-[#6a6a6a]">
+              Pick a conversation, or message a client from their profile.
+            </div>
+          )
         )}
       </div>
     </div>

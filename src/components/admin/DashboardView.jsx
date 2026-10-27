@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Icon, Dropdown, StatusBadge, ListState } from './ui';
+import { Icon, Dropdown, ListState } from './ui';
 import { ACTIVITY_STYLES, formatDate } from './adminData';
-import { mapActivity, mapSearchResult } from './adminApiMappers';
+import { mapActivity } from './adminApiMappers';
 import { getTeamDashboard } from '../../services/dashboard';
 import useApiQuery from '../../hooks/useApiQuery';
 
@@ -195,57 +195,12 @@ export function ActivityRow({ item }) {
   );
 }
 
-// Top-bar search results: clients matching by name, email, phone or id, with any
-// documents that matched by submission ID or form type.
-function SearchResults({ search, results, loading, error, empty, onRetry, onClear, onOpenClient, onOpenDocument }) {
-  return (
-    <div className="bg-white flex flex-col gap-[16px] items-start p-[16px] rounded-[20px] w-full">
-      <CardHeader title={`Search results for “${search}”`}>
-        <button
-          type="button"
-          onClick={onClear}
-          className="flex h-[32px] items-center justify-center px-[12px] py-[8px] rounded-[100px] shrink-0 cursor-pointer hover:bg-[rgba(0,148,197,0.1)] transition-colors"
-        >
-          <span className="font-bold leading-[16px] text-[14px] text-[#0094c5] whitespace-nowrap">Clear</span>
-        </button>
-      </CardHeader>
-      {results.map(({ client, documents }) => (
-        <div key={client.id} className="border border-[#e8e8e8] border-solid flex flex-col gap-[10px] p-[12px] rounded-[10px] w-full">
-          <button type="button" onClick={() => onOpenClient(client)} className="flex flex-col items-start text-left cursor-pointer hover:opacity-80">
-            <span className="font-semibold text-[14px] text-[#111]">{client.name}</span>
-            <span className="font-normal text-[12px] text-[#6a6a6a]">{[client.email, client.phone].filter(Boolean).join(' · ')}</span>
-          </button>
-          {documents.map((doc) => (
-            <button
-              key={doc.id}
-              type="button"
-              onClick={() => onOpenDocument(doc)}
-              className="flex flex-wrap gap-[10px] items-center justify-between px-[10px] py-[8px] rounded-[8px] bg-[#fafafa] w-full text-left cursor-pointer hover:bg-[#f0f0f0]"
-            >
-              <span className="font-medium text-[14px] text-[#111]">
-                {[doc.submissionId, doc.title].filter(Boolean).join(' · ')}
-                {doc.date && <span className="font-normal text-[12px] text-[#6a6a6a]"> · {formatDate(doc.date)}</span>}
-              </span>
-              <StatusBadge status={doc.status} />
-            </button>
-          ))}
-        </div>
-      ))}
-      {(error || loading || results.length === 0) && (
-        <ListState className="py-[20px] w-full" loading={loading} error={error} onRetry={onRetry} empty={empty} />
-      )}
-    </div>
-  );
-}
-
-// Dashboard (Node 87:1625). `search` comes from the top bar.
-export default function DashboardView({ search, onClearSearch, onOpenQueue, onViewAllActivity, onOpenClient, onOpenDocument }) {
+// Dashboard (Node 87:1625).
+export default function DashboardView({ onOpenQueue, onViewAllActivity }) {
   const [days, setDays] = useState(7);
-  const term = search?.trim().length >= 2 ? search.trim() : '';
-  const { data, loading, error, reload } = useApiQuery(`team-dashboard:${days}:${term}`, () => getTeamDashboard({ days, search: term }));
+  const { data, loading, error, reload } = useApiQuery(`team-dashboard:${days}`, () => getTeamDashboard({ days }));
 
   const activity = useMemo(() => (data?.recentActivity || []).map((row) => mapActivity(row)), [data]);
-  const results = useMemo(() => (data?.searchResults || []).map(mapSearchResult), [data]);
 
   return (
     <div className="flex flex-col gap-[20px] items-start w-full" data-node-id="87:1661">
@@ -253,20 +208,6 @@ export default function DashboardView({ search, onClearSearch, onOpenQueue, onVi
         <h1 className="font-bold leading-[36px] text-[28px] sm:text-[32px] text-[#111] tracking-[-0.32px]">Dashboard</h1>
         <p className="font-normal leading-[normal] text-[16px] text-[#444]">Tax season overview and real-time metrics</p>
       </div>
-
-      {search && (
-        <SearchResults
-          search={search}
-          results={term ? results : []}
-          loading={Boolean(term) && loading}
-          error={term ? error : null}
-          empty={term ? 'No clients or submissions match your search.' : 'Type at least 2 characters to search.'}
-          onRetry={reload}
-          onClear={onClearSearch}
-          onOpenClient={onOpenClient}
-          onOpenDocument={onOpenDocument}
-        />
-      )}
 
       {error && !data ? (
         <div className="bg-white rounded-[20px] w-full">

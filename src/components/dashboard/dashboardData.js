@@ -1,16 +1,6 @@
-// Dashboard content. The profile, preparer, documents, recent updates and new message
-// count come from the API; chat and the notifications panel are still seeded from the
-// Figma designs.
+// Dashboard content: shapes the API's documents, activity and notifications for the screens.
 
 const FALLBACK_CROP = 'inset-0 size-full object-contain';
-
-export const PREPARER = {
-  name: 'David kim',
-  role: 'Assigned Specialist',
-  avatar: '/figma/dashboard/preparer-avatar.png',
-  avatarLarge: '/figma/dashboard/preparer-avatar-48.png',
-  photo: '/figma/dashboard/preparer-photo-40.png',
-};
 
 // Thumbnail art and its Figma crop, per API form type. Other types use the upload-flow icons.
 const DOC_TYPES = {
@@ -138,7 +128,6 @@ export function toDashboardDocument(doc) {
   };
 }
 
-export const firstNameOf = (user) => user?.fullName?.trim().split(/\s+/)[0] || 'there';
 
 export const initialsOf = (user) =>
   (user?.fullName || '')
@@ -156,58 +145,24 @@ export const formatDate = (date) => {
   return `${d.getMonth() + 1} / ${d.getDate()} / ${d.getFullYear()}`;
 };
 
-const REFUND_REPLY =
-  "Based on current IRS processing, your estimated refund of $2,840 should arrive within 3-5 business days after filing. I'll keep you updated!";
+const NOTIFICATION_ICONS = {
+  activity: '/figma/dashboard/loader-22.svg',
+  profile: '/figma/dashboard/documents-submitted.svg',
+};
+const DEFAULT_NOTIFICATION_ICON = '/figma/dashboard/filed.svg';
 
-export const buildMessages = (firstName) => [
-  { id: 'm1', from: 'preparer', text: `Hi ${firstName}! I've received your W-2 and 1099-NEC. I'll begin preparing your return today.`, time: '9:30 AM' },
-  { id: 'm2', from: 'me', text: 'Great, thank you! When can I expect the refund?', time: '9:30 AM', receipt: 'Read' },
-  { id: 'm3', from: 'preparer', text: REFUND_REPLY, time: '9:30 AM' },
-  { id: 'm4', from: 'me', text: 'Great, thank you! When can I expect the refund?', time: '9:30 AM', receipt: 'Read' },
-  { id: 'm5', from: 'preparer', text: REFUND_REPLY, time: '9:30 AM' },
-  { id: 'm6', from: 'me', text: 'Perfect, appreciate the fast response.', time: '9:30 AM', receipt: 'Delivered' },
-  { id: 'm7', from: 'preparer', text: REFUND_REPLY, time: '9:30 AM' },
-];
-
-export const buildNotifications = (firstName) => [
-  {
-    id: 'n1',
-    kind: 'message',
-    group: 'Today',
-    avatar: PREPARER.photo,
-    title: `New message from ${PREPARER.name}`,
-    body: `Hi ${firstName}! I've received your W-2 and 1099-NEC. I'll begin preparing your return today.`,
-    time: '9:30 AM',
-    unread: true,
-  },
-  {
-    id: 'n2',
-    kind: 'document',
-    group: 'Today',
-    icon: '/figma/dashboard/loader-22.svg',
-    title: '1099-NEC · Preparer reviewing',
-    body: `${PREPARER.name} is reviewing your submitted 1099-NEC.`,
-    time: '9:20 AM',
-    unread: true,
-  },
-  {
-    id: 'n3',
-    kind: 'document',
-    group: 'Today',
-    icon: '/figma/dashboard/documents-submitted.svg',
-    title: 'W-2 Form · Documents submitted',
-    body: 'Your W-2 pages have been submitted securely to your preparer.',
-    time: '9:15 AM',
-    unread: false,
-  },
-  {
-    id: 'n4',
-    kind: 'document',
-    group: 'Earlier',
-    icon: '/figma/dashboard/filed.svg',
-    title: '1099-INT · Filed',
-    body: 'Your 1099-INT status has been updated to Filed.',
-    time: 'Yesterday',
-    unread: false,
-  },
-];
+// An API notification (GET /notifications/me) in the shape the panel renders.
+export function toNotification(row) {
+  const created = new Date(row.createdAt);
+  const isToday = created.toDateString() === new Date().toDateString();
+  return {
+    id: row._id,
+    kind: row.category,
+    group: isToday ? 'Today' : 'Earlier',
+    icon: NOTIFICATION_ICONS[row.category] || DEFAULT_NOTIFICATION_ICON,
+    title: row.title,
+    body: row.body,
+    time: isToday ? formatTime(created) : formatDate(created),
+    unread: !row.isRead,
+  };
+}
