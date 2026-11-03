@@ -1,17 +1,13 @@
 // Email + OTP auth against the TaxMax API (POST /auth/otp/request, /auth/otp/verify, /auth/logout),
 // plus the customer profile refresh (GET /users/me).
-// Customers and team members (admin / staff) share the flow; `accountType` picks which accounts are searched.
+// Customers and team members (admin / staff) share one login: the client sends only the email,
+// and the verify response's `accountType` says which kind of account it is.
 
 import { apiRequest, ApiError } from './api';
 
 const TOKEN_KEY = 'taxmax_token';
 const USER_KEY = 'taxmax_user';
 const AUTH_KEY = 'taxmax_is_authenticated';
-
-export const ACCOUNT_TYPES = [
-  { id: 'customer', label: 'Customer' },
-  { id: 'team', label: 'Team' },
-];
 
 // Production sends 6 digits; the dev/staging containers use a 4-digit static code.
 export const OTP_LENGTH = Number(import.meta.env.VITE_OTP_LENGTH) || 6;
@@ -47,19 +43,19 @@ export function getAccountType(token) {
 
 export const getStoredToken = () => localStorage.getItem(TOKEN_KEY);
 
-export async function sendCode(email, accountType) {
+export async function sendCode(email) {
   await apiRequest('/auth/otp/request', {
     method: 'POST',
-    body: { identifier: email.trim(), accountType },
+    body: { identifier: email.trim() },
   });
 }
 
-export async function verifyCode(email, code, accountType) {
+export async function verifyCode(email, code) {
   let data;
   try {
     ({ data } = await apiRequest('/auth/otp/verify', {
       method: 'POST',
-      body: { identifier: email.trim(), accountType, code },
+      body: { identifier: email.trim(), code },
     }));
   } catch (err) {
     // 401 covers a wrong, expired or used code (and unknown accounts, deliberately).
@@ -69,9 +65,10 @@ export async function verifyCode(email, code, accountType) {
     throw err;
   }
 
+  const { token, accountType } = data;
   const user = accountType === 'team' ? toTeamUser(data.member) : toCustomerProfile(data.user);
-  saveSession(data.token, user);
-  return { token: data.token, user, accountType };
+  saveSession(token, user);
+  return { token, user, accountType };
 }
 
 // Signs the customer in with the session that finishing sign-up returns ({ token, user }).

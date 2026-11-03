@@ -7,13 +7,12 @@ const imgArrowRight = "/figma/auth/arrow-right.svg";
 // Login by default; sign-up passes its own `verify(code)` / `resend()` calls and change-link label.
 export default function OtpVerificationCard({
   email,
-  accountType,
   onVerified,
   onChangeEmail,
   onBackToHome,
-  verify = (code) => verifyCode(email, code, accountType),
-  resend = () => sendCode(email, accountType),
-  changeLabel = 'Change email or account type',
+  verify = (code) => verifyCode(email, code),
+  resend = () => sendCode(email),
+  changeLabel = 'Change email',
 }) {
   const [digits, setDigits] = useState(() => Array(OTP_LENGTH).fill(''));
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
@@ -119,7 +118,6 @@ export default function OtpVerificationCard({
           Enter the {OTP_LENGTH} digit code sent to your email
           <br />
           <span className="[word-break:break-word]">{email}</span>
-          {accountType === 'team' && <span className="text-[#6a6a6a]"> · Team login</span>}
         </p>
         <button
           type="button"

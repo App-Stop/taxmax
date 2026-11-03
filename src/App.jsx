@@ -82,10 +82,10 @@ export default function App() {
     window.scrollTo({ top: 0 });
   };
 
-  // Customers and team members share one login; the token's account type picks the dashboard.
-  const handleLoginSuccess = ({ token, user: userData }) => {
+  // Customers and team members share one login; the account type the server returns picks the dashboard.
+  const handleLoginSuccess = ({ accountType, user: userData }) => {
     setUser(userData);
-    setCurrentView(dashboardViewFor(getAccountType(token)));
+    setCurrentView(dashboardViewFor(accountType));
     window.scrollTo({ top: 0 });
   };
 
