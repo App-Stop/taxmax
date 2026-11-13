@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { initialsOf } from './dashboardData';
 
 const imgSignOut = "/figma/dashboard/sign-out.svg";
 
@@ -34,9 +33,6 @@ export default function ProfileView({ user, onLogout }) {
     <div className="flex justify-center px-[16px] lg:pl-0 lg:pr-[60px] pt-[8px] lg:pt-[80px] pb-[60px] lg:pb-[80px]">
       <div className="bg-[rgba(255,255,255,0.6)] border border-[#f5f5f5] border-solid flex flex-col items-center overflow-clip rounded-[20px] shadow-[0px_0px_60px_0px_rgba(0,101,131,0.1)] w-full max-w-[664px] lg:w-[664px]" data-node-id="71:2377">
         <div className="flex flex-col gap-[16px] items-center px-[24px] py-[40px] shrink-0 w-full" data-node-id="71:2378">
-          <div className="bg-[rgba(0,148,197,0.1)] flex flex-col items-center justify-center rounded-[100px] shrink-0 size-[80px]">
-            <p className="font-extrabold leading-[normal] text-[20px] text-[#0094c5] text-center whitespace-nowrap">{initialsOf(user)}</p>
-          </div>
           <div className="flex flex-col gap-[10px] items-center shrink-0 max-w-full">
             <div className="flex flex-col gap-[4px] items-center leading-[normal] text-center max-w-full">
               <p className="font-bold text-[20px] text-[#111]">{user?.fullName}</p>

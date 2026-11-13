@@ -18,7 +18,8 @@ const A = '/figma/admin';
 const TABS = [
   { id: 'staff', label: 'Staff Accounts', icon: `${A}/user-gear.svg` },
   { id: 'notifications', label: 'Notifications', icon: `${A}/bell-20.svg` },
-  { id: 'security', label: 'Security', icon: `${A}/shield.svg` },
+  // Hidden until the server supports security settings; the Security component below is kept for then.
+  // { id: 'security', label: 'Security', icon: `${A}/shield.svg` },
 ];
 
 const STAFF_COLUMNS = 'grid-cols-[320px_minmax(200px,1fr)_260px_200px_80px]';

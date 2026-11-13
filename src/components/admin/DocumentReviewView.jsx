@@ -739,7 +739,7 @@ export default function DocumentReviewView({
                             <div className="flex items-center gap-[6px]">
                               {field.confidence != null && (
                                 <span className="text-[10px] font-semibold px-[4px] py-[1px] rounded bg-[#f0f0f0] text-[#6a6a6a]">
-                                  {Math.round(field.confidence * 100)}%
+                                  {Math.round(field.confidence)}%
                                 </span>
                               )}
                               <span className="text-[10px] uppercase tracking-wider text-[#848484]">
