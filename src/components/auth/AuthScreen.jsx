@@ -11,7 +11,6 @@ export default function AuthScreen({ onAuthenticated, onBackToHome }) {
   const { isDesktop, scale, width, height } = useDesignScale();
   const [step, setStep] = useState('email'); // 'email' | 'otp'
   const [email, setEmail] = useState('');
-  const [accountType, setAccountType] = useState('customer'); // 'customer' | 'team'
   const [session, setSession] = useState(null);
 
   const handleDone = useCallback(() => onAuthenticated(session), [onAuthenticated, session]);
@@ -28,8 +27,6 @@ export default function AuthScreen({ onAuthenticated, onBackToHome }) {
         {step === 'email' ? (
           <EmailLoginCard
             initialEmail={email}
-            accountType={accountType}
-            onAccountTypeChange={setAccountType}
             onCodeSent={(value) => {
               setEmail(value);
               setStep('otp');
@@ -39,7 +36,6 @@ export default function AuthScreen({ onAuthenticated, onBackToHome }) {
         ) : (
           <OtpVerificationCard
             email={email}
-            accountType={accountType}
             onVerified={setSession}
             onChangeEmail={() => setStep('email')}
             onBackToHome={onBackToHome}
