@@ -19,7 +19,7 @@ const imgBell = "/figma/dashboard/bell.svg";
 
 // Customer dashboard (Figma 71:1760 Home, 71:2266 Chat, 71:2348 Profile).
 // `documentsVersion` changes when documents were added elsewhere (the upload flow), to reload them.
-export default function ClientDashboard({ user, documentsVersion = 0, onLogout, onBackToHome, onOpenUpload, onViewTaxTools }) {
+export default function ClientDashboard({ user, onUserUpdated, documentsVersion = 0, onLogout, onBackToHome, onOpenUpload, onViewTaxTools }) {
   const { isDesktop, scale, width, height } = useDesignScale();
   const [tab, setTab] = useState('home'); // 'home' | 'chat' | 'profile'
   // Always fetched: image links in the list expire, so they are never cached across sessions.
@@ -152,7 +152,7 @@ export default function ClientDashboard({ user, documentsVersion = 0, onLogout, 
           />
         )}
         {tab === 'chat' && <ChatView viewer={viewer} />}
-        {tab === 'profile' && <ProfileView user={user} onLogout={onLogout} />}
+        {tab === 'profile' && <ProfileView user={user} onUserUpdated={onUserUpdated} onLogout={onLogout} />}
       </main>
 
       {/* Bell (Node 71:2243) */}

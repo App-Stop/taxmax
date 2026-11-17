@@ -1,5 +1,5 @@
 // Admin portal constants and helpers, plus dummy data for the screens with no API yet
-// (campaigns, referrals, security settings).
+// (campaigns and referrals).
 
 const A = '/figma/admin';
 
@@ -112,9 +112,7 @@ export const ACTIVITY_STYLES = {
   login: { label: 'Sign-ins', bg: 'bg-[#f4e3e8]', icon: `${A}/activity-sign-in.svg` },
 };
 
-// Campaigns (Node 87:3625). Campaign links are served from CAMPAIGN_HOST.
-export const CAMPAIGN_HOST = 'taxmax.app/s/';
-
+// Campaigns (Node 87:3625).
 export const INITIAL_CAMPAIGNS = [
   ['cp1', 'Fall Seminar 2026', 'fall26', 340, 29, '2026-08-12', '2026-10-31'],
   ['cp2', 'Community workshop', 'fall32', 1230, 323, '2026-08-19', '2026-11-15'],
@@ -122,17 +120,6 @@ export const INITIAL_CAMPAIGNS = [
   ['cp4', 'Referal program', 'fall30', 983, 450, '2026-08-16', '2027-04-15'],
   ['cp5', 'Repeat customer programme', 'fall28', 2434, 1231, '2026-08-13', '2027-04-15'],
 ].map(([id, title, slug, scans, conversions, createdAt, expiresAt]) => ({ id, title, slug, scans, conversions, createdAt, expiresAt }));
-
-export const campaignUrl = (slug) => `https://${CAMPAIGN_HOST}${slug}`;
-
-export async function copyCampaignLink(slug) {
-  try {
-    await navigator.clipboard.writeText(campaignUrl(slug));
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export const slugify = (text) =>
   text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'campaign';
@@ -149,11 +136,6 @@ export const INITIAL_REFERRALS = [
   ['r4', 'c8', 'Elena Ross', 'Personal Link', '2026-08-16', 'in_review'],
   ['r5', 'c1', 'Elena Ross', 'Personal Link', '2026-08-13', 'in_review'],
 ].map(([id, clientId, referredBy, source, date, status]) => ({ id, clientId, referredBy, source, date, status }));
-
-export const SESSION_TIMEOUTS = ['15 minutes', '30 minutes', '1 hour', '4 hours'];
-export const PASSWORD_POLICIES = ['Standard (8+ chars)', 'Strong (12+ chars, mixed case)', 'Strict (16+ chars, symbols)'];
-
-export const DEFAULT_SECURITY = { twoFactor: true, sessionTimeout: '30 minutes', passwordPolicy: 'Strong (12+ chars, mixed case)', ipAllowlist: true };
 
 export const QUICK_REPLIES = [
   { label: 'Return filed', text: 'Good news! Your return has been filed with the IRS. We will let you know as soon as it is accepted.' },

@@ -5,6 +5,7 @@ import { localDay, mapDocument } from './adminApiMappers';
 import { searchAll, MIN_SEARCH_LENGTH } from '../../services/search';
 import useApiQuery from '../../hooks/useApiQuery';
 import useDebouncedValue from '../../hooks/useDebouncedValue';
+import AdminNotifications from './AdminNotifications';
 
 const A = '/figma/admin';
 
@@ -150,7 +151,7 @@ function GlobalSearch({ onOpenClient, onOpenDocument }) {
   );
 }
 
-// Top bar (Node 87:1820): profile pill, global search, bell and info buttons.
+// Top bar (Node 87:1820): profile pill, global search and notifications.
 export default function AdminTopBar({ profile, showSearch, onOpenClient, onOpenDocument, onOpenMenu, onLogout, onBackToHome }) {
   return (
     <div className="flex items-center justify-between gap-[10px] w-full" data-node-id="87:1820">
@@ -191,12 +192,7 @@ export default function AdminTopBar({ profile, showSearch, onOpenClient, onOpenD
       </div>
 
       <div className="flex gap-[10px] items-center shrink-0" data-node-id="87:1830">
-        <button type="button" aria-label="Notifications" className="bg-white flex items-center p-[14px] rounded-[60px] shrink-0 cursor-pointer">
-          <Icon src={`${A}/bell.svg`} />
-        </button>
-        <button type="button" aria-label="Help" className="bg-white flex items-center p-[14px] rounded-[60px] shrink-0 cursor-pointer">
-          <Icon src={`${A}/info.svg`} />
-        </button>
+        <AdminNotifications />
       </div>
     </div>
   );

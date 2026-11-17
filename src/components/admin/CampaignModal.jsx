@@ -1,43 +1,45 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Icon, Modal, ModalHeader, FieldLabel, TextField, PillButton, fieldBoxClass, primaryButton, secondaryButton } from './ui';
-import { slugify, randomSlug, campaignUrl, copyCampaignLink } from './adminData';
+import { slugify, randomSlug } from './adminData';
+import { campaignUrl, copyCampaignLink, campaignQrDataUrl } from '../../services/campaigns';
 
 const A = '/figma/admin';
-const QR_IMAGE = `${A}/qr-preview.svg`;
 
 const longDate = (iso) =>
   iso ? new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
 
-// The QR artwork is a placeholder from the design until codes are generated per link.
-function downloadQrPng(name) {
-  const img = new Image();
-  img.onload = () => {
-    const size = 784;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    canvas.getContext('2d').drawImage(img, 0, 0, size, size);
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    link.download = `${slugify(name)}-qr.png`;
-    link.click();
-  };
-  img.src = QR_IMAGE;
+function downloadQrPng(name, image) {
+  const link = document.createElement('a');
+  link.href = image;
+  link.download = `${slugify(name)}-qr.png`;
+  link.click();
 }
 
-function printQr(title) {
+function printQr(title, image, url) {
   const frame = document.createElement('iframe');
   frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
   document.body.appendChild(frame);
   const doc = frame.contentDocument;
   doc.open();
-  doc.write(`<html><head><title>${title.replace(/</g, '&lt;')}</title></head><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><h2>${title.replace(/</g, '&lt;')}</h2><img src="${window.location.origin}${QR_IMAGE}" width="360" height="360"></body></html>`);
+  doc.write('<!doctype html><html><head><title></title></head><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"></body></html>');
   doc.close();
+  doc.title = title;
+  const heading = doc.createElement('h2');
+  heading.textContent = title;
+  const img = doc.createElement('img');
+  img.width = 360;
+  img.height = 360;
+  img.alt = `QR code for ${title}`;
+  const caption = doc.createElement('p');
+  caption.textContent = url;
+  doc.body.append(heading, img, caption);
   frame.contentWindow.onafterprint = () => frame.remove();
-  setTimeout(() => {
+  img.onload = () => {
     frame.contentWindow.focus();
     frame.contentWindow.print();
-  }, 300);
+  };
+  img.onerror = () => frame.remove();
+  img.src = image;
 }
 
 function LinkRow({ slug, onRegenerate, onCopy }) {
@@ -67,18 +69,31 @@ function LinkRow({ slug, onRegenerate, onCopy }) {
   );
 }
 
-function QrBlock({ title }) {
+function QrBlock({ title, slug }) {
+  const url = campaignUrl(slug);
+  const [qr, setQr] = useState(null);
+  useEffect(() => {
+    let active = true;
+    campaignQrDataUrl(url).then(
+      (image) => { if (active) setQr({ url, image }); },
+      () => { if (active) setQr({ url, error: 'The QR code could not be generated. Reopen this campaign to try again.' }); },
+    );
+    return () => { active = false; };
+  }, [url]);
+  const image = qr?.url === url ? qr.image : null;
+  const error = qr?.url === url ? qr.error : null;
   return (
     <div className="flex flex-col sm:flex-row gap-[24px] items-start sm:items-center overflow-clip px-[16px] w-full">
       <span className="relative block shrink-0 size-[196px]">
-        <img alt={`QR code for ${title}`} className="absolute block inset-0 max-w-none size-full" src={QR_IMAGE} />
+        {image ? <img alt={`QR code for ${title}`} className="absolute block inset-0 max-w-none size-full" src={image} />
+          : <span role={error ? 'alert' : 'status'} className="flex size-full items-center p-[12px] text-[13px] text-[#444]">{error || 'Generating QR code…'}</span>}
       </span>
       <div className="flex flex-[1_0_0] flex-col gap-[12px] items-start min-w-px">
         <p className="font-semibold leading-[normal] text-[16px] text-[#111]">Campaign QR code</p>
         <p className="font-normal leading-[22px] text-[14px] text-[#444]">Scan to open the campaign link, or download the QR code to share in print.</p>
         <div className="flex flex-wrap gap-[10px] items-center">
-          <PillButton tone="soft" icon={`${A}/download-simple.svg`} onClick={() => downloadQrPng(title)}>Download PNG</PillButton>
-          <PillButton tone="soft" icon={`${A}/printer.svg`} onClick={() => printQr(title)}>Print</PillButton>
+          <PillButton tone="soft" icon={`${A}/download-simple.svg`} disabled={!image} onClick={() => downloadQrPng(title, image)}>Download PNG</PillButton>
+          <PillButton tone="soft" icon={`${A}/printer.svg`} disabled={!image} onClick={() => printQr(title, image, url)}>Print</PillButton>
         </div>
       </div>
     </div>
@@ -143,7 +158,7 @@ export default function CampaignModal({ mode: initialMode, campaign, onClose, on
       <Modal width={580} onClose={onClose} labelledBy="campaign-title">
         <ModalHeader id="campaign-title" title={campaign.title} subtitle={`Valid till: ${longDate(campaign.expiresAt)}`} />
         <LinkRow slug={campaign.slug} onCopy={copy} />
-        <QrBlock title={campaign.title} />
+        <QrBlock title={campaign.title} slug={campaign.slug} />
         <div className="flex gap-[10px] items-center justify-end p-[16px] w-full">
           <button type="button" onClick={() => setMode('edit')} className={secondaryButton}>Edit</button>
           <button type="button" onClick={onClose} className={primaryButton}>Done</button>
@@ -162,7 +177,7 @@ export default function CampaignModal({ mode: initialMode, campaign, onClose, on
           <DateField id="campaign-expiry" label="Expiration date" value={expiresAt} onChange={setExpiresAt} />
         </div>
         <LinkRow slug={currentSlug} onRegenerate={regenerate} onCopy={copy} />
-        <QrBlock title={title || 'Campaign'} />
+        <QrBlock title={title || 'Campaign'} slug={currentSlug} />
         <div className="flex gap-[10px] items-center justify-end p-[16px] w-full">
           <button type="button" onClick={onClose} className={secondaryButton}>Cancel</button>
           <button type="submit" disabled={!title.trim() || !expiresAt} className={primaryButton}>

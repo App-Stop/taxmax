@@ -1,4 +1,4 @@
-// Customer notifications (/notifications). Needs the customer session.
+// Notifications (/notifications). Accepts either a customer or team session.
 
 import { apiRequest } from './api';
 import { getStoredToken } from './auth';

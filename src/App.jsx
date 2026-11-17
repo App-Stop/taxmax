@@ -48,7 +48,8 @@ export default function App() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   // 'landing' | 'login' | 'dashboard' | 'admin'
   const [currentView, setCurrentView] = useState(() =>
-    session?.user ? dashboardViewFor(session.accountType) : 'landing',
+    new URLSearchParams(window.location.search).has('campaign') ? 'landing'
+      : session?.user ? dashboardViewFor(session.accountType) : 'landing',
   );
   const [user, setUser] = useState(session?.user ?? null);
   // Bumped when the upload flow adds documents, so the dashboard reloads them.
@@ -142,6 +143,7 @@ export default function App() {
         <ClientDashboard
           key={user?.id}
           user={user}
+          onUserUpdated={setUser}
           documentsVersion={documentsVersion}
           onLogout={handleLogout}
           onBackToHome={() => setCurrentView('landing')}

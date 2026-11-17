@@ -10,7 +10,7 @@ const GROUPS = ['Today', 'Earlier'];
 
 // Notifications Modal (Node 71:2462). `notifications` are API rows mapped by
 // toNotification(); `status` is { loading, error, onRetry } for the list request.
-export default function NotificationsPanel({ notifications, status, actionError, onOpenNotification, onMarkAllRead, onClose }) {
+export default function NotificationsPanel({ notifications, status, actionError, readPending = false, onOpenNotification, onMarkAllRead, onClose }) {
   const [filterId, setFilterId] = useState('all');
   const visible = notifications.filter(FILTERS.find((f) => f.id === filterId).match);
   const hasUnread = notifications.some((n) => n.unread);
@@ -31,7 +31,7 @@ export default function NotificationsPanel({ notifications, status, actionError,
             <button
               type="button"
               onClick={onMarkAllRead}
-              disabled={!hasUnread}
+              disabled={!hasUnread || readPending}
               className="font-semibold text-[12px] text-[#0094c5] whitespace-nowrap cursor-pointer hover:underline disabled:opacity-40 disabled:cursor-default disabled:no-underline"
             >
               Mark all read
@@ -72,7 +72,7 @@ export default function NotificationsPanel({ notifications, status, actionError,
                 <div key={group} className="flex flex-col gap-[10px] items-start shrink-0 w-full">
                   <p className="font-semibold leading-[22px] text-[14px] text-[#111] w-full">{group}</p>
                   {items.map((notification) => (
-                    <NotificationItem key={notification.id} notification={notification} onClick={() => onOpenNotification(notification)} />
+                    <NotificationItem key={notification.id} notification={notification} onClick={() => !readPending && onOpenNotification(notification)} />
                   ))}
                 </div>
               );

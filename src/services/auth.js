@@ -83,9 +83,28 @@ export function startCustomerSession(data) {
 // shows current details.
 export async function refreshCustomerProfile() {
   const { data } = await apiRequest('/users/me', { token: getStoredToken() });
+  return cacheCustomerProfile(data);
+}
+
+// Only cache the server's masked profile, never a submitted SSN or storage key.
+function cacheCustomerProfile(data) {
   const user = toCustomerProfile(data);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   return user;
+}
+
+export async function updateCustomerProfile(changes) {
+  const { data } = await apiRequest('/users/me', {
+    method: 'PATCH', token: getStoredToken(), body: changes,
+  });
+  return cacheCustomerProfile(data);
+}
+
+export async function removeCustomerProfilePicture() {
+  const { data } = await apiRequest('/users/me/profile-picture', {
+    method: 'DELETE', token: getStoredToken(),
+  });
+  return cacheCustomerProfile(data);
 }
 
 // Only the profile is stored; documents carry expiring image links and are always fetched.
@@ -138,6 +157,7 @@ function toCustomerProfile(user) {
     id: user._id,
     fullName: user.fullName,
     email: user.email,
+    profilePicture: user.profilePicture,
     phone: user.phoneNumber,
     address: user.address,
     ssn: user.ssnLast4 ? `***-**-${user.ssnLast4}` : null,

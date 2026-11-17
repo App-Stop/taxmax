@@ -238,12 +238,13 @@ export function SearchField({ value, onChange, placeholder, className = 'w-[260p
 }
 
 // "Export"/"Print" pill (Node 87:1962). `tone="soft"` is the grey variant used in the document header.
-export function PillButton({ icon, children, onClick, tone = 'outline', compact = false }) {
+export function PillButton({ icon, children, onClick, tone = 'outline', compact = false, disabled = false }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex gap-[8px] items-center justify-center px-[16px] ${compact ? 'py-[6px]' : 'py-[10px]'} rounded-[100px] shrink-0 cursor-pointer transition-colors ${tone === 'soft' ? 'bg-[#f5f5f5] hover:bg-[#ececec]' : 'bg-white border border-[#e8e8e8] border-solid hover:bg-[#fafafa]'}`}
+      disabled={disabled}
+      className={`flex gap-[8px] items-center justify-center px-[16px] ${compact ? 'py-[6px]' : 'py-[10px]'} rounded-[100px] shrink-0 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-default ${tone === 'soft' ? 'bg-[#f5f5f5] enabled:hover:bg-[#ececec]' : 'bg-white border border-[#e8e8e8] border-solid enabled:hover:bg-[#fafafa]'}`}
     >
       <Icon src={icon} size={20} />
       <span className="font-['DM_Sans',sans-serif] font-medium leading-[normal] text-[14px] text-[#111] whitespace-nowrap" style={{ fontVariationSettings: '"opsz" 14' }}>

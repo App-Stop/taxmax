@@ -17,7 +17,6 @@ import {
   INITIAL_CLIENTS,
   INITIAL_CAMPAIGNS,
   INITIAL_REFERRALS,
-  DEFAULT_SECURITY,
   REFERENCE_DATE,
   statusById,
 } from './adminData';
@@ -227,7 +226,7 @@ export default function AdminDashboard({ user, onLogout, onBackToHome }) {
         {route.view === 'activity' && <ActivityLogView isAdmin={isAdmin} />}
 
         {route.view === 'settings' && (
-          <SettingsView isAdmin={isAdmin} currentUserId={userId} security={DEFAULT_SECURITY} onNotify={notify} />
+          <SettingsView isAdmin={isAdmin} currentUserId={userId} onNotify={notify} />
         )}
       </main>
 

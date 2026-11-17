@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Icon, Avatar, PageHeader, Toggle, SelectField, Popover, Pagination, ListState, primaryButton, secondaryButton } from './ui';
+import { Icon, Avatar, PageHeader, Toggle, Popover, Pagination, ListState, primaryButton } from './ui';
 import AddStaffModal from './AddStaffModal';
-import { formatDate, SESSION_TIMEOUTS, PASSWORD_POLICIES } from './adminData';
+import { formatDate } from './adminData';
 import { localDay } from './adminApiMappers';
 import {
   listTeam,
@@ -18,8 +18,6 @@ const A = '/figma/admin';
 const TABS = [
   { id: 'staff', label: 'Staff Accounts', icon: `${A}/user-gear.svg` },
   { id: 'notifications', label: 'Notifications', icon: `${A}/bell-20.svg` },
-  // Hidden until the server supports security settings; the Security component below is kept for then.
-  // { id: 'security', label: 'Security', icon: `${A}/shield.svg` },
 ];
 
 const STAFF_COLUMNS = 'grid-cols-[320px_minmax(200px,1fr)_260px_200px_80px]';
@@ -231,47 +229,9 @@ function Notifications({ onNotify }) {
   );
 }
 
-// Security tab (Node 87:3429). The API has no security settings yet, so nothing here is saved.
-function Security({ saved }) {
-  const [draft, setDraft] = useState(saved);
-  const set = (patch) => setDraft((d) => ({ ...d, ...patch }));
-
-  return (
-    <div className="bg-white flex flex-col gap-[40px] items-start pb-[16px] rounded-[20px] w-full lg:w-[600px]" data-node-id="87:3429">
-      <div className="flex flex-col gap-[10px] items-start w-full">
-        <CardHeader title="Security" subtitle="Session management and authentication settings" />
-        <p className="mx-[16px] text-[13px] font-medium text-[#b54708] bg-[#fffaeb] border border-[#fedf89] rounded-[12px] px-[12px] py-[8px]">
-          Not connected yet: the server has no security settings, so changes here can't be saved.
-        </p>
-        <div className="flex flex-col gap-[20px] items-start w-full">
-          <div className="px-[16px] w-full">
-            <ToggleRow label="Two-Factor Authentication" description="Require 2FA for all staff logins" checked={draft.twoFactor} onChange={(on) => set({ twoFactor: on })} />
-          </div>
-          <div className="h-0 relative w-full">
-            <div className="absolute inset-[-0.5px_0]">
-              <img alt="" className="block max-w-none size-full" src={`${A}/divider-line.svg`} />
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-[20px] items-start px-[16px] w-full">
-            <SelectField id="session-timeout" label="Session Timeout" value={draft.sessionTimeout} options={SESSION_TIMEOUTS} onChange={(v) => set({ sessionTimeout: v })} />
-            <SelectField id="password-policy" label="Password Policy" value={draft.passwordPolicy} options={PASSWORD_POLICIES} onChange={(v) => set({ passwordPolicy: v })} />
-          </div>
-          <div className="px-[16px] w-full">
-            <ToggleRow label="IP Allowlisting" description="Restrict portal access to specific IP addresses" checked={draft.ipAllowlist} onChange={(on) => set({ ipAllowlist: on })} />
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-[10px] items-center justify-end px-[16px] w-full">
-        <button type="button" onClick={() => setDraft(saved)} className={secondaryButton}>Reset</button>
-        <button type="button" disabled className={primaryButton}>Save changes</button>
-      </div>
-    </div>
-  );
-}
-
 // Settings (Nodes 87:3224, 87:3464, 87:3362)
-// Staff accounts are admin only; staff see their own notification preferences and security.
-export default function SettingsView({ isAdmin, currentUserId, security, onNotify }) {
+// Staff accounts are admin only; staff see their own notification preferences.
+export default function SettingsView({ isAdmin, currentUserId, onNotify }) {
   const tabs = isAdmin ? TABS : TABS.filter((t) => t.id !== 'staff');
   const [tab, setTab] = useState(tabs[0].id);
 
@@ -300,7 +260,6 @@ export default function SettingsView({ isAdmin, currentUserId, security, onNotif
 
         {tab === 'staff' && isAdmin && <StaffAccounts currentUserId={currentUserId} onNotify={onNotify} />}
         {tab === 'notifications' && <Notifications onNotify={onNotify} />}
-        {tab === 'security' && <Security saved={security} />}
       </div>
     </div>
   );

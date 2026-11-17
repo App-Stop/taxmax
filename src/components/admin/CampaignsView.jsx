@@ -1,5 +1,6 @@
 import { Icon, Avatar, StatusBadge, PillButton, PageHeader, primaryButton } from './ui';
-import { CAMPAIGN_HOST, copyCampaignLink, REFERRAL_STATS, formatDate, statusById, toCsv, downloadFile } from './adminData';
+import { REFERRAL_STATS, formatDate, statusById, toCsv, downloadFile } from './adminData';
+import { campaignUrl, copyCampaignLink } from '../../services/campaigns';
 
 const A = '/figma/admin';
 
@@ -75,7 +76,7 @@ export default function CampaignsView({ campaigns, referrals, clientsById, onCre
                 className={`grid ${CAMPAIGN_COLUMNS} h-[72px] border-[#e8e8e8] border-b border-solid cursor-pointer transition-colors hover:bg-[#fafafa] focus-visible:outline-none focus-visible:bg-[rgba(0,148,197,0.05)]`}
               >
                 <div role="cell" className={`flex items-center min-w-0 px-[16px] ${cellText}`}><span className="truncate">{c.title}</span></div>
-                <div role="cell" className={`flex items-center min-w-0 px-[10px] ${cellText}`}><span className="truncate">{CAMPAIGN_HOST}{c.slug}</span></div>
+                <div role="cell" className={`flex items-center min-w-0 px-[10px] ${cellText}`}><span className="truncate">{campaignUrl(c.slug)}</span></div>
                 <div role="cell" className={`flex items-center px-[16px] ${cellText}`}>{number(c.scans)}</div>
                 <div role="cell" className={`flex items-center px-[16px] ${cellText}`}>{number(c.conversions)}</div>
                 <div role="cell" className={`flex items-center px-[16px] whitespace-nowrap ${cellText}`}>{formatDate(c.createdAt)}</div>
